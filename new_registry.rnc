@@ -1,0 +1,465 @@
+
+datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
+namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
+
+
+##Primary structural elements
+div
+{
+    start = reg.rootelements
+    
+    reg.rootelements =
+        reg.registry
+    
+    reg.registry =
+        ##Base element. Contains all of the information for Vulkan.
+        element registry { reg.registry.contents }
+        
+    reg.registry.contents =
+        reg.registry.attribs,
+        reg.notation?,
+        reg.vendorids?,
+        reg.tags?,
+        reg.definitions,
+        reg.constants?,
+        reg.enumerations?,
+        reg.commands,
+        reg.features,
+        reg.extensions?
+    
+    reg.vendorids =
+        ## The list of all vendorid elements.
+        element vendorids { reg.vendorid+ }
+        
+    reg.vendorid =
+        ## List of identifiers for vendors.
+        element vendorid { reg.vendorid.contents }
+    
+    reg.vendorid.contents =
+        reg.vendorid.attribs
+        
+    reg.tags =
+        ## List of authors
+        element tags { reg.tag+ }
+        
+    reg.tag =
+        ## A single author for Vulkan
+        element tag { reg.tag.contents }
+        
+    reg.tag.contents =
+        reg.tag.attribs
+        
+    reg.definitions =
+        ## List of all definitions used by Vulkan 
+        element definitions { reg.definitions.contents }
+        
+    reg.definitions.contents =
+        reg.definitions.attribs,
+        reg.definitions.elements+
+
+    reg.definitions.elements =
+        reg.include | 
+        reg.typedef | ## Formerly `basetype`
+        reg.reference |   ## Formerly no category. Simply defines the existence of a named type that
+                      ## usually is brought in by a `requires` attribute.
+        reg.bitmask |
+        
+        reg.struct |
+        reg.union |
+        reg.define |
+        reg.handle |
+        reg.def.enumeration |
+        reg.funcptr
+    
+    reg.constants =
+        element constants {INCOMPLETE}
+    
+    reg.enumerations =
+        element enumerations {INCOMPLETE}
+        
+    reg.commands =
+        element commands {INCOMPLETE}
+        
+    reg.features =
+        element features {INCOMPLETE}
+        
+    reg.extensions =
+        element extensions {INCOMPLETE}
+        
+    reg.comment =
+        ## Specifies a possibly multi-line comment which is expected to be placed near
+        ## the element in which this appears.
+        element comment {INCOMPLETE}
+}
+
+## Definition elements.
+div
+{
+    reg.include =
+        ## Definition that represents a file being included, which is named.
+        ## The `name` attribute does double-duty, in that it also includes text.
+        element include { reg.include.contents }
+        
+    reg.include.contents =
+        reg.include.attribs
+        
+    reg.typedef =
+        ## Definition that defines a new name for an existing type. 
+        element typedef { reg.typedef.contents }
+        
+    reg.typedef.contents =
+        reg.typedef.attribs
+        
+    reg.reference =
+        ## Definition that references a type that comes from an include file.
+        element reference { reg.reference.contents }
+    
+    reg.reference.contents =
+        reg.reference.attribs
+        
+    reg.bitmask =
+        ## Definition that specifies a bitmask, using a particular existing type.
+        ## Contents are the same as `typedef`.
+        element bitmask { reg.bitmask.contents }
+        
+    reg.bitmask.contents =
+        ## Uses the same structure and meaning as typedefs.
+        reg.typedef.attribs
+    
+    reg.define =
+        ## Definition that represents a C #define statement.
+        element define { reg.define.contents }
+        
+    ## The 3 forms of definitions:
+    ## #define name C-expression
+    ## #define name(params) C-expression
+    ## C-expression
+    ##
+    ## In all cases, C-expression should be verbatim copied. The question is whether it includes
+    ## the actual C-langauge #define or not.
+    ## Defines can also reference other definitions.    
+    reg.define.contents =
+        reg.define.attribs,
+        reg.comment?,
+        reg.define.data
+        
+    reg.define.data = 
+        (reg.define.value.attrib | reg.define.complex)
+
+    reg.define.complex =
+        (reg.define.replace.attrib?, reg.define.defref*, reg.define.param*, reg.c-expression)
+    
+    reg.define.defref =
+        ## Specifies that this #define references another definition.
+        element defref { reg.data.identifier }
+        
+    reg.define.param =
+        ## The name of a #define's parameter.
+        element param { reg.data.identifier }
+    
+    reg.c-expression =
+        ## Text that is intended to be used verbatim in C or C++ implementations.
+        element c-expression { text }
+        
+    reg.handle =
+        ## Creates a definition for a handle.
+        element handle { reg.handle.contents }
+        
+    reg.handle.contents =
+        reg.handle.attribs
+
+    reg.def.enumeration =
+        element enumeration { reg.def.enumeration.contents }
+        
+    reg.def.enumeration.contents =
+        reg.def.enumeration.attribs
+        
+    reg.struct =
+        ## Definition that represents a data structure.
+        ## Contains a list of members and optional validation information.
+        element struct { reg.struct.contents }
+    
+    reg.struct.contents =
+        reg.struct.attribs,
+        reg.struct.member+,
+        reg.validity?
+        
+    reg.struct.member =
+        ## Specifies a named member of a data structure.
+        element member { reg.struct.member.contents }
+    
+    reg.struct.member.contents =
+        reg.struct.member.attribs
+
+    reg.validity =
+        ## Defines validation text related to objects and commands.
+        element validity { reg.validity.contents }
+        
+    reg.validity.contents =
+        reg.validity.usage+
+    
+    reg.validity.usage =
+        ## A specific validation rule, spelled out in documentation text.
+        element usage { reg.validity.usage.contents }
+        
+    reg.validity.usage.contents =
+        ## Required to be documentation text.
+        text
+
+    reg.union =
+        ## Defines a union, where the object's value is only one of the members.
+        element union { reg.union.contents }
+        
+    reg.union.contents =
+        reg.union.attribs,
+        reg.union.member+
+
+    reg.union.member =
+        ## Specifies a named member of a union.
+        element member { reg.union.member.contents }
+        
+    reg.union.member.contents =
+        reg.union.member.attribs
+    
+    reg.funcptr = element funcptr {INCOMPLETE}
+
+}
+
+## Supplementary elements and definitions.
+div
+{
+    reg.notation =
+        ##A textual annotation regarding a particular element.
+        element notation { text }
+    
+    INCOMPLETE = empty
+}
+
+
+## Attribute definitions
+div
+{
+    reg.notation.attrib =
+        ##A textual notation regarding a particular element 
+        attribute notation { text }
+    
+    reg.any.name.attrib =
+        ## String name for an element.
+        attribute name { text }
+        
+    reg.api.name.attrib =
+        ## String name for a definition that is part of the Vulkan API.
+        ## It *must* be a valid C/C++ identifier.
+        attribute name { reg.data.identifier }
+
+    reg.registry.attribs = empty
+    
+    reg.vendorid.attribs =
+        reg.any.name.attrib,
+        reg.vendorid.id.attrib,
+        reg.notation.attrib?
+        
+    reg.vendorid.id.attrib =
+        ## Hexadecimal integer identifier for a vendor.
+        attribute id { text }
+        
+    reg.tag.attribs =
+        reg.any.name.attrib,
+        reg.tag.author.attrib,
+        reg.tag.contact.attrib,
+        reg.notation.attrib?
+        
+    reg.tag.author.attrib =
+        ## Author name, usually a company or project
+        attribute author { text }
+        
+    reg.tag.contact.attrib =
+        ## Name and contact information for the person responsible for the tag
+        attribute contact { text }
+        
+    reg.definitions.attribs =
+        empty
+        
+    reg.definition.common.attribs =
+        ## Attributes common to all definitions.
+        reg.api.name.attrib,
+        reg.notation.attrib?
+    
+    reg.include.attribs =
+        ## Include's `name` is a full pathname, not just an identifier.
+        reg.any.name.attrib,
+        reg.notation.attrib?,
+        reg.include.style.attrib,
+        reg.include.need-ext.attrib?
+        
+    reg.include.style.attrib =
+        ## Specifies whether to use "" or <> around the include name.
+        attribute style { "quote" | "bracket" }
+        
+    reg.include.need-ext.attrib =
+        ## This specifies whether the processor needs to append a `.h` extension to the include name.
+        ## This is only necessary for the special case of `vk_platform`, because the `.h` is
+        ## not included in the name. In all other cases, it is.
+        [ a:default-value = "false" ]
+        attribute need-ext { reg.data.boolean }
+        
+    reg.typedef.attribs =
+        reg.definition.common.attribs,
+        reg.typedef.base-type.attrib
+        
+    reg.typedef.base-type.attrib =
+        ## Specifies the original typename for the typedef.
+        ## This name should reference an existing definition.
+        attribute base-type { reg.data.identifier }
+        
+    reg.reference.attribs =
+        reg.definition.common.attribs,
+        reg.reference.include.attrib
+        
+    reg.reference.include.attrib =
+        ## Specifies the include file that produces the name.
+        ## This text should specify the name of an existing definition of
+        ## type `include`.
+        attribute include { text }
+        
+    reg.define.attribs =
+        reg.definition.common.attribs
+    
+    reg.define.replace.attrib =
+        ## If "true", then the processor should not attempt to generate the #define
+        ## statement at all. The entire c-expression will include the #define
+        ## as well as the typename of the define.
+        ## It is useful for very complex #defines.
+        [ a:default-value = "false" ]
+        attribute replace { reg.data.boolean }
+        
+    reg.define.value.attrib =
+        ## A #define's value which represents something that is generally language neutral.
+        ## A decimal number or string literal, for example.
+        attribute value { text }
+
+    reg.handle.attribs =
+        reg.definition.common.attribs,
+        reg.handle.type.attrib
+
+    reg.handle.type.attrib =
+        ## Whether the handle is dispatchable or not.
+        attribute type { "dispatch" | "nodispatch" }
+
+    reg.def.enumeration.attribs =
+        reg.definition.common.attribs
+    
+    reg.struct.attribs =
+        reg.definition.common.attribs
+        
+    reg.struct.member.attribs =
+        reg.definition.common.attribs,
+        reg.variable.definition.attribs,
+        reg.variable.meta-data.attribs
+    
+    reg.variable.definition.attribs =
+        ## The attributes which describe how the variable should be defined.
+        reg.variable.basetype.attrib,
+        reg.variable.array.attribs?,
+        reg.variable.const.attrib?,
+        reg.variable.reference.attrib?
+        
+    reg.variable.array.attribs =
+        ((reg.variable.array_static.attrib, reg.variable.size_static.attrib) |
+        (reg.variable.array_dynamic.attrib, reg.variable.size_dynamic.attrib?,
+        reg.variable.null-terminate_dynamic.attrib?))
+    
+    reg.variable.meta-data.attribs =
+        ## Information about how the variable will be treated by the API.
+        reg.variable.optional.attrib?,
+        reg.variable.auto-validity.attrib?,
+        reg.variable.inout.attrib?,
+        reg.variable.sync.attrib?
+    
+    reg.variable.basetype.attrib =
+        ## The fundamental typename of the variable. This names a definition.
+        attribute basetype { reg.data.identifier }
+
+    reg.variable.const.attrib =
+        ## If `true`, then the variable's base type is constant. If the type is
+        ## a pointer or array, the `const` refers to the base type. So `const T *` rather
+        ## than `T *const`.
+        [a:default-value = "false"]
+        attribute const { reg.data.boolean }
+    
+    reg.variable.reference.attrib =
+        ## If present, then the variable is a pointer of some sort.
+        ## This does not guarantee that variable is an *array*.
+        attribute reference {
+            ## Type is a pointer
+            "pointer" |
+             ## Type is a pointer-to-a-pointer, perhaps a dynamic array of pointers
+            "pointer-pointer" |
+            ## Type is a `* const *`. A dynamic array of const pointers to (possibly const) base-type.
+            "pointer-const-pointer"
+        }
+
+    reg.variable.array_static.attrib =
+        ## The variable is a compile-time sized array.
+        attribute array { "static" }
+
+    reg.variable.size_static.attrib =
+        ## The length of a static array variable, specified as an integer literal or an
+        ## identifier that references a `constant`.
+        ## Must be present on all static arrays.
+        attribute size { xsd:positiveInteger | reg.data.identifier }
+
+    reg.variable.array_dynamic.attrib =
+        ## The variable is a runtime sized array.
+        attribute array { "dynamic" }
+
+    reg.variable.size_dynamic.attrib =
+        ## The name of a construct (usually a member of the same struct or parameter to the same
+        ## function that provides the size of a dynamic array.
+        ## Optional.
+        attribute size { reg.data.identifier }
+        
+    reg.variable.null-terminate_dynamic.attrib =
+        ## If `true`, then a `dynamic` array string variable is null-terminated.
+        [a:default-value = "false"]
+        attribute null-terminate { reg.data.boolean }
+
+    reg.variable.optional.attrib =
+        ## If set to "true", then the variable may be a null-pointer or zero, depending on the type.
+        [a:default-value = "false"]
+        attribute optional { reg.data.boolean }
+
+    reg.variable.auto-validity.attrib =
+        ## If set to "false", then auto-validation for the variable should not be generated.
+        [a:default-value = "true"]
+        attribute auto-validity { reg.data.boolean }
+    
+    reg.variable.sync.attrib =
+        ## If set to "external", then the user must externally synchronize access to the
+        ## object the variable stores.
+        [a:default-value = "none"]
+        attribute sync { "external" | "none" }
+        
+    reg.variable.inout.attrib =
+        ## Determines whether the variable is used as an input, output, or both.
+        [a:default-value = "in"]
+        attribute inout { "in" | "out" | "inout" }
+    
+    reg.union.attribs =
+        reg.definition.common.attribs
+    
+    reg.union.member.attribs =
+        reg.definition.common.attribs,
+        reg.variable.definition.attribs
+}
+
+div
+{
+    ## Should be a valid C/C++ identifier.
+    reg.data.identifier = text
+    
+    ## Recognize a hexadecimal number.
+    reg.data.hexadecimal = text
+    
+    reg.data.boolean = xsd:boolean
+}

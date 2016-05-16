@@ -1,0 +1,632 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <div>
+    <a:documentation>Primary structural elements</a:documentation>
+    <start>
+      <ref name="reg.rootelements"/>
+    </start>
+    <define name="reg.rootelements">
+      <ref name="reg.registry"/>
+    </define>
+    <define name="reg.registry">
+      <element name="registry">
+        <a:documentation>Base element. Contains all of the information for Vulkan.</a:documentation>
+        <ref name="reg.registry.contents"/>
+      </element>
+    </define>
+    <define name="reg.registry.contents">
+      <ref name="reg.registry.attribs"/>
+      <optional>
+        <ref name="reg.notation"/>
+      </optional>
+      <optional>
+        <ref name="reg.vendorids"/>
+      </optional>
+      <optional>
+        <ref name="reg.tags"/>
+      </optional>
+      <ref name="reg.definitions"/>
+      <optional>
+        <ref name="reg.constants"/>
+      </optional>
+      <optional>
+        <ref name="reg.enumerations"/>
+      </optional>
+      <ref name="reg.commands"/>
+      <ref name="reg.features"/>
+      <optional>
+        <ref name="reg.extensions"/>
+      </optional>
+    </define>
+    <define name="reg.vendorids">
+      <element name="vendorids">
+        <a:documentation>The list of all vendorid elements.</a:documentation>
+        <oneOrMore>
+          <ref name="reg.vendorid"/>
+        </oneOrMore>
+      </element>
+    </define>
+    <define name="reg.vendorid">
+      <element name="vendorid">
+        <a:documentation>List of identifiers for vendors.</a:documentation>
+        <ref name="reg.vendorid.contents"/>
+      </element>
+    </define>
+    <define name="reg.vendorid.contents">
+      <ref name="reg.vendorid.attribs"/>
+    </define>
+    <define name="reg.tags">
+      <element name="tags">
+        <a:documentation>List of authors</a:documentation>
+        <oneOrMore>
+          <ref name="reg.tag"/>
+        </oneOrMore>
+      </element>
+    </define>
+    <define name="reg.tag">
+      <element name="tag">
+        <a:documentation>A single author for Vulkan</a:documentation>
+        <ref name="reg.tag.contents"/>
+      </element>
+    </define>
+    <define name="reg.tag.contents">
+      <ref name="reg.tag.attribs"/>
+    </define>
+    <define name="reg.definitions">
+      <element name="definitions">
+        <a:documentation>List of all definitions used by Vulkan </a:documentation>
+        <ref name="reg.definitions.contents"/>
+      </element>
+    </define>
+    <define name="reg.definitions.contents">
+      <ref name="reg.definitions.attlist"/>
+      <oneOrMore>
+        <ref name="reg.definitions.elements"/>
+      </oneOrMore>
+    </define>
+    <define name="reg.definitions.elements">
+      <choice>
+        <ref name="reg.include"/>
+        <ref name="reg.typedef"/>
+        <ref name="reg.usage">
+          <a:documentation>Formerly `basetype`</a:documentation>
+        </ref>
+        <ref name="reg.bitmask">
+          <a:documentation>Formerly no category. Simply defines the existence of a named type that
+usually is brought in by a `requires`.</a:documentation>
+        </ref>
+        <ref name="reg.struct"/>
+        <ref name="reg.union"/>
+        <ref name="reg.define"/>
+        <ref name="reg.handle"/>
+        <ref name="reg.def.enumeration"/>
+        <ref name="reg.funcptr"/>
+      </choice>
+    </define>
+    <define name="reg.constants">
+      <element name="constants">
+        <ref name="INCOMPLETE"/>
+      </element>
+    </define>
+    <define name="reg.enumerations">
+      <element name="enumerations">
+        <ref name="INCOMPLETE"/>
+      </element>
+    </define>
+    <define name="reg.commands">
+      <element name="commands">
+        <ref name="INCOMPLETE"/>
+      </element>
+    </define>
+    <define name="reg.features">
+      <element name="features">
+        <ref name="INCOMPLETE"/>
+      </element>
+    </define>
+    <define name="reg.extensions">
+      <element name="extensions">
+        <ref name="INCOMPLETE"/>
+      </element>
+    </define>
+    <define name="reg.comment">
+      <element name="comment">
+        <a:documentation>Specifies a possibly multi-line comment which is expected to be placed near
+the element in which this appears.</a:documentation>
+        <ref name="INCOMPLETE"/>
+      </element>
+    </define>
+  </div>
+  <div>
+    <a:documentation>Definition elements.</a:documentation>
+    <define name="reg.include">
+      <element name="include">
+        <a:documentation>Definition that represents a file being included, which is named.</a:documentation>
+        <ref name="reg.include.contents"/>
+      </element>
+    </define>
+    <define name="reg.include.contents">
+      <ref name="reg.include.attribs"/>
+    </define>
+    <define name="reg.typedef">
+      <element name="typedef">
+        <a:documentation>Definition that defines a new name for an existing type. </a:documentation>
+        <ref name="reg.typedef.contents"/>
+      </element>
+    </define>
+    <define name="reg.typedef.contents">
+      <ref name="reg.typedef.attribs"/>
+    </define>
+    <define name="reg.usage">
+      <element name="usage">
+        <a:documentation>Definition that extracts a type from an include file.</a:documentation>
+        <ref name="reg.usage.contents"/>
+      </element>
+    </define>
+    <define name="reg.usage.contents">
+      <ref name="reg.usage.attribs"/>
+    </define>
+    <define name="reg.bitmask">
+      <element name="bitmask">
+        <a:documentation>Definition that specifies a bitmask, using a particular existing type.
+Contents are the same as `typedef`.</a:documentation>
+        <ref name="reg.bitmask.contents"/>
+      </element>
+    </define>
+    <define name="reg.bitmask.contents">
+      <ref name="reg.typedef.attribs">
+        <a:documentation>Uses the same structure and meaning as typedefs.</a:documentation>
+      </ref>
+    </define>
+    <define name="reg.define">
+      <element name="define">
+        <a:documentation>Definition that represents a C #define statement.</a:documentation>
+        <ref name="reg.define.contents"/>
+      </element>
+    </define>
+    <define name="reg.define.contents">
+      <a:documentation>The 3 forms of definitions:
+#define name C-expression
+#define name(params) C-expression
+C-expression
+
+In all cases, C-expression should be verbatim copied. The question is whether it includes
+the actual C-langauge #define or not.
+Defines can also reference other definitions.    </a:documentation>
+      <ref name="reg.define.attribs"/>
+      <optional>
+        <ref name="reg.comment"/>
+      </optional>
+      <ref name="reg.define.data"/>
+    </define>
+    <define name="reg.define.data">
+      <choice>
+        <ref name="reg.define.value.attrib"/>
+        <ref name="reg.define.complex"/>
+      </choice>
+    </define>
+    <define name="reg.define.complex">
+      <optional>
+        <ref name="reg.define.replace.attrib"/>
+      </optional>
+      <zeroOrMore>
+        <ref name="reg.define.defref"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="reg.define.param"/>
+      </zeroOrMore>
+      <ref name="reg.c-expression"/>
+    </define>
+    <define name="reg.define.defref">
+      <element name="defref">
+        <a:documentation>Specifies that this #define references another definition.</a:documentation>
+        <ref name="reg.data.identifier"/>
+      </element>
+    </define>
+    <define name="reg.define.param">
+      <element name="param">
+        <a:documentation>The name of a #define's parameter.</a:documentation>
+        <ref name="reg.data.identifier"/>
+      </element>
+    </define>
+    <define name="reg.c-expression">
+      <element name="c-expression">
+        <a:documentation>Text that is intended to be used verbatim in C or C++ implementations.</a:documentation>
+        <text/>
+      </element>
+    </define>
+    <define name="reg.handle">
+      <element name="handle">
+        <a:documentation>Creates a definition for a handle.</a:documentation>
+        <ref name="reg.handle.contents"/>
+      </element>
+    </define>
+    <define name="reg.handle.contents">
+      <ref name="reg.handle.attribs"/>
+    </define>
+    <define name="reg.def.enumeration">
+      <element name="enumeration">
+        <ref name="reg.def.enumeration.contents"/>
+      </element>
+    </define>
+    <define name="reg.def.enumeration.contents">
+      <ref name="reg.def.enumeration.attribs"/>
+    </define>
+    <define name="reg.struct">
+      <element name="struct">
+        <a:documentation>Definition that represents a data structure.
+Contains a list of members and optional validation information.</a:documentation>
+        <ref name="reg.struct.contents"/>
+      </element>
+    </define>
+    <define name="reg.struct.contents">
+      <ref name="reg.struct.attribs"/>
+      <oneOrMore>
+        <ref name="reg.struct.member"/>
+      </oneOrMore>
+      <optional>
+        <ref name="reg.validity"/>
+      </optional>
+    </define>
+    <define name="reg.struct.member">
+      <element name="member">
+        <ref name="reg.struct.member.contents"/>
+      </element>
+    </define>
+    <define name="reg.struct.member.contents">
+      <ref name="reg.struct.member.attribs"/>
+    </define>
+    <define name="reg.validity">
+      <element name="validity">
+        <a:documentation>Defines validation text related to objects and commands.</a:documentation>
+        <ref name="reg.validity.contents"/>
+      </element>
+    </define>
+    <define name="reg.validity.contents">
+      <oneOrMore>
+        <ref name="reg.validity.usage"/>
+      </oneOrMore>
+    </define>
+    <define name="reg.validity.usage">
+      <element name="usage">
+        <a:documentation>A specific validation rule, spelled out in documentation text.</a:documentation>
+        <ref name="reg.validity.usage.contents"/>
+      </element>
+    </define>
+    <define name="reg.validity.usage.contents">
+      <text>
+        <a:documentation>Required to be documentation text.</a:documentation>
+      </text>
+    </define>
+    <define name="reg.union">
+      <element name="union">
+        <ref name="INCOMPLETE"/>
+      </element>
+    </define>
+    <define name="reg.funcptr">
+      <element name="funcptr">
+        <ref name="INCOMPLETE"/>
+      </element>
+    </define>
+  </div>
+  <div>
+    <a:documentation>Supplementary elements and definitions.</a:documentation>
+    <define name="reg.notation">
+      <element name="notation">
+        <a:documentation>A textual annotation regarding a particular element.</a:documentation>
+        <text/>
+      </element>
+    </define>
+    <define name="INCOMPLETE">
+      <empty/>
+    </define>
+  </div>
+  <div>
+    <a:documentation>Attribute definitions</a:documentation>
+    <define name="reg.notation.attrib">
+      <attribute name="notation">
+        <a:documentation>A textual notation regarding a particular element </a:documentation>
+      </attribute>
+    </define>
+    <define name="reg.any.name.attrib">
+      <attribute name="name">
+        <a:documentation>String name for an element.</a:documentation>
+      </attribute>
+    </define>
+    <define name="reg.api.name.attrib">
+      <attribute name="name">
+        <a:documentation>String name for a definition that is part of the Vulkan API.
+It *must* be a valid C/C++ identifier.</a:documentation>
+        <ref name="reg.data.identifier"/>
+      </attribute>
+    </define>
+    <define name="reg.registry.attribs">
+      <empty/>
+    </define>
+    <define name="reg.vendorid.attribs">
+      <ref name="reg.any.name.attrib"/>
+      <ref name="reg.vendorid.id.attrib"/>
+      <optional>
+        <ref name="reg.notation.attrib"/>
+      </optional>
+    </define>
+    <define name="reg.vendorid.id.attrib">
+      <attribute name="id">
+        <a:documentation>Hexadecimal integer identifier for a vendor.</a:documentation>
+      </attribute>
+    </define>
+    <define name="reg.tag.attribs">
+      <ref name="reg.any.name.attrib"/>
+      <ref name="reg.tag.author.attrib"/>
+      <ref name="reg.tag.contact.attrib"/>
+      <optional>
+        <ref name="reg.notation.attrib"/>
+      </optional>
+    </define>
+    <define name="reg.tag.author.attrib">
+      <attribute name="author">
+        <a:documentation>Author name, usually a company or project</a:documentation>
+      </attribute>
+    </define>
+    <define name="reg.tag.contact.attrib">
+      <attribute name="contact">
+        <a:documentation>Name and contact information for the person responsible for the tag</a:documentation>
+      </attribute>
+    </define>
+    <define name="reg.definitions.attlist">
+      <empty/>
+    </define>
+    <define name="reg.definition.common.attribs">
+      <ref name="reg.api.name.attrib">
+        <a:documentation>Attributes common to all definitions.</a:documentation>
+      </ref>
+      <optional>
+        <ref name="reg.notation.attrib"/>
+      </optional>
+    </define>
+    <define name="reg.include.attribs">
+      <ref name="reg.definition.common.attribs"/>
+      <ref name="reg.include.style.attrib"/>
+      <optional>
+        <ref name="reg.include.need-ext.attrib"/>
+      </optional>
+    </define>
+    <define name="reg.include.style.attrib">
+      <attribute name="style">
+        <a:documentation>Specifies whether to use "" or &lt;&gt; around the include name.</a:documentation>
+        <choice>
+          <value>quote</value>
+          <value>bracket</value>
+        </choice>
+      </attribute>
+    </define>
+    <define name="reg.include.need-ext.attrib">
+      <attribute name="need-ext" a:default-value="false">
+        <a:documentation>This specifies whether the processor needs to append a `.h` extension to the include name.
+This is only necessary for the special case of `vk_platform`, because the `.h` is
+not included in the name. In all other cases, it is.</a:documentation>
+        <ref name="reg.data.boolean"/>
+      </attribute>
+    </define>
+    <define name="reg.typedef.attribs">
+      <ref name="reg.definition.common.attribs"/>
+      <ref name="reg.typedef.base-type.attrib"/>
+    </define>
+    <define name="reg.typedef.base-type.attrib">
+      <attribute name="base-type">
+        <a:documentation>Specifies the original typename for the typedef.
+This name should reference an existing definition.</a:documentation>
+        <ref name="reg.data.identifier"/>
+      </attribute>
+    </define>
+    <define name="reg.usage.attribs">
+      <ref name="reg.definition.common.attribs"/>
+      <ref name="reg.usage.include.attrib"/>
+    </define>
+    <define name="reg.usage.include.attrib">
+      <attribute name="include">
+        <a:documentation>Specifies the include file that produces the name.
+This name should reference an existing definition of type `include`.</a:documentation>
+        <ref name="reg.data.identifier"/>
+      </attribute>
+    </define>
+    <define name="reg.define.attribs">
+      <ref name="reg.definition.common.attribs"/>
+    </define>
+    <define name="reg.define.replace.attrib">
+      <attribute name="replace" a:default-value="false">
+        <a:documentation>If "true", then the processor should not attempt to generate the #define
+statement at all. The entire c-expression will include the #define
+as well as the typename of the define.
+It is useful for very complex #defines.</a:documentation>
+        <ref name="reg.data.boolean"/>
+      </attribute>
+    </define>
+    <define name="reg.define.value.attrib">
+      <attribute name="value">
+        <a:documentation>A #define's value which represents something that is generally language neutral.
+A decimal number or string literal, for example.</a:documentation>
+      </attribute>
+    </define>
+    <define name="reg.handle.attribs">
+      <ref name="reg.definition.common.attribs"/>
+      <ref name="reg.handle.type.attrib"/>
+    </define>
+    <define name="reg.handle.type.attrib">
+      <attribute name="type">
+        <a:documentation>Whether the handle is dispatchable or not.</a:documentation>
+        <choice>
+          <value>dispatch</value>
+          <value>nodispatch</value>
+        </choice>
+      </attribute>
+    </define>
+    <define name="reg.def.enumeration.attribs">
+      <ref name="reg.definition.common.attribs"/>
+    </define>
+    <define name="reg.struct.attribs">
+      <ref name="reg.definition.common.attribs"/>
+    </define>
+    <define name="reg.struct.member.attribs">
+      <ref name="reg.definition.common.attribs"/>
+      <ref name="reg.variable.definition.attribs"/>
+      <ref name="reg.variable.meta-data.attribs"/>
+    </define>
+    <define name="reg.variable.definition.attribs">
+      <ref name="reg.variable.basetype.attrib">
+        <a:documentation>The attributes which describe how the variable should be defined.</a:documentation>
+      </ref>
+      <optional>
+        <ref name="reg.variable.array.attribs"/>
+      </optional>
+      <optional>
+        <ref name="reg.variable.const.attrib"/>
+      </optional>
+      <optional>
+        <ref name="reg.variable.reference.attrib"/>
+      </optional>
+    </define>
+    <define name="reg.variable.array.attribs">
+      <choice>
+        <group>
+          <ref name="reg.variable.array_static.attrib"/>
+          <ref name="reg.variable.size_static.attrib"/>
+        </group>
+        <group>
+          <ref name="reg.variable.array_dynamic.attrib"/>
+          <optional>
+            <ref name="reg.variable.size_dynamic.attrib"/>
+          </optional>
+          <optional>
+            <ref name="reg.variable.null-terminate_dynamic.attrib"/>
+          </optional>
+        </group>
+      </choice>
+    </define>
+    <define name="reg.variable.meta-data.attribs">
+      <optional>
+        <ref name="reg.variable.optional.attrib">
+          <a:documentation>Information about how the variable will be treated by the API.</a:documentation>
+        </ref>
+      </optional>
+      <optional>
+        <ref name="reg.variable.auto-validity.attrib"/>
+      </optional>
+      <optional>
+        <ref name="reg.variable.inout.attrib"/>
+      </optional>
+      <optional>
+        <ref name="reg.variable.sync.attrib"/>
+      </optional>
+    </define>
+    <define name="reg.variable.basetype.attrib">
+      <attribute name="basetype">
+        <a:documentation>The fundamental typename of the variable. This names a definition.</a:documentation>
+        <ref name="reg.data.identifier"/>
+      </attribute>
+    </define>
+    <define name="reg.variable.const.attrib">
+      <attribute name="const" a:default-value="false">
+        <a:documentation>If `true`, then the variable's base type is constant. If the type is
+a pointer or array, the `const` refers to the base type. So `const T *` rather
+than `T *const`.</a:documentation>
+        <ref name="reg.data.boolean"/>
+      </attribute>
+    </define>
+    <define name="reg.variable.reference.attrib">
+      <attribute name="reference">
+        <a:documentation>If present, then the variable is a pointer of some sort.
+This does not guarantee that variable is an *array*.</a:documentation>
+        <choice>
+          <value>pointer</value>
+          <a:documentation>Type is a pointer</a:documentation>
+          <value>pointer-pointer</value>
+          <a:documentation>Type is a pointer-to-a-pointer, perhaps a dynamic array of pointers</a:documentation>
+          <value>pointer-const-pointer</value>
+          <a:documentation>Type is a `* const *`. A dynamic array of const pointers to (possibly const) base-type.</a:documentation>
+        </choice>
+      </attribute>
+    </define>
+    <define name="reg.variable.array_static.attrib">
+      <attribute name="array">
+        <a:documentation>The variable is a compile-time sized array.</a:documentation>
+        <value>static</value>
+      </attribute>
+    </define>
+    <define name="reg.variable.size_static.attrib">
+      <attribute name="size">
+        <a:documentation>The length of a static array variable, specified as an integer literal or an
+identifier that references a `constant`.
+Must be present on all static arrays.</a:documentation>
+        <choice>
+          <data type="positiveInteger"/>
+          <ref name="reg.data.identifier"/>
+        </choice>
+      </attribute>
+    </define>
+    <define name="reg.variable.array_dynamic.attrib">
+      <attribute name="array">
+        <a:documentation>The variable is a runtime sized array.</a:documentation>
+        <value>dynamic</value>
+      </attribute>
+    </define>
+    <define name="reg.variable.size_dynamic.attrib">
+      <attribute name="size">
+        <a:documentation>The name of a construct (usually a member of the same struct or parameter to the same
+function that provides the size of a dynamic array.
+Optional.</a:documentation>
+        <ref name="reg.data.identifier"/>
+      </attribute>
+    </define>
+    <define name="reg.variable.null-terminate_dynamic.attrib">
+      <attribute name="null-terminate" a:default-value="false">
+        <a:documentation>If `true`, then a `dynamic` array string variable is null-terminated.</a:documentation>
+        <ref name="reg.data.boolean"/>
+      </attribute>
+    </define>
+    <define name="reg.variable.optional.attrib">
+      <attribute name="optional" a:default-value="false">
+        <a:documentation>If set to "true", then the variable may be a null-pointer or zero, depending on the type.</a:documentation>
+        <ref name="reg.data.boolean"/>
+      </attribute>
+    </define>
+    <define name="reg.variable.auto-validity.attrib">
+      <attribute name="auto-validity" a:default-value="true">
+        <a:documentation>If set to "false", then auto-validation for the variable should not be generated.</a:documentation>
+        <ref name="reg.data.boolean"/>
+      </attribute>
+    </define>
+    <define name="reg.variable.sync.attrib">
+      <attribute name="sync" a:default-value="none">
+        <a:documentation>If set to "external", then the user must externally synchronize access to the
+object the variable stores.</a:documentation>
+        <choice>
+          <value>external</value>
+          <value>none</value>
+        </choice>
+      </attribute>
+    </define>
+    <define name="reg.variable.inout.attrib">
+      <attribute name="inout" a:default-value="in">
+        <a:documentation>Determines whether the variable is used as an input, output, or both.</a:documentation>
+        <choice>
+          <value>in</value>
+          <value>out</value>
+          <value>inout</value>
+        </choice>
+      </attribute>
+    </define>
+  </div>
+  <div>
+    <define name="reg.data.identifier">
+      <a:documentation>Should be a valid C/C++ identifier.</a:documentation>
+      <text/>
+    </define>
+    <define name="reg.data.hexadecimal">
+      <a:documentation>Recognize a hexadecimal number.</a:documentation>
+      <text/>
+    </define>
+    <define name="reg.data.boolean">
+      <data type="boolean"/>
+    </define>
+  </div>
+</grammar>
