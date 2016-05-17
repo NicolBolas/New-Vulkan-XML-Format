@@ -4,32 +4,62 @@ The way `new_registry.rnc` is structured is based on the structure of an existin
 
 RelaxNG has a [comprehensive way of externally referencing a schema](http://books.xmlschemata.org/relaxng/relax-CHP-10.html) when building a new one. This allows one to augment or override elements of one schema via inclusion. However, to take the best advantage of it, the source schema needs to be built in a certain way.
 
-## Naming
+## Pattern naming
 
 The naming convention for patterns used in the schema exists to make it easy to find a particular element or attribute.
 
-All pattern names are of the form `X.Y.Z`, with as many `.`-delimited divisions as needed. The meaning of each division is as follows.
+All pattern names are of the form `X.Y.Z`, with as many period-delimited divisions as needed. The meaning of each division is as follows.
 
-The first division of a pattern name is always `reg`. This represents patterns defined by the new registry schema. This naming makes it easy to avoid accidentally overwriting existing patterns in your extension.
-
-The pattern named `reg.root-element` is the starting pattern for the registry format.
-
-The division `reg.data.X` represents some kind of data type, such as `text` or a W3C XML Schema data type. The `X` is a description of the meaning of the data type. For example, text strings which must be valid C/C++ identifiers use `reg.data.identifier` as their data type.
+The first division of a pattern name is always `reg`. This represents patterns defined by the new registry schema. This naming makes it easy to avoid accidentally overwriting existing patterns in a schema extension.
 
 Certain pattern name suffixes have special meaning. These are:
 
-* `contents`
-* `attribs`
-* `attrib`
-* `model`
+* `contents`: Defines the content model for a single element.
+* `attlist`: Defines a list of attributes associated with a single element.
+* `attrib`: Defines a single attribute.
+* `model`: Defines an arbitrary content model.
+* `data`: Defines a data type.
 
-Any pattern name which does not have one of these suffixes, is not one of the `reg.data` patterns, and is not `reg.root-element`, defines a *single element*. The name of the element defined by that pattern is *always* equivalent to the name of the last division used in it. So `reg.temp.foo` will define the element `foo`. `reg.bar` will define the element `bar`.
+### Single Element
 
-Every element definition is of the form `element ElementName { contents }`, where `contents` is a single pattern. Namely, it is a pattern that is named the same as the element's pattern, but with the `contents` suffix. So if there is a pattern named `reg.temp.foo`, then it will define an element named `foo`, which will have its contents defined by the pattern `reg.temp.foo.contents`.
+Any pattern name which does not have one of these suffixes defines a *single* element. The name of the element defined by that pattern is *always* equivalent to the name of the last division used in the pattern. So `reg.temp.foo` will define an the element named `foo`. `reg.bar` will define the element named `bar`.
 
-The `contents` pattern for an element will usually define the attributes of that element by specifying a single pattern that ends in `attribs`, using the element's pattern name as the rest. So `reg.temp.foo` will have a `reg.temp.foo.contents`, and one of the pattern used in those contents will be `reg.temp.foo.attribs`, which specifies most of the attributes for that element.
+The subdivisions that aren't part of the element's name are usually used to associate the element with its parent element. `reg.temp.foo` might define the `foo` element that is a child of the `temp` element, for example. This is typically used when an element is tightly coupled with its parent.
 
-This will only be averted if an attribute needs to interpose itself into the element's content model. Or if there are no attributes on that element.
+Every element defined by the schema will have a single pattern that defines it.
 
+### Single attribute
 
+Any pattern name that ends in `attrib` defines a *single* attribute. The name of the attribute will match the last division of the pattern name before the `attrib` suffix. Therefore, the pattern named `reg.common.foo.attrib` defines an attribute named `foo`.
 
+The subdivisions in the pattern name that do not name the attribute usually are related to the attribute. They will often name the element that this particular attribute comes from. If the attribute is not associated with a specific element, then they will frequently use some other name.
+
+Every attribute defined by the schema will have a single pattern that defines it.
+
+### Element contents
+
+Every element definition is of the form `element element-name { contents }`, where `contents` is a single pattern. The name of this pattern is the element's pattern name with the `contents` suffix. So if there is a pattern named `reg.temp.foo`, then it will define an element named `foo`, which will have its contents defined by the pattern `reg.temp.foo.contents`.
+
+This is done to make it easier to extend the data model for an element without having to redefine the entire element.
+
+### Main element attributes
+
+In most cases, attributes for an element do not participate in the overall content model of the element. That is, the presence or absence of most attributes will not affect whether certain sub-elements will exist in the element. As such, most attributes are simply listed first.
+
+Every element will have a pattern named the same as the element's pattern with the `attlist` suffix. It is used by the `contents` pattern for that element, and it includes the attributes which do not affect the overall element contents.
+
+As an example, `reg.temp.foo` will have a `reg.temp.foo.contents`. One of the patterns used in the contents will be `reg.temp.foo.attlist`, which specifies most of the attributes for that element.
+
+Attributes will only be used outside of an `attlist` if they affect the sub-element contents of the attribute. If the element has no attributes, it 
+
+### Arbitrary content models
+
+Sometimes, putting a content model into a single pattern would make it unwieldy to read or modify. In some cases, a particular sub-pattern is used in multiple locations, and it is best not to repeat information.
+
+In these cases, it is useful to simply declare a named pattern and use it where it is appropriate. Such patterns will have a suffix of `model`.
+
+### Data types
+
+Any pattern ending in `data` represents some kind of data type, such as `text` or a W3C XML Schema data type. As an example, text strings which must be valid C/C++ identifiers use `reg.identifier.data` as their pattern name.
+
+This is useful for giving a semantic meaning to what would otherwise have been an arbitrary `text` or data type field.

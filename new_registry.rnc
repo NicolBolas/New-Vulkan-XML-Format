@@ -14,9 +14,9 @@ div
     reg.registry =
         ##Base element. Contains all of the information for Vulkan.
         element registry { reg.registry.contents }
-        
+       
     reg.registry.contents =
-        reg.registry.attribs,
+        reg.registry.attlist,
         reg.notation?,
         reg.vendorids?,
         reg.tags?,
@@ -32,7 +32,7 @@ div
         element vendorids { reg.vendorids.contents }
         
     reg.vendorids.contents =
-        reg.vendorids.attribs,
+        reg.vendorids.attlist,
         reg.vendorid+
         
     reg.vendorid =
@@ -40,14 +40,14 @@ div
         element vendorid { reg.vendorid.contents }
     
     reg.vendorid.contents =
-        reg.vendorid.attribs
+        reg.vendorid.attlist
         
     reg.tags =
         ## List of authors
         element tags { reg.tags.contents }
         
     reg.tags.contents =
-        reg.tags.attribs,
+        reg.tags.attlist,
         reg.tag+
         
     reg.tag =
@@ -55,14 +55,14 @@ div
         element tag { reg.tag.contents }
         
     reg.tag.contents =
-        reg.tag.attribs
+        reg.tag.attlist
         
     reg.definitions =
         ## List of all definitions used by Vulkan 
         element definitions { reg.definitions.contents }
         
     reg.definitions.contents =
-        reg.definitions.attribs,
+        reg.definitions.attlist,
         reg.definitions.model+
 
     reg.definitions.model =
@@ -109,21 +109,21 @@ div
         element include { reg.include.contents }
         
     reg.include.contents =
-        reg.include.attribs
+        reg.include.attlist
         
     reg.typedef =
         ## Definition that defines a new name for an existing type. 
         element typedef { reg.typedef.contents }
         
     reg.typedef.contents =
-        reg.typedef.attribs
+        reg.typedef.attlist
         
     reg.reference =
         ## Definition that references a type that comes from an include file.
         element reference { reg.reference.contents }
     
     reg.reference.contents =
-        reg.reference.attribs
+        reg.reference.attlist
         
     reg.bitmask =
         ## Definition that specifies a bitmask, using a particular existing type.
@@ -132,7 +132,7 @@ div
         
     reg.bitmask.contents =
         ## Uses the same structure and meaning as typedefs.
-        reg.typedef.attribs
+        reg.typedef.attlist
     
     reg.define =
         ## Definition that represents a C #define statement.
@@ -147,7 +147,7 @@ div
     ## the actual C-langauge #define or not.
     ## Defines can also reference other definitions.    
     reg.define.contents =
-        reg.define.attribs,
+        reg.define.attlist,
         reg.comment?,
         reg.define.model
         
@@ -159,11 +159,11 @@ div
     
     reg.define.defref =
         ## Specifies that this #define references another definition.
-        element defref { reg.data.identifier }
+        element defref { reg.identifier.data }
         
     reg.define.param =
         ## The name of a #define's parameter.
-        element param { reg.data.identifier }
+        element param { reg.identifier.data }
     
     reg.c-expression =
         ## Text that is intended to be used verbatim in C or C++ implementations.
@@ -174,13 +174,13 @@ div
         element handle { reg.handle.contents }
         
     reg.handle.contents =
-        reg.handle.attribs
+        reg.handle.attlist
 
     reg.def.enumeration =
         element enumeration { reg.def.enumeration.contents }
         
     reg.def.enumeration.contents =
-        reg.def.enumeration.attribs
+        reg.def.enumeration.attlist
         
     reg.struct =
         ## Definition that represents a data structure.
@@ -188,7 +188,7 @@ div
         element struct { reg.struct.contents }
     
     reg.struct.contents =
-        reg.struct.attribs,
+        reg.struct.attlist,
         reg.struct.member+,
         reg.validity?
         
@@ -197,7 +197,7 @@ div
         element member { reg.struct.member.contents }
     
     reg.struct.member.contents =
-        reg.struct.member.attribs
+        reg.struct.member.attlist
 
     reg.validity =
         ## Defines validation text related to objects and commands.
@@ -219,7 +219,7 @@ div
         element union { reg.union.contents }
         
     reg.union.contents =
-        reg.union.attribs,
+        reg.union.attlist,
         reg.union.member+
 
     reg.union.member =
@@ -227,14 +227,14 @@ div
         element member { reg.union.member.contents }
         
     reg.union.member.contents =
-        reg.union.member.attribs
+        reg.union.member.attlist
     
     reg.funcptr =
         ## Defines a function pointer.
         element funcptr { reg.funcptr.contents }
         
     reg.funcptr.contents =
-        reg.funcptr.attribs,
+        reg.funcptr.attlist,
         reg.return-type,
         reg.param*
 
@@ -242,13 +242,13 @@ div
         element return-type { reg.return-type.contents }
         
     reg.return-type.contents =
-        reg.return-type.attribs
+        reg.return-type.attlist
 
     reg.param =
         element param { reg.param.contents }
     
     reg.param.contents =
-        reg.param.attribs
+        reg.param.attlist
 }
 
 ## Supplementary elements and definitions.
@@ -276,13 +276,13 @@ div
     reg.api.name.attrib =
         ## String name for a definition that is part of the Vulkan API.
         ## It *must* be a valid C/C++ identifier.
-        attribute name { reg.data.identifier }
+        attribute name { reg.identifier.data }
 
-    reg.registry.attribs = empty
+    reg.registry.attlist = empty
     
-    reg.vendorids.attribs = empty
+    reg.vendorids.attlist = empty
     
-    reg.vendorid.attribs =
+    reg.vendorid.attlist =
         reg.any.name.attrib,
         reg.vendorid.id.attrib,
         reg.notation.attrib?
@@ -291,9 +291,9 @@ div
         ## Hexadecimal integer identifier for a vendor.
         attribute id { text }
         
-    reg.tags.attribs = empty
+    reg.tags.attlist = empty
     
-    reg.tag.attribs =
+    reg.tag.attlist =
         reg.any.name.attrib,
         reg.tag.author.attrib,
         reg.tag.contact.attrib,
@@ -307,15 +307,15 @@ div
         ## Name and contact information for the person responsible for the tag
         attribute contact { text }
         
-    reg.definitions.attribs =
+    reg.definitions.attlist =
         empty
         
-    reg.definition.common.attribs =
+    reg.definition.common.model =
         ## Attributes common to all definitions.
         reg.api.name.attrib,
         reg.notation.attrib?
     
-    reg.include.attribs =
+    reg.include.attlist =
         ## Include's `name` is a full pathname, not just an identifier.
         reg.any.name.attrib,
         reg.notation.attrib?,
@@ -331,19 +331,19 @@ div
         ## This is only necessary for the special case of `vk_platform`, because the `.h` is
         ## not included in the name. In all other cases, it is.
         [ a:default-value = "false" ]
-        attribute need-ext { reg.data.boolean }
+        attribute need-ext { reg.boolean.data }
         
-    reg.typedef.attribs =
-        reg.definition.common.attribs,
+    reg.typedef.attlist =
+        reg.definition.common.model,
         reg.typedef.base-type.attrib
         
     reg.typedef.base-type.attrib =
         ## Specifies the original typename for the typedef.
         ## This name should reference an existing definition.
-        attribute base-type { reg.data.identifier }
+        attribute base-type { reg.identifier.data }
         
-    reg.reference.attribs =
-        reg.definition.common.attribs,
+    reg.reference.attlist =
+        reg.definition.common.model,
         reg.reference.include.attrib
         
     reg.reference.include.attrib =
@@ -352,8 +352,8 @@ div
         ## type `include`.
         attribute include { text }
         
-    reg.define.attribs =
-        reg.definition.common.attribs
+    reg.define.attlist =
+        reg.definition.common.model
     
     reg.define.replace.attrib =
         ## If "true", then the processor should not attempt to generate the #define
@@ -361,51 +361,51 @@ div
         ## as well as the typename of the define.
         ## It is useful for very complex #defines.
         [ a:default-value = "false" ]
-        attribute replace { reg.data.boolean }
+        attribute replace { reg.boolean.data }
         
     reg.define.value.attrib =
         ## A #define's value which represents something that is generally language neutral.
         ## A decimal number or string literal, for example.
         attribute value { text }
 
-    reg.handle.attribs =
-        reg.definition.common.attribs,
+    reg.handle.attlist =
+        reg.definition.common.model,
         reg.handle.type.attrib
 
     reg.handle.type.attrib =
         ## Whether the handle is dispatchable or not.
         attribute type { "dispatch" | "nodispatch" }
 
-    reg.def.enumeration.attribs =
-        reg.definition.common.attribs
+    reg.def.enumeration.attlist =
+        reg.definition.common.model
     
-    reg.struct.attribs =
-        reg.definition.common.attribs,
+    reg.struct.attlist =
+        reg.definition.common.model,
         reg.struct.is-return.attrib?
         
     reg.struct.is-return.attrib =
         ## When set to `true`, the struct is used only as a return value by the Vulkan API.
         [a:default-value = "false"]
-        attribute is-return { reg.data.boolean }
+        attribute is-return { reg.boolean.data }
         
-    reg.struct.member.attribs =
-        reg.definition.common.attribs,
-        reg.variable.definition.attribs,
-        reg.variable.meta-data.attribs
+    reg.struct.member.attlist =
+        reg.definition.common.model,
+        reg.variable.definition.model,
+        reg.variable.meta-data.model
     
-    reg.variable.definition.attribs =
+    reg.variable.definition.model =
         ## The attributes which describe how the variable should be defined.
         reg.variable.basetype.attrib,
-        reg.variable.array.attribs?,
+        reg.variable.array.model?,
         reg.variable.const.attrib?,
         reg.variable.reference.attrib?
         
-    reg.variable.array.attribs =
-        ((reg.variable.array_static.attrib, reg.variable.size_static.attrib) |
-        (reg.variable.array_dynamic.attrib, reg.variable.size_dynamic.attrib?,
-        reg.variable.null-terminate_dynamic.attrib?))
+    reg.variable.array.model =
+        ((reg.variable.static.array.attrib, reg.variable.static.array.size.attrib) |
+        (reg.variable.dynamic.array.attrib, reg.variable.dynamic.array.size.attrib?,
+        reg.variable.dynamic.array.null-terminate.attrib?))
     
-    reg.variable.meta-data.attribs =
+    reg.variable.meta-data.model =
         ## Information about how the variable will be treated by the API.
         reg.variable.optional.attrib?,
         reg.variable.auto-validity.attrib?,
@@ -414,14 +414,14 @@ div
     
     reg.variable.basetype.attrib =
         ## The fundamental typename of the variable. This names a definition.
-        attribute basetype { reg.data.identifier }
+        attribute basetype { reg.identifier.data }
 
     reg.variable.const.attrib =
         ## If `true`, then the variable's base type is constant. If the type is
         ## a pointer or array, the `const` refers to the base type. So `const T *` rather
         ## than `T *const`.
         [a:default-value = "false"]
-        attribute const { reg.data.boolean }
+        attribute const { reg.boolean.data }
     
     reg.variable.reference.attrib =
         ## If present, then the variable is a pointer of some sort.
@@ -435,40 +435,40 @@ div
             "pointer-const-pointer"
         }
 
-    reg.variable.array_static.attrib =
+    reg.variable.static.array.attrib =
         ## The variable is a compile-time sized array.
         attribute array { "static" }
 
-    reg.variable.size_static.attrib =
+    reg.variable.static.array.size.attrib =
         ## The length of a static array variable, specified as an integer literal or an
         ## identifier that references a `constant`.
         ## Must be present on all static arrays.
-        attribute size { xsd:positiveInteger | reg.data.identifier }
+        attribute size { xsd:positiveInteger | reg.identifier.data }
 
-    reg.variable.array_dynamic.attrib =
+    reg.variable.dynamic.array.attrib =
         ## The variable is a runtime sized array.
         attribute array { "dynamic" }
 
-    reg.variable.size_dynamic.attrib =
+    reg.variable.dynamic.array.size.attrib =
         ## The name of a construct (usually a member of the same struct or parameter to the same
         ## function that provides the size of a dynamic array.
         ## Optional.
-        attribute size { reg.data.identifier }
+        attribute size { reg.identifier.data }
         
-    reg.variable.null-terminate_dynamic.attrib =
+    reg.variable.dynamic.array.null-terminate.attrib =
         ## If `true`, then a `dynamic` array string variable is null-terminated.
         [a:default-value = "false"]
-        attribute null-terminate { reg.data.boolean }
+        attribute null-terminate { reg.boolean.data }
 
     reg.variable.optional.attrib =
         ## If set to "true", then the variable may be a null-pointer or zero, depending on the type.
         [a:default-value = "false"]
-        attribute optional { reg.data.boolean }
+        attribute optional { reg.boolean.data }
 
     reg.variable.auto-validity.attrib =
         ## If set to "false", then auto-validation for the variable should not be generated.
         [a:default-value = "true"]
-        attribute auto-validity { reg.data.boolean }
+        attribute auto-validity { reg.boolean.data }
     
     reg.variable.sync.attrib =
         ## If set to "external", then the user must externally synchronize access to the
@@ -481,33 +481,34 @@ div
         [a:default-value = "in"]
         attribute inout { "in" | "out" | "inout" }
     
-    reg.union.attribs =
-        reg.definition.common.attribs
+    reg.union.attlist =
+        reg.definition.common.model
     
-    reg.union.member.attribs =
-        reg.definition.common.attribs,
-        reg.variable.definition.attribs
+    reg.union.member.attlist =
+        reg.definition.common.model,
+        reg.variable.definition.model
 
-    reg.funcptr.attribs =
-        reg.definition.common.attribs
+    reg.funcptr.attlist =
+        reg.definition.common.model
 
-    reg.return-type.attribs =
-        reg.definition.common.attribs,
-        reg.variable.definition.attribs
+    reg.return-type.attlist =
+        reg.definition.common.model,
+        reg.variable.definition.model
 
-    reg.param.attribs =
-        reg.definition.common.attribs,
-        reg.variable.definition.attribs,
-        reg.variable.meta-data.attribs
+    reg.param.attlist =
+        reg.definition.common.model,
+        reg.variable.definition.model,
+        reg.variable.meta-data.model
 }
 
+## Data types
 div
 {
     ## Should be a valid C/C++ identifier.
-    reg.data.identifier = text
+    reg.identifier.data = text
     
     ## Recognize a hexadecimal number.
-    reg.data.hexadecimal = text
+    reg.hexadecimal.data = text
     
-    reg.data.boolean = xsd:boolean
+    reg.boolean.data = xsd:boolean
 }
