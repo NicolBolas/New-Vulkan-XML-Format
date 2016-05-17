@@ -6,9 +6,9 @@ namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
 ##Primary structural elements
 div
 {
-    start = reg.rootelements
+    start = reg.root-element
     
-    reg.rootelements =
+    reg.root-element =
         reg.registry
     
     reg.registry =
@@ -29,7 +29,11 @@ div
     
     reg.vendorids =
         ## The list of all vendorid elements.
-        element vendorids { reg.vendorid+ }
+        element vendorids { reg.vendorids.contents }
+        
+    reg.vendorids.contents =
+        reg.vendorids.attribs,
+        reg.vendorid+
         
     reg.vendorid =
         ## List of identifiers for vendors.
@@ -40,7 +44,11 @@ div
         
     reg.tags =
         ## List of authors
-        element tags { reg.tag+ }
+        element tags { reg.tags.contents }
+        
+    reg.tags.contents =
+        reg.tags.attribs,
+        reg.tag+
         
     reg.tag =
         ## A single author for Vulkan
@@ -55,9 +63,9 @@ div
         
     reg.definitions.contents =
         reg.definitions.attribs,
-        reg.definitions.elements+
+        reg.definitions.model+
 
-    reg.definitions.elements =
+    reg.definitions.model =
         reg.include | 
         reg.typedef | ## Formerly `basetype`
         reg.reference |   ## Formerly no category. Simply defines the existence of a named type that
@@ -141,12 +149,12 @@ div
     reg.define.contents =
         reg.define.attribs,
         reg.comment?,
-        reg.define.data
+        reg.define.model
         
-    reg.define.data = 
-        (reg.define.value.attrib | reg.define.complex)
+    reg.define.model = 
+        (reg.define.value.attrib | reg.define.complex.model)
 
-    reg.define.complex =
+    reg.define.complex.model =
         (reg.define.replace.attrib?, reg.define.defref*, reg.define.param*, reg.c-expression)
     
     reg.define.defref =
@@ -221,8 +229,26 @@ div
     reg.union.member.contents =
         reg.union.member.attribs
     
-    reg.funcptr = element funcptr {INCOMPLETE}
+    reg.funcptr =
+        ## Defines a function pointer.
+        element funcptr { reg.funcptr.contents }
+        
+    reg.funcptr.contents =
+        reg.funcptr.attribs,
+        reg.return-type,
+        reg.param*
 
+    reg.return-type =
+        element return-type { reg.return-type.contents }
+        
+    reg.return-type.contents =
+        reg.return-type.attribs
+
+    reg.param =
+        element param { reg.param.contents }
+    
+    reg.param.contents =
+        reg.param.attribs
 }
 
 ## Supplementary elements and definitions.
@@ -254,6 +280,8 @@ div
 
     reg.registry.attribs = empty
     
+    reg.vendorids.attribs = empty
+    
     reg.vendorid.attribs =
         reg.any.name.attrib,
         reg.vendorid.id.attrib,
@@ -263,6 +291,8 @@ div
         ## Hexadecimal integer identifier for a vendor.
         attribute id { text }
         
+    reg.tags.attribs = empty
+    
     reg.tag.attribs =
         reg.any.name.attrib,
         reg.tag.author.attrib,
@@ -350,7 +380,13 @@ div
         reg.definition.common.attribs
     
     reg.struct.attribs =
-        reg.definition.common.attribs
+        reg.definition.common.attribs,
+        reg.struct.is-return.attrib?
+        
+    reg.struct.is-return.attrib =
+        ## When set to `true`, the struct is used only as a return value by the Vulkan API.
+        [a:default-value = "false"]
+        attribute is-return { reg.data.boolean }
         
     reg.struct.member.attribs =
         reg.definition.common.attribs,
@@ -451,6 +487,18 @@ div
     reg.union.member.attribs =
         reg.definition.common.attribs,
         reg.variable.definition.attribs
+
+    reg.funcptr.attribs =
+        reg.definition.common.attribs
+
+    reg.return-type.attribs =
+        reg.definition.common.attribs,
+        reg.variable.definition.attribs
+
+    reg.param.attribs =
+        reg.definition.common.attribs,
+        reg.variable.definition.attribs,
+        reg.variable.meta-data.attribs
 }
 
 div
