@@ -41,6 +41,7 @@ function builder.startElement(name, nsURI)
 	if((name == "type") and (elements:index(-2) == "types")) then
 		assert(inTypedef == false)
 		inTypedef = true
+		hasCat = false
 	end
 end
 
@@ -48,6 +49,10 @@ function builder.closeElement(name, nsURI)
 	if((name == "type") and (elements:index(-2) == "types")) then
 		assert(inTypedef == true)
 		inTypedef = false
+		if(not hasCat) then
+			local count = categories[0] or 0
+			categories[0] = count + 1
+		end
 	end
 	elements:pop(name)
 end
@@ -57,6 +62,7 @@ function builder.attribute(name, value, nsURI)
 		if(name == "category") then
 			local count = categories[value] or 0
 			categories[value] = count + 1
+			hasCat = true
 		end
 	end
 end
