@@ -205,6 +205,27 @@ function Procs.Bitmask(node)
 	return data
 end
 
+function Tests.Handle(node)
+	return node.name == "type" and node.attr.category == "handle"
+end
+
+--`type` and `name` are sub-elements.
+function Procs.Handle(node)
+	local data = { kind = "handle" }
+	
+	data.name = parse_dom.ExtractFullText(parse_dom.FindChildElement(node, "name"))
+	local handle_type = parse_dom.ExtractFullText(parse_dom.FindChildElement(node, "type"))
+	if(handle_type == "VK_DEFINE_HANDLE") then
+		data.type = "dispatch"
+	elseif(handle_type == "VK_DEFINE_NON_DISPATCHABLE_HANDLE") then
+		data.type = "nodispatch"
+	else
+		assert(false, data.name)
+	end
+
+	return data
+end
+
 
 local funcs = {}
 
