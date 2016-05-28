@@ -95,8 +95,8 @@ div
         element extensions {INCOMPLETE}
         
     reg.comment =
-        ## Specifies a possibly multi-line comment which is expected to be placed near
-        ## the element in which this appears.
+        ## Specifies a possibly multi-line in-language comment which is expected to be
+        ## placed near the element in which `comment` appears.
         element comment {INCOMPLETE}
 }
 
@@ -158,7 +158,7 @@ div
         (reg.define.replace.attrib?, reg.define.defref*, reg.define.param*, reg.c-expression)
     
     reg.define.defref =
-        ## Specifies that this #define references another definition.
+        ## Specifies a definition that this #define references in its C-expression.
         element defref { reg.identifier.data }
         
     reg.define.param =
@@ -167,6 +167,8 @@ div
     
     reg.c-expression =
         ## Text that is intended to be used verbatim in C or C++ implementations.
+        ## If the `replace` attribute is not `true`, then the processor should
+        ## generate the `#define NAME(PARAMS)` part of the define, before the c-expression.
         element c-expression { text }
         
     reg.handle =
