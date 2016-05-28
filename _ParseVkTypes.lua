@@ -66,11 +66,119 @@ end
 --Otherwise, must part #define <name/> c-expression.
 --
 --Must check to see if there are comments to be extracted into comment fields.
---The c-expression may contain `type` elements. These must be extracted into `requires` clauses.
---The c-expression may be an integer value. Should be extracted into a simple value expression.
+--The c-expression in the text may contain `type` elements.
+--These are extracted into `defrefs` clauses.
+--
+--If the C expression is just a naked integer, then it will be in the `value` member.
+--Otherwise, it will be `c_expression`.
+--If `is_complex`, then the `c_expression` must be repeated verbatum. Otherwise, use
+--the parameter lists and such.
+--If `params`, then the define has the list of named params.
+--If `disabled`, then you should comment out the #define.
+--`comment` is a comment string that should be shown with this define.
+--  You must add any commenting stuff manually. Can be multiline.
+
 function Procs.Define(node)
+	local data = { kind = "define" }
+	
+	--Name can be in an element or an attribute.
+	if(node.attr.name) then
+		data.name = node.attr.name
+		data.is_complex = true
+	else
+		local name_el = parse_dom.FindChildElement(node, "name")
+		local name = parse_dom.ExtractFullText(name_el)
+		assert(#name > 0)
+		data.name = name
+		data.is_complex = false
+	end
+	
+	--Search for any `type` child nodes. These are references to definitions.
+	local defrefs = {}
+	for _, child in ipairs(node.el) do
+		if(child.name == "type") then
+			local name = parse_dom.ExtractFullText(child)
+			defrefs[#defrefs + 1] = name
+		end
+	end
+	
+	if(#defrefs ~= 0) then
+		data.defrefs = defrefs
+	end
+	
+	--Search for a prefixing comment in the overall text.
+	local whole_text = parse_dom.ExtractFullText(node)
+	local text_lines = {}
+	for str in whole_text:gmatch("([^\n]+)") do
+		text_lines[#text_lines + 1] = str
+	end
+	
+	local comment = {}
+	local real_lines = {}
+	for _, str in ipairs(text_lines) do
+		local test = str:match("%s*//%s*(.+)")
+		if(test) then
+			comment[#comment + 1] = test
+		else
+			real_lines[#real_lines + 1] = str
+		end
+	end
+	
+	comment = table.concat(comment, "\n")
+	if(#comment ~= 0) then
+		data.comment = comment
+	end
+	
+	if(#real_lines == 0) then
+		real_lines = text_lines
+		data.disabled = true
+	end
+	
+	--Extract the actual C-expression.
+	if(data.is_complex) then
+		data.c_expression = table.concat(text_lines, "\n")
+	else
+		--Find the #define in the real_lines.
+		local relevant_text
+		for _, line in ipairs(real_lines) do
+			local check = line:match("#define%s+([_%a][_%w]*)")
+			if(check == data.name) then
+				relevant_text = table.concat(real_lines, "\n", _)
+				break
+			end
+		end
+		
+		--See if there are parameters
+		local param_text, expr = relevant_text:match("#define%s+[_%a][_%w]*%((.+)%)%s*(.+)")
+		if(not param_text) then
+			expr = relevant_text:match("#define%s+[_%a][_%w]*%s*(.+)")
+		else
+			local params = {}
+			for param in param_text:gmatch("([^,]+)") do
+				params[#params + 1 ] = params
+			end
+			
+			data.params = params
+		end
+		
+		if(data.params) then
+			data.c_expression = expr
+		else
+			local num = expr:match("^%s*(%d+)%s*$")
+			if(num) then
+				data.value = num
+			else
+				data.c_expression = expr
+			end
+		end
+	end
+	
+	return data
 end
 
+function Tests.Define(node)
+	return node.name == "type" and node.attr.category == "define"
+end
 
 local funcs = {}
 

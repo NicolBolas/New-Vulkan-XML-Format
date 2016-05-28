@@ -73,5 +73,23 @@ function funcs.FindNextText(node, start)
 	return nil, nil
 end
 
+local function ExtractText(node, list)
+	for _, child in ipairs(node.kids) do
+		if(child.type == "text") then
+			list[#list + 1] = child.value
+		elseif(child.type == "element") then
+			ExtractText(child, list)
+		end
+	end
+end
+
+--Takes all text nodes, recursively, and concatenates them together.
+--Effectively strips out all markup.
+function funcs.ExtractFullText(node)
+	local list = {}
+	ExtractText(node, list)
+	return table.concat(list)
+end
+
 
 return funcs

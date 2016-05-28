@@ -355,7 +355,14 @@ div
         attribute include { text }
         
     reg.define.attlist =
-        reg.definition.common.model
+        reg.definition.common.model,
+        reg.define.disabled.attrib
+        
+    reg.define.disabled.attrib =
+        ## If "true", then the processor should generate the #define in a comment.
+        ## That is, the #define exists, but has been commented out for some reason.
+        [ a:default-value = "false" ]
+        attribute disabled { reg.boolean.data }
     
     reg.define.replace.attrib =
         ## If "true", then the processor should not attempt to generate the #define
