@@ -194,6 +194,17 @@ function Procs.Basetype(node)
 	return data
 end
 
+function Tests.Bitmask(node)
+	return node.name == "type" and node.attr.category == "bitmask"
+end
+
+--`type` and `name` are sub-elements.
+function Procs.Bitmask(node)
+	local data = Procs.Basetype(node)
+	data.kind = "bitmask"
+	return data
+end
+
 
 local funcs = {}
 
