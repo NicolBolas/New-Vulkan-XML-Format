@@ -226,6 +226,17 @@ function Procs.Handle(node)
 	return data
 end
 
+function Tests.Enum(node)
+	return node.name == "type" and node.attr.category == "enum"
+end
+
+function Procs.Enum(node)
+	local data = { kind = "enumeration" }
+	
+	data.name = node.attr.name
+
+	return data
+end
 
 local funcs = {}
 

@@ -180,6 +180,8 @@ div
         reg.handle.attlist
 
     reg.def.enumeration =
+        ## Defines the name of an enumeration.
+        ## The members and base type of the enumeration are defined elsewhere.
         element enumeration { reg.def.enumeration.contents }
         
     reg.def.enumeration.contents =
