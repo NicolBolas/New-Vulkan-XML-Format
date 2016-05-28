@@ -180,8 +180,22 @@ function Tests.Define(node)
 	return node.name == "type" and node.attr.category == "define"
 end
 
-local funcs = {}
+function Tests.Basetype(node)
+	return node.name == "type" and node.attr.category == "basetype"
+end
 
+--`type` and `name` are sub-elements.
+function Procs.Basetype(node)
+	local data = { kind = "typedef" }
+	
+	data.name = parse_dom.ExtractFullText(parse_dom.FindChildElement(node, "name"))
+	data.base_type = parse_dom.ExtractFullText(parse_dom.FindChildElement(node, "type"))
+
+	return data
+end
+
+
+local funcs = {}
 
 function funcs.GenProcTable(StoreFunc)
 	local procTable = {}
