@@ -1,6 +1,6 @@
 % How to Read the New Schema
 
-The way `new_registry.rnc` is structured is based on the structure of an existing and successful schema: the DocBook 5.x RelaxNG schema. The goal with this structure is ease of extensibility.
+The layout of `new_registry.rnc` is based on the layout of an existing and successful schema: the DocBook 5.x RelaxNG schema. The goal with this layout is ease of extensibility.
 
 RelaxNG has a [comprehensive way of externally referencing a schema](http://books.xmlschemata.org/relaxng/relax-CHP-10.html) when building a new one. This allows one to augment or override elements of one schema via inclusion. However, to take the best advantage of it, the source schema needs to be built in a certain way.
 
@@ -10,7 +10,7 @@ The naming convention for patterns used in the schema exists to make it easy to 
 
 All pattern names are of the form `X.Y.Z`, with as many period-delimited divisions as needed. The meaning of each division is as follows.
 
-The first division of a pattern name is always `reg`. This represents patterns defined by the new registry schema. This naming makes it easy to avoid accidentally overwriting existing patterns in a schema extension.
+The first division of a pattern names in this schema will always be `reg`. This represents patterns defined by the new registry schema. This naming makes it easy to avoid accidentally overwriting existing patterns in a schema extension.
 
 Certain pattern name suffixes have special meaning. These are:
 
@@ -32,7 +32,7 @@ Every element defined by the schema will have a single pattern that defines it.
 
 Any pattern name that ends in `attrib` defines a *single* attribute. The name of the attribute will match the last division of the pattern name before the `attrib` suffix. Therefore, the pattern named `reg.common.foo.attrib` defines an attribute named `foo`.
 
-The subdivisions in the pattern name that do not name the attribute usually are related to the attribute. They will often name the element that this particular attribute comes from. If the attribute is not associated with a specific element, then they will frequently use some other name.
+The subdivisions in the pattern name that do not name the attribute usually are related to the attribute. They will often name the element that this particular attribute comes from. If the attribute is not associated with a specific element, then they will frequently use some other meaningful division name, to avoid name collisions.
 
 Every attribute defined by the schema will have a single pattern that defines it.
 
@@ -50,7 +50,7 @@ Every element will have a pattern named the same as the element's pattern with t
 
 As an example, `reg.temp.foo` will have a `reg.temp.foo.contents`. One of the patterns used in the contents will be `reg.temp.foo.attlist`, which specifies most of the attributes for that element.
 
-Attributes will only be used outside of an `attlist` if they affect the sub-element contents of the attribute. If the element has no attributes, it 
+Attributes will only be used outside of an `attlist` if they affect the sub-element contents of the attribute. If the element has no attributes, the `attlist` pattern will still exist; it will simply be `empty`.
 
 ### Arbitrary content models
 
@@ -60,6 +60,9 @@ In these cases, it is useful to simply declare a named pattern and use it where 
 
 ### Data types
 
-Any pattern ending in `data` represents some kind of data type, such as `text` or a W3C XML Schema data type. As an example, text strings which must be valid C/C++ identifiers use `reg.identifier.data` as their pattern name.
+Any pattern ending in `data` represents some kind of data type, such as `text` or a W3C XML Schema data type. As an example, if there is an attribute who's text must be valid C/C++ identifiers, it would use this:
+
+	reg.some-attribute.attrib =
+		attribute { reg.identifier.data }
 
 This is useful for giving a semantic meaning to what would otherwise have been an arbitrary `text` or data type field.
