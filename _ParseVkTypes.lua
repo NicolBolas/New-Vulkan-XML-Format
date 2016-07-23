@@ -61,6 +61,10 @@ function Procs.Require(node)
 	return data
 end
 
+function Tests.Define(node)
+	return node.name == "type" and node.attr.category == "define"
+end
+
 --If the `name` is an attribute, then the entire accumulated text child
 --is a massive C-expression, which replaces any definition.
 --Otherwise, must part #define <name/> c-expression.
@@ -77,7 +81,6 @@ end
 --If `disabled`, then you should comment out the #define.
 --`comment` is a comment string that should be shown with this define.
 --  You must add any commenting stuff manually. Can be multiline.
-
 function Procs.Define(node)
 	local data = { kind = "define" }
 	
@@ -174,10 +177,6 @@ function Procs.Define(node)
 	end
 	
 	return data
-end
-
-function Tests.Define(node)
-	return node.name == "type" and node.attr.category == "define"
 end
 
 function Tests.Basetype(node)
