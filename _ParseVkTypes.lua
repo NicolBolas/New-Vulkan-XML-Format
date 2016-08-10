@@ -237,6 +237,133 @@ function Procs.Enum(node)
 	return data
 end
 
+function Tests.Funcpointer(node)
+	return node.name == "type" and node.attr.category == "funcpointer"
+end
+
+local function rtrim(s)
+  local n = #s
+  while n > 0 and s:find("^%s", n) do n = n - 1 end
+  return s:sub(1, n)
+end
+
+local function CheckPtrs(str)
+	local tests =
+	{
+		["pointer"] = "(.+)%*",
+		["pointer-pointer"] = "(.+)%*%s*%*",
+		["pointer-const-pointer"] = "(.+)%*%s*const%s*%*",
+	}
+	
+	for kind, test in pairs(tests) do
+		local match = str:match(test)
+		if(match) then
+			return match, kind
+		end
+	end
+	
+	return nil, nil
+end
+
+function Procs.Funcpointer(node)
+	local data = { kind = "funcpointer" }
+	
+	--Extract return type.
+	do
+		local return_text = parse_dom.FindNextText(node).value
+		local ret_type = return_text:match("typedef *(.+)%(")
+		ret_type = rtrim(ret_type)
+		
+		local return_type = {}
+		--Transform return type string into data.
+		--Could have `const`
+		local non_const = ret_type:match("const (.+)")
+		if(non_const) then
+			ret_type = non_const
+			return_type.const = true
+		end
+		
+		--Could have pointers.
+		local non_pointer, reference = CheckPtrs(ret_type)
+		if(non_pointer) then
+			ret_type = non_pointer
+			return_type.reference = reference
+		end
+
+		--Whatever is left is the base type.
+		return_type.basetype = ret_type
+		
+--		print(return_text, return_type.basetype, return_type.const, return_type.reference)
+		
+		data.return_type = return_type
+	end
+	
+	--Get name of function pointer
+	do
+		local name_elem = parse_dom.FindChildElement(node, "name")
+		local name_text = parse_dom.FindNextText(name_elem)
+		data.name = name_text.value
+	end
+	
+	--Parse parameter types.
+	local param_types = 
+	(function()
+		local types = {}
+		for _, elem in ipairs(node.el) do
+			if(elem.name == "type") then
+				types[#types + 1] = parse_dom.FindNextText(elem).value
+			end
+		end
+		return types
+	end)()
+	
+	local full_text = parse_dom.ExtractFullText(node)
+	--Get paren-enclosed data.
+	local _, param_seq = full_text:match("(%b())%s*(%b())")
+	--Remove the two parens.
+	param_seq = param_seq:sub(2, #param_seq - 1)
+--	print(param_seq)
+	
+	--Special-case: if entire parameter list is just "void", then no parameters.
+	if(param_seq ~= "void") then
+		local params = {}
+		data.params = params
+		
+		--Process the coma-separated sequence.
+		for param in param_seq:gmatch("%s*([^,]+)") do
+--			print(param)
+			local parameter = {}
+			params[#params + 1] = parameter
+			
+			parameter.name = param:match("([%a_][%w_]+)$")
+			param = param:sub(1, #param - #parameter.name)
+			
+			--Check for const.
+			local match = param:match("^const%s+")
+			if(match) then
+				param = param:sub(#match + 1)
+				parameter.const = true
+			end
+			
+			--Parse the type.
+			match = param:match("^([%a_][%w_]+)")
+			assert(match)
+			parameter.basetype = match
+			param = param:sub(#match + 1)
+			
+			--Parse the references.
+			local match, reference = CheckPtrs(param)
+			if(match) then
+				parameter.reference = reference
+			end
+			
+			--Do these have arrays?
+		end
+	end
+	
+	return data
+end
+
 local funcs = {}
 
 function funcs.GenProcTable(StoreFunc)

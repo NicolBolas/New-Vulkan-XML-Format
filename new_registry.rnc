@@ -239,6 +239,9 @@ div
         element funcptr { reg.funcptr.contents }
         
     reg.funcptr.contents =
+        ## If it has no function parameters, then it should be rendered out for C/C++ with just
+        ## "void" in the parameter list. And "void" should not be in a `<type>` element, as it
+        ## does not qualify as a parameter type.
         reg.funcptr.attlist,
         reg.return-type,
         reg.param*
@@ -403,7 +406,9 @@ div
     reg.struct.member.attlist =
         reg.definition.common.model,
         reg.variable.definition.model,
-        reg.variable.meta-data.model
+        reg.variable.meta-data.model,
+        reg.struct.member.extension-structs.attrib?,
+        reg.struct.member.type-enums.attrib?
     
     reg.variable.definition.model =
         ## The attributes which describe how the variable should be defined.
@@ -486,12 +491,20 @@ div
         ## If set to "external", then the user must externally synchronize access to the
         ## object the variable stores.
         [a:default-value = "none"]
-        attribute sync { "external" | "none" }
+        attribute sync { "none" | "external" }
         
     reg.variable.inout.attrib =
         ## Determines whether the variable is used as an input, output, or both.
         [a:default-value = "in"]
         attribute inout { "in" | "out" | "inout" }
+    
+    reg.struct.member.extension-structs.attrib =
+        ## Comma-separated list of structs that this member can be used with.
+        attribute extension-structs { reg.csv.data }
+        
+    reg.struct.member.type-enums.attrib =
+        ## Comma-separated list of enumerators that this member can be given.
+        attribute type-enums { reg.csv.data }
     
     reg.union.attlist =
         reg.definition.common.model
@@ -504,11 +517,11 @@ div
         reg.definition.common.model
 
     reg.return-type.attlist =
-        reg.definition.common.model,
         reg.variable.definition.model
 
     reg.param.attlist =
-        reg.definition.common.model,
+        ##Parameter names are not required for functions.
+        reg.definition.common.model?,
         reg.variable.definition.model,
         reg.variable.meta-data.model
 }
