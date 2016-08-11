@@ -384,6 +384,14 @@ function Procs.Struct(node)
 	
 	data.name = node.attr.name
 	
+	if(node.attr.returnedonly == "true") then
+		data.is_return = true
+	end
+	
+	if(node.attr.comment) then
+		data.notation = node.attr.comment
+	end
+	
 	local members = {}
 	data.members = members
 	
@@ -499,6 +507,18 @@ function Procs.Struct(node)
 		end
 	end
 
+	return data
+end
+
+function Tests.Union(node)
+	return node.name == "type" and node.attr.category == "union"
+end
+
+function Procs.Union(node)
+	local data = Procs.Struct(node)
+	
+	data.kind = "union"
+	assert(data.is_return == nil)
 	return data
 end
 
