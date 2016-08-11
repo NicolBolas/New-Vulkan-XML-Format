@@ -413,6 +413,7 @@ function Procs.Struct(node)
 				else
 					assert(member.size == nil)
 					member.size = len_data
+					member.array = "dynamic"
 				end
 			end
 		end
@@ -477,13 +478,26 @@ function Procs.Struct(node)
 		assert(sub_node.type == "element" and sub_node.name == "name")
 		member.name = parse_dom.ExtractFullText(sub_node)
 		
-		--TODO:
 		--Extract static arrays.
-
 		pos = pos + 1
 		sub_node = mem_node.kids[pos]
+		
+		if(sub_node) then
+			assert(sub_node.type == "text")
+			--Cannot already have an array
+			assert(member.array == nil)
+			member.array = "static"
+			local match = sub_node.value:match("%[(.+)%]")
+			if(match) then
+				member.size = assert(tonumber(match))
+			else
+				pos = pos + 1
+				sub_node = mem_node.kids[pos]
+				assert(sub_node.type == "element")
+				member.size = parse_dom.ExtractFullText(sub_node)				
+			end
+		end
 	end
-	
 
 	return data
 end
