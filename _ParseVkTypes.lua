@@ -247,18 +247,31 @@ local function rtrim(s)
   return s:sub(1, n)
 end
 
-local function CheckPtrs(str)
+local function CheckPtrs(str, no_prefix)
 	local tests =
 	{
-		["pointer"] = "(.+)%*",
-		["pointer-pointer"] = "(.+)%*%s*%*",
-		["pointer-const-pointer"] = "(.+)%*%s*const%s*%*",
+		{
+			ref = "pointer-const-pointer",
+			pttn_prefix = "(.+)%*%s*const%s*%*",
+			pttn = "%*%s*const%s*%*",
+		},
+		{
+			ref = "pointer-pointer",
+			pttn_prefix = "(.+)%*%s*%*",
+			pttn = "%*%s*%*",
+		},
+		{
+			ref = "pointer",
+			pttn_prefix = "(.+)%*",
+			pttn = "%*",
+		},
 	}
 	
-	for kind, test in pairs(tests) do
-		local match = str:match(test)
+	for _, test in ipairs(tests) do
+		local pttn = no_prefix and test.pttn or test.pttn_prefix
+		local match = str:match(pttn)
 		if(match) then
-			return match, kind
+			return match, test.ref
 		end
 	end
 	
@@ -322,7 +335,6 @@ function Procs.Funcpointer(node)
 	local _, param_seq = full_text:match("(%b())%s*(%b())")
 	--Remove the two parens.
 	param_seq = param_seq:sub(2, #param_seq - 1)
---	print(param_seq)
 	
 	--Special-case: if entire parameter list is just "void", then no parameters.
 	if(param_seq ~= "void") then
@@ -331,7 +343,6 @@ function Procs.Funcpointer(node)
 		
 		--Process the coma-separated sequence.
 		for param in param_seq:gmatch("%s*([^,]+)") do
---			print(param)
 			local parameter = {}
 			params[#params + 1] = parameter
 			
@@ -361,6 +372,119 @@ function Procs.Funcpointer(node)
 		end
 	end
 	
+	return data
+end
+
+function Tests.Struct(node)
+	return node.name == "type" and node.attr.category == "struct"
+end
+
+function Procs.Struct(node)
+	local data = { kind = "struct" }
+	
+	data.name = node.attr.name
+	
+	local members = {}
+	data.members = members
+	
+	local ix = 1
+	
+	--Parse members
+	while(node.el[ix] and node.el[ix].name == "member") do
+		--print(parse_dom.ExtractFullText(node.el[ix]))
+		local mem_node = node.el[ix]
+		ix = ix + 1
+		
+		--Process the member's data.
+		local member = {}
+		members[#members + 1] = member
+		
+		--Get member flags and fields.
+		if(mem_node.attr.optional == "true") then
+			member.optional = true
+		end
+		if(mem_node.attr.len) then
+			--Length is a comma-separated list.
+			--print(mem_node.attr.len)
+			for len_data in mem_node.attr.len:gmatch("[^,]+") do
+				if(len_data == "null-terminated") then
+					assert(member.null_terminate == nil)
+					member.null_terminate = true
+				else
+					assert(member.size == nil)
+					member.size = len_data
+				end
+			end
+		end
+		if(mem_node.attr.externsync) then
+			if(mem_node.attr.externsync == "true") then
+				member.sync = true
+			else
+				member.sync = mem_node.attr.externsync
+			end
+		end
+		if(mem_node.attr.noautovalidity) then
+			--Simple true/false
+			member.auto_validity = mem_node.attr.noautovalidity ~= "true"
+		end
+		if(mem_node.attr.validextensionstructs) then
+			member.extension_structs = mem_node.attr.validextensionstructs
+		end
+		if(mem_node.attr.values) then
+			member.type_enums = mem_node.attr.values
+		end
+	
+		local pos = 1
+		local sub_node = mem_node.kids[pos]
+		
+		--Check for const and/or struct.
+		if(sub_node.type == "text") then
+			local test = sub_node.value:match("const")
+			if(test) then
+				member.const = true
+			end
+			test = sub_node.value:match("struct")
+			if(test) then
+				member.struct = true
+			end
+			
+			assert(member.const or member.struct)
+			pos = pos + 1
+		end
+		
+		sub_node = mem_node.kids[pos]
+		
+		--Extract type.
+		assert(sub_node.type == "element" and sub_node.name == "type")
+		member.basetype = parse_dom.ExtractFullText(sub_node)
+		
+		pos = pos + 1
+		sub_node = mem_node.kids[pos]
+		
+		--Extract pointer/references.
+		--Sometimes, no text between `type` and `name`.
+		if(sub_node.type == "text") then
+			local match, reference = CheckPtrs(sub_node.value, data.name == "VkDeviceCreateInfo")
+			if(match) then
+				member.reference = reference
+			end
+		
+			pos = pos + 1
+			sub_node = mem_node.kids[pos]
+		end
+
+		--Extract the member name.
+		assert(sub_node.type == "element" and sub_node.name == "name")
+		member.name = parse_dom.ExtractFullText(sub_node)
+		
+		--TODO:
+		--Extract static arrays.
+
+		pos = pos + 1
+		sub_node = mem_node.kids[pos]
+	end
+	
+
 	return data
 end
 

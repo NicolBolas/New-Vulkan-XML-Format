@@ -415,6 +415,7 @@ div
         reg.variable.basetype.attrib,
         reg.variable.array.model?,
         reg.variable.const.attrib?,
+        reg.variable.struct.attrib?,
         reg.variable.reference.attrib?
         
     reg.variable.array.model =
@@ -439,6 +440,11 @@ div
         ## than `T *const`.
         [a:default-value = "false"]
         attribute const { reg.boolean.data }
+        
+    reg.variable.struct.attrib =
+        ## If `true`, then the typename needs to be preceeded by the C keyword "struct".
+        [a:default-value = "false"]
+        attribute struct { reg.boolean.data }
     
     reg.variable.reference.attrib =
         ## If present, then the variable is a pointer of some sort.
@@ -454,6 +460,8 @@ div
 
     reg.variable.static.array.attrib =
         ## The variable is a compile-time sized array.
+        ## This will be rendered out with `[size]` in C/C++, where `size` is the
+        ## associated `size` attribute
         attribute array { "static" }
 
     reg.variable.static.array.size.attrib =
@@ -464,16 +472,23 @@ div
 
     reg.variable.dynamic.array.attrib =
         ## The variable is a runtime sized array.
+        ## This will only be applied to pointer types. It spells out the difference
+        ## between a pointer to a single object and a pointer as a dynamic array.
         attribute array { "dynamic" }
 
     reg.variable.dynamic.array.size.attrib =
-        ## The name of a construct (usually a member of the same struct or parameter to the same
+        ## The name of a construct, usually a member of the same struct or parameter to the same
         ## function that provides the size of a dynamic array.
-        ## Optional.
-        attribute size { reg.identifier.data }
+        ## May also be a `latexmath:` expression, which may internally reference the
+        ## name of a struct/parameter.
+        ## Optional. If not present, then the dynamic array is either null-terminated or has no
+        ## specific size.
+        attribute size { text }
         
     reg.variable.dynamic.array.null-terminate.attrib =
-        ## If `true`, then a `dynamic` array string variable is null-terminated.
+        ## If `true`, then a string variable (some form of pointer with the type `char`)
+        ## is null-terminated. If the type is a `pointer-pointer` or a `pointer-const-pointer`,
+        ## then the null-terminator refers only to the innermost string pointers.
         [a:default-value = "false"]
         attribute null-terminate { reg.boolean.data }
 
@@ -488,10 +503,10 @@ div
         attribute auto-validity { reg.boolean.data }
     
     reg.variable.sync.attrib =
-        ## If set to "external", then the user must externally synchronize access to the
-        ## object the variable stores.
-        [a:default-value = "none"]
-        attribute sync { "none" | "external" }
+        ## If present, will be either "true" or an expression that more explicitly
+        ## describes how it must externally sync.
+        ## If absent, then external synchronization is not necessary.
+        attribute sync { "true" | text }
         
     reg.variable.inout.attrib =
         ## Determines whether the variable is used as an input, output, or both.
@@ -500,11 +515,11 @@ div
     
     reg.struct.member.extension-structs.attrib =
         ## Comma-separated list of structs that this member can be used with.
-        attribute extension-structs { reg.csv.data }
+        attribute extension-structs { reg.csident.data }
         
     reg.struct.member.type-enums.attrib =
         ## Comma-separated list of enumerators that this member can be given.
-        attribute type-enums { reg.csv.data }
+        attribute type-enums { reg.csident.data }
     
     reg.union.attlist =
         reg.definition.common.model
@@ -534,6 +549,9 @@ div
     
     ## Recognize a hexadecimal number.
     reg.hexadecimal.data = text
+    
+    ## Comma separated identifiers.
+    reg.csident.data = text
     
     reg.boolean.data = xsd:boolean
 }
