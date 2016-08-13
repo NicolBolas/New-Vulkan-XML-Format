@@ -385,7 +385,12 @@ div
 
     reg.handle.attlist =
         reg.definition.common.model,
+        reg.handle.parent.attrib?,
         reg.handle.type.attrib
+        
+    reg.handle.parent.attrib =
+        ## The name of a handle object that is the parent of this handle.
+        attribute parent { reg.identifier.data }
 
     reg.handle.type.attrib =
         ## Whether the handle is dispatchable or not.

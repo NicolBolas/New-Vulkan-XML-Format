@@ -221,6 +221,10 @@ function Procs.Handle(node)
 	else
 		assert(false, data.name)
 	end
+	
+	if(node.attr.parent) then
+		data.parent = node.attr.parent
+	end
 
 	return data
 end
@@ -525,19 +529,7 @@ end
 local funcs = {}
 
 function funcs.GenProcTable(StoreFunc)
-	local procTable = {}
-	for name, test in pairs(Tests) do
-		local procEntry = {}
-		procTable[#procTable + 1] = procEntry
-		procEntry.Test = test
-		local Proc = assert(Procs[name])
-		
-		procEntry.Proc = function(node, ...)
-			local data = Proc(node)
-			StoreFunc(data, ...)
-		end
-	end
-	return procTable
+	return parse_dom.GenProcTable(Tests, Procs, nil, StoreFunc)
 end
 
 return funcs

@@ -1,6 +1,6 @@
 
-package.path = package.path .. ";./SLAXML/?.lua"
-local slaxmldom = require "slaxdom"
+require "_Utils"
+local slaxmldom = require_local_path("SLAXML/", "slaxdom")
 
 
 local dom = (function()
@@ -17,9 +17,48 @@ local funcs = {}
 
 function funcs.DOM() return dom end
 
+
+--Generates a table suitable for use in ProcNodes.
+--	Tests: Table of functions to test nodes. Can be `nil`, which is
+--		equivalent to an empty table.
+--	Procs: Table of functions to process a node for which `Tests[key]` returned true.
+--		For every key in `Tests`, there must be a key in `Procs`.
+--	Elems: Table of processing functions. Instead of having separate tests and procs
+--		this works by element name. The key of the table is an element's name.
+--		The function is the processor that will be called if an element matches it.
+--		Can be `nil`, which is equivalent to an empty table.
+--	StoreFunc: A function that will be called after each `Proc`.
+--		It will be passed the first return value of `Proc`, followed by the
+--		extra values passed to ProcNodes.
+function funcs.GenProcTable(Tests, Procs, Elems, StoreFunc)
+	local procTable = {}
+	if(Tests) then
+		for name, test in pairs(Tests) do
+			local procEntry = {}
+			procTable[#procTable + 1] = procEntry
+			procEntry.Test = test
+			local Proc = assert(Procs[name])
+			
+			procEntry.Proc = function(node, ...)
+				local data = Proc(node)
+				StoreFunc(data, ...)
+			end
+		end
+	end
+	if(Elems) then
+		for name, Proc in pairs(Elems) do
+			procTable[name] = function(node, ...)
+				local data = Proc(node)
+				StoreFunc(data, ...)
+			end
+		end
+	end
+	return procTable
+end
+
 --ProcTbl is a table of procedures.
---The non-array elements are of the form `[ElemName] = Proc`.
---If the node is an element, and its name matches `ElemName`
+--The non-array elements are of the form `[name] = Proc`.
+--If the node is an element, and its name matches `name`
 --then `Proc` should be called.
 --The array elements are tables that contain `Test` and `Proc` members.
 --`Test` is a function that takes a node and tests it. If it 
@@ -31,9 +70,8 @@ function funcs.DOM() return dom end
 function funcs.ProcNodes(ProcTbl, NodeList, ...)
 	for _, node in ipairs(NodeList) do
 		--Only elements are matched purely by name.
-		local proc = ProcTbl[node.name]
-		if((node.type == "element") and proc) then
-			proc(node, ...)
+		if((node.type == "element") and ProcTbl[node.name]) then
+			ProcTbl[node.name](node, ...)
 		else
 			--Array elements in ProcTbl are tables of "Test" and "Proc"
 			--functions.
