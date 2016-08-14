@@ -85,14 +85,14 @@ function ClassMembers.PushElement(self, elementName, namespace, noPrettyPrint)
 		end
 	end
 
-	self.hFile:write("<", elementName, " ");
+	self.hFile:write("<", elementName);
 	self.needCloseElem = true;
 	self.elemStack[#self.elemStack + 1] = elementName;
 	if(namespace) then
 		local topOfStack = self.nsStack[#self.nsStack];
 		if(not topOfStack or topOfStack.ns ~= namespace) then
 			--Change the current namespace.
-			self.hFile:write("xmlns=\"", namespace, "\" ");
+			self.hFile:write(" xmlns=\"", namespace, "\"");
 			self.nsStack[#self.nsStack + 1] = { ns=namespace, loc=(#self.elemStack) };
 		end
 	end
@@ -141,7 +141,7 @@ local function PutAttrib(self, attribName, data)
 	assert(attribName ~= "xmlns", "You cannot manually change the default namespace.");
 
 	data = escape_string(data)
-	self.hFile:write(attribName, "=\"", data, "\" ");
+	self.hFile:write(" ", attribName, "=\"", data, "\"");
 end
 
 function ClassMembers.AddAttribute(self, attribName, data)

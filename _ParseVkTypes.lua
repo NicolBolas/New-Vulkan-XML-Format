@@ -1,4 +1,6 @@
 
+--These functions should try to use the actual attribute names in the new format wherever possible.
+
 local parse_dom = require "_ParseVkDom"
 
 local Tests = {}
@@ -28,9 +30,9 @@ function Procs.Include(node)
 	
 	--Determine if the `name` ends in a `.h`.
 	if(data.name:match("%.h$")) then
-		data.need_ext = false
+		data["need-ext"] = false
 	else
-		data.need_ext = true
+		data["need-ext"] = true
 	end
 	
 	--Determine if the #include statement in the text block uses `"` or `<`.
@@ -75,7 +77,7 @@ end
 --
 --If the C expression is just a naked integer, then it will be in the `value` member.
 --Otherwise, it will be `c_expression`.
---If `is_complex`, then the `c_expression` must be repeated verbatum. Otherwise, use
+--If `replace`, then the `c_expression` must be repeated verbatum. Otherwise, use
 --the parameter lists and such.
 --If `params`, then the define has the list of named params.
 --If `disabled`, then you should comment out the #define.
@@ -87,13 +89,13 @@ function Procs.Define(node)
 	--Name can be in an element or an attribute.
 	if(node.attr.name) then
 		data.name = node.attr.name
-		data.is_complex = true
+		data.replace = true
 	else
 		local name_el = parse_dom.FindChildElement(node, "name")
 		local name = parse_dom.ExtractFullText(name_el)
 		assert(#name > 0)
 		data.name = name
-		data.is_complex = false
+		data.replace = false
 	end
 	
 	--Search for any `type` child nodes. These are references to definitions.
@@ -138,7 +140,7 @@ function Procs.Define(node)
 	end
 	
 	--Extract the actual C-expression.
-	if(data.is_complex) then
+	if(data.replace) then
 		data.c_expression = table.concat(text_lines, "\n")
 	else
 		--Find the #define in the real_lines.
@@ -152,13 +154,15 @@ function Procs.Define(node)
 		end
 		
 		--See if there are parameters
-		local param_text, expr = relevant_text:match("#define%s+[_%a][_%w]*%((.+)%)%s*(.+)")
+		local param_text, expr = relevant_text:match("#define%s+[_%a][_%w]*(%b())%s*(.+)")
 		if(not param_text) then
 			expr = relevant_text:match("#define%s+[_%a][_%w]*%s*(.+)")
 		else
 			local params = {}
-			for param in param_text:gmatch("([^,]+)") do
-				params[#params + 1 ] = params
+			--Remove parens
+			param_text = param_text:sub(2, #param_text - 1)
+			for param in param_text:gmatch("([_%a][_%w]+)") do
+				params[#params + 1] = param
 			end
 			
 			data.params = params
@@ -188,7 +192,7 @@ function Procs.Basetype(node)
 	local data = { kind = "typedef" }
 	
 	data.name = parse_dom.ExtractFullText(parse_dom.FindChildElement(node, "name"))
-	data.base_type = parse_dom.ExtractFullText(parse_dom.FindChildElement(node, "type"))
+	data["base-type"] = parse_dom.ExtractFullText(parse_dom.FindChildElement(node, "type"))
 
 	return data
 end
@@ -199,6 +203,7 @@ end
 
 --`type` and `name` are sub-elements.
 function Procs.Bitmask(node)
+	--Uses the same content model as typedefs.
 	local data = Procs.Basetype(node)
 	data.kind = "bitmask"
 	return data
@@ -222,9 +227,7 @@ function Procs.Handle(node)
 		assert(false, data.name)
 	end
 	
-	if(node.attr.parent) then
-		data.parent = node.attr.parent
-	end
+	data.parent = node.attr.parent
 
 	return data
 end
@@ -283,7 +286,7 @@ local function CheckPtrs(str, no_prefix)
 end
 
 function Procs.Funcpointer(node)
-	local data = { kind = "funcpointer" }
+	local data = { kind = "funcptr" }
 	
 	--Extract return type.
 	do
@@ -511,6 +514,8 @@ function Procs.Struct(node)
 		end
 	end
 
+	--TODO
+	--Parse validity checks
 	return data
 end
 

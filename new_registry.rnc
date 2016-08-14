@@ -97,7 +97,7 @@ div
     reg.comment =
         ## Specifies a possibly multi-line in-language comment which is expected to be
         ## placed near the element in which `comment` appears.
-        element comment {INCOMPLETE}
+        element comment {text}
 }
 
 ## Definition elements.
@@ -139,13 +139,13 @@ div
         ## Definition that represents a C #define statement.
         element define { reg.define.contents }
         
-    ## The 3 forms of definitions:
+    ## The 3 forms of defines:
     ## #define name C-expression
     ## #define name(params) C-expression
     ## C-expression
     ##
-    ## In all cases, C-expression should be verbatim copied. The question is whether it includes
-    ## the actual C-langauge #define or not.
+    ## In all cases, C-expression should be verbatim copied. The question is whether the text
+    ## contains the actual "#define" internally or not.
     ## Defines can also reference other definitions.    
     reg.define.contents =
         reg.define.attlist,
@@ -169,7 +169,7 @@ div
     reg.c-expression =
         ## Text that is intended to be used verbatim in C or C++ implementations.
         ## If the `replace` attribute is not `true`, then the processor should
-        ## generate the `#define NAME(PARAMS)` part of the define, before the c-expression.
+        ## generate the `#define NAME(PARAMS)` part of the define before the c-expression.
         element c-expression { text }
         
     reg.handle =
@@ -362,7 +362,7 @@ div
         
     reg.define.attlist =
         reg.definition.common.model,
-        reg.define.disabled.attrib
+        reg.define.disabled.attrib?
         
     reg.define.disabled.attrib =
         ## If "true", then the processor should generate the #define in a comment.
@@ -390,7 +390,7 @@ div
         
     reg.handle.parent.attrib =
         ## The name of a handle object that is the parent of this handle.
-        attribute parent { reg.identifier.data }
+        attribute parent { reg.csident.data }
 
     reg.handle.type.attrib =
         ## Whether the handle is dispatchable or not.

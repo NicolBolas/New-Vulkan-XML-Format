@@ -1,35 +1,62 @@
 
-local parse_dom = require "_ParseVkDom"
-local parse_types = require "_ParseVkTypes"
+require "_Utils"
+local XmlWriter = require_local_path("LuaTools/", "XmlWriter")
+local parse_vk = require "_ParseVk"
 
-local vkxml = parse_dom.DOM()
-
-
-local typesProcs = parse_types.GenProcTable(function(data, output)
-	if(output) then
-		output[#output + 1] = data
-	end
-end)
-
-local function ProcessTypes(typesNode)
-	local types = {}
-	parse_dom.ProcNodes(typesProcs, typesNode.el, types)
-	
-	for _, curr in ipairs(types) do
-		print(curr.kind, curr.name)
-	end
-end
-
-
-local baseNodeProcs =
+--Has the writers for the internal data.
+local internal_writers =
 {
-	["types"] = ProcessTypes,
+	vendorids =		require "_NewVendorIdsWriters",
+	tags =			require "_NewTagsWriters",
+	definitions =	require "_NewTypesWriters",
 }
 
-parse_dom.ProcNodes(baseNodeProcs, vkxml.root.el)
+--Writers for the root elements
+local root_kinds = {}
 
-for _, test in ipairs(vkxml.root.el) do
-	if(test.name == "types") then
+function root_kinds.notation(writer, data)
+	writer:PushElement("notation")
+	writer:AddText(data.text)
+	writer:PopElement()
+end
+
+--Generate most of the writers from the `internal_writers` table.
+for name, writers in pairs(internal_writers) do
+	root_kinds[name] = function(writer, data)
+		writer:PushElement(name)
 		
+		for _, child in ipairs(data) do
+			if(child.kind) then
+				assert(writers[child.kind], name .. " " .. child.kind)
+				writers[child.kind](writer, child)
+			else
+				--TODO: Write out verbatim XML data.
+			end
+		end
+		
+		writer:PopElement()
 	end
 end
+
+--TODO: Constants and enumerations have to be generated specially, since originally
+--they were in the same root node. So in the parsed data, they're in the same collection.
+
+local input = parse_vk.Parse()
+
+local writer = XmlWriter.XmlWriter("test.xml")
+
+-- <?oxygen RNGSchema="new_registry.rnc" type="compact"?>
+writer:AddProcessingInstruction("oxygen", [[RNGSchema="new_registry.rnc" type="compact"]])
+
+writer:PushElement("registry")
+
+for _, data in ipairs(input) do
+	if(data.kind) then
+		assert(root_kinds[data.kind], data.kind)
+		root_kinds[data.kind](writer, data)
+	end
+end
+
+writer:PopElement()
+
+writer:Close()

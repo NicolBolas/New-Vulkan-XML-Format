@@ -11,7 +11,7 @@ end
 --Path should be the local directory name, ending in a `/`
 function funcs.require_local_path(path, ...)
 	local old_path = package.path
-	package.path = package.path .. ";./" .. path .. "?.lua"
+	package.path = "./" .. path .. "?.lua;" .. package.path
 	
 	local rets = pack_params(require(...))
 	package.path = old_path
