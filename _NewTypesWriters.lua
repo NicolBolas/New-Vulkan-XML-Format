@@ -147,6 +147,16 @@ function func_writers.struct(writer, data)
 		WriteCondAttrib(writer, member, "type-enums")
 		writer:PopElement()
 	end
+	
+	if(data.usages) then
+		writer:PushElement("validity")
+		for _, usage in ipairs(data.usages) do
+			writer:PushElement("usage")
+			writer:AddText(usage)
+			writer:PopElement()
+		end
+		writer:PopElement()
+	end
 end
 
 func_attribs.union = {"name", "notation"}

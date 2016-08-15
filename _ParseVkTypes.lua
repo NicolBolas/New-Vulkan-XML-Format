@@ -516,6 +516,25 @@ function Procs.Struct(node)
 
 	--TODO
 	--Parse validity checks
+	while(node.el[ix] and node.el[ix].name == "validity") do
+		--print(parse_dom.ExtractFullText(node.el[ix]))
+		local validity_node = node.el[ix]
+		ix = ix + 1
+		
+		local usages = {}
+		data.usages = usages
+		
+		for _, usage in ipairs(validity_node.el) do
+			usages[#usages + 1] = parse_dom.ExtractFullText(usage)
+		end
+		
+		--Sometimes, there are validity statements with no usages.
+		--We don't want them.
+		if(#usages == 0) then
+			data.usages = nil
+		end
+	end
+
 	return data
 end
 
