@@ -447,7 +447,8 @@ div
         attribute const { reg.boolean.data }
         
     reg.variable.struct.attrib =
-        ## If `true`, then the typename needs to be preceeded by the C keyword "struct".
+        ## If `true`, then the basetype name needs to be preceeded by the C keyword
+        ## "struct" when interfacing with C.
         [a:default-value = "false"]
         attribute struct { reg.boolean.data }
     
@@ -488,6 +489,8 @@ div
         ## name of a struct/parameter.
         ## Optional. If not present, then the dynamic array is either null-terminated or has no
         ## specific size.
+        ## If the construct is a pointer-pointer, then this only specifies the size of the
+        ## outer array.
         attribute size { text }
         
     reg.variable.dynamic.array.null-terminate.attrib =

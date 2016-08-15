@@ -17,7 +17,12 @@ for kind, attribs in pairs(tag_only) do
 	writers[kind] = write_utils.AttributeWriter(kind, attribs)
 end
 
-local function define(writer, data)
+local func_writers = {}
+local func_attribs = {}
+
+func_attribs.define = {"name", "disabled", "notation"}
+
+function func_writers.define(writer, data)
 	--If data has no references or parameters, and it stores
 	--its data in a `value` member, then it's simple.
 	local complex_model = false
@@ -62,12 +67,101 @@ end
 
 writers.define = write_utils.NamedElementWriter("define", define, {"name", "disabled", "notation"})
 
-function writers.struct(writer, data)
+local function WriteCondAttrib(writer, data, attrib, override)
+	if(data[attrib]) then
+		if(override) then
+			writer:AddAttribute(attrib, override)
+		else
+			writer:AddAttribute(attrib, tostring(data[attrib]))
+		end
+	end
 end
-function writers.union(writer, data)
+
+--Writes reg.variable.definition.model stuff.
+--That is, the typing information.
+local function WriteVarDef(writer, data)
+	writer:AddAttribute("basetype", data.basetype)
+	WriteCondAttrib(writer, data, "const", "true")
+	WriteCondAttrib(writer, data, "reference")
+	WriteCondAttrib(writer, data, "struct")
+
+	if(data.array) then
+		writer:AddAttribute("array", data.array)
+		if(data.array == "static") then
+			writer:AddAttribute("size", data.size)
+		else
+			--dynamic
+			WriteCondAttrib(writer, data, "size")
+			WriteCondAttrib(writer, data, "null-terminate")
+		end
+	end
 end
-function writers.funcptr(writer, data)
+
+--Writes reg.variable.meta-data.model stuff.
+--Whether the variable is considered optional, auto-validity, inout parameters, etc.
+local function WriteVarMetadata(writer, data)
+	WriteCondAttrib(writer, data, "optional")
+	WriteCondAttrib(writer, data, "auto-validity")
+	WriteCondAttrib(writer, data, "inout")
+	WriteCondAttrib(writer, data, "sync")
 end
+
+local function WriteNamedVariable(writer, data)
+	if(data.name) then
+		writer:AddAttribute("name", data.name)
+	end
+	if(data.notation) then
+		writer:AddAttribute("notation", data.notation)
+	end
+	
+	WriteVarDef(writer, data)
+	WriteVarMetadata(writer, data)
+end
+
+
+func_attribs.funcptr = {"name", "notation"}
+function func_writers.funcptr(writer, data)
+	writer:PushElement("return-type")
+	do
+		WriteVarDef(writer, data.return_type)
+	end
+	writer:PopElement()
+	
+	if(data.params) then
+		for _, param in ipairs(data.params) do
+			writer:PushElement("param")
+			WriteNamedVariable(writer, param)
+			writer:PopElement()
+		end
+	end
+end
+
+writers.funcptr = write_utils.NamedElementWriter("funcptr", funcptr, {"name", "disabled", "notation"})
+
+func_attribs.struct = {"name", "is-return", "notation"}
+function func_writers.struct(writer, data)
+	for _, member in ipairs(data.members) do
+		writer:PushElement("member")
+		WriteNamedVariable(writer, member)
+		WriteCondAttrib(writer, member, "extension-structs")
+		WriteCondAttrib(writer, member, "type-enums")
+		writer:PopElement()
+	end
+end
+
+func_attribs.union = {"name", "notation"}
+function func_writers.union(writer, data)
+	for _, member in ipairs(data.members) do
+		writer:PushElement("member")
+		WriteNamedVariable(writer, member)
+		writer:PopElement()
+	end
+end
+
+for name, func in pairs(func_writers) do
+	writers[name] = write_utils.NamedElementWriter(name, func, func_attribs[name])
+end
+
 
 
 return writers

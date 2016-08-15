@@ -370,7 +370,7 @@ function Procs.Funcpointer(node)
 			param = param:sub(#match + 1)
 			
 			--Parse the references.
-			local match, reference = CheckPtrs(param)
+			local match, reference = CheckPtrs(param, true)
 			if(match) then
 				parameter.reference = reference
 			end
@@ -392,7 +392,7 @@ function Procs.Struct(node)
 	data.name = node.attr.name
 	
 	if(node.attr.returnedonly == "true") then
-		data.is_return = true
+		data["is-return"] = true
 	end
 	
 	if(node.attr.comment) then
@@ -420,11 +420,11 @@ function Procs.Struct(node)
 		end
 		if(mem_node.attr.len) then
 			--Length is a comma-separated list.
-			--print(mem_node.attr.len)
 			for len_data in mem_node.attr.len:gmatch("[^,]+") do
 				if(len_data == "null-terminated") then
-					assert(member.null_terminate == nil)
-					member.null_terminate = true
+					assert(member["null-terminate"] == nil)
+					member["null-terminate"] = true
+					member.array = "dynamic"
 				else
 					assert(member.size == nil)
 					member.size = len_data
@@ -441,13 +441,13 @@ function Procs.Struct(node)
 		end
 		if(mem_node.attr.noautovalidity) then
 			--Simple true/false
-			member.auto_validity = mem_node.attr.noautovalidity ~= "true"
+			member["auto-validity"] = mem_node.attr.noautovalidity ~= "true"
 		end
 		if(mem_node.attr.validextensionstructs) then
-			member.extension_structs = mem_node.attr.validextensionstructs
+			member["extension-structs"] = mem_node.attr.validextensionstructs
 		end
 		if(mem_node.attr.values) then
-			member.type_enums = mem_node.attr.values
+			member["type-enums"] = mem_node.attr.values
 		end
 	
 		local pos = 1
@@ -480,7 +480,7 @@ function Procs.Struct(node)
 		--Extract pointer/references.
 		--Sometimes, no text between `type` and `name`.
 		if(sub_node.type == "text") then
-			local match, reference = CheckPtrs(sub_node.value, data.name == "VkDeviceCreateInfo")
+			local match, reference = CheckPtrs(sub_node.value, true)
 			if(match) then
 				member.reference = reference
 			end
