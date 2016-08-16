@@ -9,6 +9,8 @@ local internal_writers =
 	vendorids =		require "_NewVendorIdsWriters",
 	tags =			require "_NewTagsWriters",
 	definitions =	require "_NewTypesWriters",
+	constants =		require "_NewConstantsWriters",
+	enums =			require "_NewEnumsWriters",
 }
 
 --Writers for the root elements

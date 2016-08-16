@@ -2,6 +2,7 @@
 local parse_dom = require "_ParseVkDom"
 local root = require "_ParseVkRoot"
 local vkxml = parse_dom.DOM()
+local parse_enums = require "_ParseVkEnums"
 
 --Used to remap from vk.xml element names to new_registry element names.
 local name_remap =
@@ -27,17 +28,50 @@ for root_name, parser in pairs(root) do
 	end
 end
 
+--"comment" needs special parsing.
 function root_procs.comment(node, roots)
 	local data = {kind = "notation"}
 	data.text = parse_dom.ExtractFullText(node)
 	roots[#roots + 1] = data
 end
 
+--"enum" is unorthodox, so it needs special parsing.
+function root_procs.enums(node, roots)
+	local data = parse_enums.ProcessSingleEnum(node)
+	
+	if(data.kind == "constants") then
+		if(roots.constants_index) then
+			--We've already processed some constants, so fold them together.
+			local constants = roots[roots.constants_index]
+			for _, constant in ipairs(data) do
+				constants[#constants + 1] = constant
+			end
+		else
+			--Pick the current location for the constants.
+			roots.constants_index = #roots + 1
+			roots[#roots + 1] = data	--Data's `kind` is already correct.
+		end
+	else
+		assert(data.kind == "bitmask" or data.kind == "enumeration", node.name)
+		if(roots.enums_index) then
+			--We've already processed some enums, so add this to the pile.
+			table.insert(roots[roots.enums_index], data)
+		else
+			local enums = { kind = "enums" }
+			roots.enums_index = #roots + 1
+			roots[roots.enums_index] = enums
+			enums[1] = data
+		end
+	end
+end
+
+
 local funcs = {}
 
 function funcs.Parse()
 	local data = {}
 	parse_dom.ProcNodes(root_procs, vkxml.root.el, data)
+	
 	return data
 end
 

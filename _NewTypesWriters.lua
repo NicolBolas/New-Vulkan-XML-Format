@@ -21,7 +21,6 @@ local func_writers = {}
 local func_attribs = {}
 
 func_attribs.define = {"name", "disabled", "notation"}
-
 function func_writers.define(writer, data)
 	--If data has no references or parameters, and it stores
 	--its data in a `value` member, then it's simple.
@@ -64,8 +63,6 @@ function func_writers.define(writer, data)
 		writer:PopElement()
 	end
 end
-
-writers.define = write_utils.NamedElementWriter("define", define, {"name", "disabled", "notation"})
 
 local function WriteCondAttrib(writer, data, attrib, override)
 	if(data[attrib]) then
@@ -135,8 +132,6 @@ function func_writers.funcptr(writer, data)
 		end
 	end
 end
-
-writers.funcptr = write_utils.NamedElementWriter("funcptr", funcptr, {"name", "disabled", "notation"})
 
 func_attribs.struct = {"name", "is-return", "notation"}
 function func_writers.struct(writer, data)

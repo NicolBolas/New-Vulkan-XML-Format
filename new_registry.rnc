@@ -3,7 +3,7 @@ datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
 namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
 
 
-##Primary structural elements
+## All elements and primary content models
 div
 {
     start = reg.root-element
@@ -22,7 +22,7 @@ div
         reg.tags?,
         reg.definitions,
         reg.constants?,
-        reg.enumerations?,
+        reg.enums?,
         reg.commands,
         reg.features,
         reg.extensions?
@@ -57,34 +57,246 @@ div
     reg.tag.contents =
         reg.tag.attlist
         
-    reg.definitions =
-        ## List of all definitions used by Vulkan 
-        element definitions { reg.definitions.contents }
+    ## Definition elements.
+    div
+    {
+        reg.definitions =
+            ## List of all definitions used by Vulkan 
+            element definitions { reg.definitions.contents }
+            
+        reg.definitions.contents =
+            reg.definitions.attlist,
+            reg.definitions.model+
+    
+        reg.definitions.model =
+            reg.include | 
+            reg.typedef | ## Formerly `basetype`
+            reg.reference |   ## Formerly no category. Simply defines the existence of a named type that
+                          ## usually is brought in by a `requires` attribute.
+            reg.def.bitmask |
+            
+            reg.struct |
+            reg.union |
+            reg.define |
+            reg.handle |
+            reg.def.enumeration |
+            reg.funcptr
         
-    reg.definitions.contents =
-        reg.definitions.attlist,
-        reg.definitions.model+
+        reg.include =
+            ## Definition that represents a file being included, which is named.
+            ## The `name` attribute does double-duty, in that it also includes text.
+            element include { reg.include.contents }
+            
+        reg.include.contents =
+            reg.include.attlist
+            
+        reg.typedef =
+            ## Definition that defines a new name for an existing type. 
+            element typedef { reg.typedef.contents }
+            
+        reg.typedef.contents =
+            reg.typedef.attlist
+            
+        reg.reference =
+            ## Definition that references a type that comes from an include file.
+            element reference { reg.reference.contents }
+        
+        reg.reference.contents =
+            reg.reference.attlist
+            
+        reg.def.bitmask =
+            ## Definition that specifies a bitmask, using a particular existing type.
+            ## Contents are the same as `typedef`.
+            ## The members of the bitmask are declared elsewhere. 
+            element bitmask { reg.def.bitmask.contents }
+            
+        reg.def.bitmask.contents =
+            ## Uses the same structure and meaning as typedefs.
+            reg.typedef.attlist
+        
+        reg.define =
+            ## Definition that represents a C #define statement.
+            element define { reg.define.contents }
+            
+        ## The 3 forms of defines:
+        ## #define name C-expression
+        ## #define name(params) C-expression
+        ## C-expression
+        ##
+        ## In all cases, C-expression should be verbatim copied. The question is whether the text
+        ## contains the actual "#define" internally or not.
+        ## Defines can also reference other definitions.    
+        reg.define.contents =
+            reg.define.attlist,
+            reg.comment?,
+            reg.define.model
+            
+        reg.define.model = 
+            (reg.define.value.attrib | reg.define.complex.model)
+    
+        reg.define.complex.model =
+            (reg.define.replace.attrib?, reg.define.defref*, reg.define.param*, reg.c-expression)
+        
+        reg.define.defref =
+            ## Specifies a definition that this #define references in its C-expression.
+            element defref { reg.identifier.data }
+            
+        reg.define.param =
+            ## The name of a #define's parameter.
+            element param { reg.identifier.data }
+        
+        reg.c-expression =
+            ## Text that is intended to be used verbatim in C or C++ implementations.
+            ## If the `replace` attribute is not `true`, then the processor should
+            ## generate the `#define NAME(PARAMS)` part of the define before the c-expression.
+            element c-expression { text }
+            
+        reg.handle =
+            ## Creates a definition for a handle.
+            element handle { reg.handle.contents }
+            
+        reg.handle.contents =
+            reg.handle.attlist
+    
+        reg.def.enumeration =
+            ## Defines the name of an enumeration.
+            ## The members and base type of the enumeration are defined elsewhere.
+            element enumeration { reg.def.enumeration.contents }
+            
+        reg.def.enumeration.contents =
+            reg.def.enumeration.attlist
+            
+        reg.struct =
+            ## Definition that represents a data structure.
+            ## Contains a list of members and optional validation information.
+            element struct { reg.struct.contents }
+        
+        reg.struct.contents =
+            reg.struct.attlist,
+            reg.struct.member+,
+            reg.validity?
+            
+        reg.struct.member =
+            ## Specifies a named member of a data structure.
+            element member { reg.struct.member.contents }
+        
+        reg.struct.member.contents =
+            reg.struct.member.attlist
+    
+        reg.validity =
+            ## Defines validation text related to objects and commands.
+            element validity { reg.validity.contents }
+            
+        reg.validity.contents =
+            reg.validity.usage+
+        
+        reg.validity.usage =
+            ## A specific validation rule, spelled out in documentation text.
+            element usage { reg.validity.usage.contents }
+            
+        reg.validity.usage.contents =
+            ## Required to be documentation text.
+            text
+    
+        reg.union =
+            ## Defines a union, where the object's value is only one of the members.
+            element union { reg.union.contents }
+            
+        reg.union.contents =
+            reg.union.attlist,
+            reg.union.member+
+    
+        reg.union.member =
+            ## Specifies a named member of a union.
+            element member { reg.union.member.contents }
+            
+        reg.union.member.contents =
+            reg.union.member.attlist
+        
+        reg.funcptr =
+            ## Defines a function pointer.
+            element funcptr { reg.funcptr.contents }
+            
+        reg.funcptr.contents =
+            ## If it has no function parameters, then it should be rendered out for C/C++ with just
+            ## "void" in the parameter list. And "void" should not be in a `<type>` element, as it
+            ## does not qualify as a parameter type.
+            reg.funcptr.attlist,
+            reg.return-type,
+            reg.param*
+    
+        reg.return-type =
+            element return-type { reg.return-type.contents }
+            
+        reg.return-type.contents =
+            reg.return-type.attlist
+    
+        reg.param =
+            element param { reg.param.contents }
+        
+        reg.param.contents =
+            reg.param.attlist
+    }
+    
+    ## Constants and Enumeration elements.
+    div 
+    {
+        reg.constants =
+            element constants { reg.constants.contents }
+            
+        reg.constants.contents =
+            reg.constants.attlist,
+            reg.constant+
+            
+        reg.constant =
+            ##Contains a constant value that is not typed to an enum or a bitmask or somesuch.
+            element constant { reg.constant.contents }
+            
+        reg.constant.contents =
+            reg.constant.attlist
+        
+        reg.enums =
+            ## Contains both enumerations and bitmasks.
+            element enums { reg.enums.contents }
+            
+        reg.enums.contents =
+            reg.enums.attlist,
+            ( reg.enumeration | reg.bitmask )+
+    
+        reg.enumeration =
+            element enumeration { reg.enumeration.contents }
+            
+        reg.enumeration.contents =
+            reg.enumeration.attlist,
+            reg.enumeration.enum*, ## Empty enumerations are OK; extensions could fill them.
+            reg.enumeration.unused-range*
+            
+        reg.enumeration.enum =
+            element enum { reg.enumeration.enum.contents }
+            
+        reg.enumeration.enum.contents =
+            reg.enumeration.enum.attlist
+            
+        reg.enumeration.unused-range =
+            element unused-range { reg.enumeration.unused-range.contents }
+            
+        reg.enumeration.unused-range.contents =
+            reg.enumeration.unused-range.attlist
+            
+        reg.bitmask =
+            element bitmask { reg.bitmask.contents }
+            
+        reg.bitmask.contents =
+            reg.bitmask.attlist,
+            reg.bitmask.bit* ## Empty bitmasks are OK; extensions can fill them.
+            
+        reg.bitmask.bit =
+            element bit { reg.bitmask.bit.contents }
+            
+        reg.bitmask.bit.contents =
+            reg.bitmask.bit.attlist
+    }
 
-    reg.definitions.model =
-        reg.include | 
-        reg.typedef | ## Formerly `basetype`
-        reg.reference |   ## Formerly no category. Simply defines the existence of a named type that
-                      ## usually is brought in by a `requires` attribute.
-        reg.bitmask |
-        
-        reg.struct |
-        reg.union |
-        reg.define |
-        reg.handle |
-        reg.def.enumeration |
-        reg.funcptr
-    
-    reg.constants =
-        element constants {INCOMPLETE}
-    
-    reg.enumerations =
-        element enumerations {INCOMPLETE}
-        
     reg.commands =
         element commands {INCOMPLETE}
         
@@ -100,164 +312,6 @@ div
         element comment {text}
 }
 
-## Definition elements.
-div
-{
-    reg.include =
-        ## Definition that represents a file being included, which is named.
-        ## The `name` attribute does double-duty, in that it also includes text.
-        element include { reg.include.contents }
-        
-    reg.include.contents =
-        reg.include.attlist
-        
-    reg.typedef =
-        ## Definition that defines a new name for an existing type. 
-        element typedef { reg.typedef.contents }
-        
-    reg.typedef.contents =
-        reg.typedef.attlist
-        
-    reg.reference =
-        ## Definition that references a type that comes from an include file.
-        element reference { reg.reference.contents }
-    
-    reg.reference.contents =
-        reg.reference.attlist
-        
-    reg.bitmask =
-        ## Definition that specifies a bitmask, using a particular existing type.
-        ## Contents are the same as `typedef`.
-        ## The members of the bitmask are declared elsewhere. 
-        element bitmask { reg.bitmask.contents }
-        
-    reg.bitmask.contents =
-        ## Uses the same structure and meaning as typedefs.
-        reg.typedef.attlist
-    
-    reg.define =
-        ## Definition that represents a C #define statement.
-        element define { reg.define.contents }
-        
-    ## The 3 forms of defines:
-    ## #define name C-expression
-    ## #define name(params) C-expression
-    ## C-expression
-    ##
-    ## In all cases, C-expression should be verbatim copied. The question is whether the text
-    ## contains the actual "#define" internally or not.
-    ## Defines can also reference other definitions.    
-    reg.define.contents =
-        reg.define.attlist,
-        reg.comment?,
-        reg.define.model
-        
-    reg.define.model = 
-        (reg.define.value.attrib | reg.define.complex.model)
-
-    reg.define.complex.model =
-        (reg.define.replace.attrib?, reg.define.defref*, reg.define.param*, reg.c-expression)
-    
-    reg.define.defref =
-        ## Specifies a definition that this #define references in its C-expression.
-        element defref { reg.identifier.data }
-        
-    reg.define.param =
-        ## The name of a #define's parameter.
-        element param { reg.identifier.data }
-    
-    reg.c-expression =
-        ## Text that is intended to be used verbatim in C or C++ implementations.
-        ## If the `replace` attribute is not `true`, then the processor should
-        ## generate the `#define NAME(PARAMS)` part of the define before the c-expression.
-        element c-expression { text }
-        
-    reg.handle =
-        ## Creates a definition for a handle.
-        element handle { reg.handle.contents }
-        
-    reg.handle.contents =
-        reg.handle.attlist
-
-    reg.def.enumeration =
-        ## Defines the name of an enumeration.
-        ## The members and base type of the enumeration are defined elsewhere.
-        element enumeration { reg.def.enumeration.contents }
-        
-    reg.def.enumeration.contents =
-        reg.def.enumeration.attlist
-        
-    reg.struct =
-        ## Definition that represents a data structure.
-        ## Contains a list of members and optional validation information.
-        element struct { reg.struct.contents }
-    
-    reg.struct.contents =
-        reg.struct.attlist,
-        reg.struct.member+,
-        reg.validity?
-        
-    reg.struct.member =
-        ## Specifies a named member of a data structure.
-        element member { reg.struct.member.contents }
-    
-    reg.struct.member.contents =
-        reg.struct.member.attlist
-
-    reg.validity =
-        ## Defines validation text related to objects and commands.
-        element validity { reg.validity.contents }
-        
-    reg.validity.contents =
-        reg.validity.usage+
-    
-    reg.validity.usage =
-        ## A specific validation rule, spelled out in documentation text.
-        element usage { reg.validity.usage.contents }
-        
-    reg.validity.usage.contents =
-        ## Required to be documentation text.
-        text
-
-    reg.union =
-        ## Defines a union, where the object's value is only one of the members.
-        element union { reg.union.contents }
-        
-    reg.union.contents =
-        reg.union.attlist,
-        reg.union.member+
-
-    reg.union.member =
-        ## Specifies a named member of a union.
-        element member { reg.union.member.contents }
-        
-    reg.union.member.contents =
-        reg.union.member.attlist
-    
-    reg.funcptr =
-        ## Defines a function pointer.
-        element funcptr { reg.funcptr.contents }
-        
-    reg.funcptr.contents =
-        ## If it has no function parameters, then it should be rendered out for C/C++ with just
-        ## "void" in the parameter list. And "void" should not be in a `<type>` element, as it
-        ## does not qualify as a parameter type.
-        reg.funcptr.attlist,
-        reg.return-type,
-        reg.param*
-
-    reg.return-type =
-        element return-type { reg.return-type.contents }
-        
-    reg.return-type.contents =
-        reg.return-type.attlist
-
-    reg.param =
-        element param { reg.param.contents }
-    
-    reg.param.contents =
-        reg.param.attlist
-}
 
 ## Supplementary elements and definitions.
 div
@@ -547,6 +601,69 @@ div
         reg.definition.common.model?,
         reg.variable.definition.model,
         reg.variable.meta-data.model
+        
+    reg.constants.attlist =
+        empty
+        
+    reg.constant.attlist =
+        reg.definition.common.model,
+        reg.enum.value.model
+        
+    reg.enum.value.model =
+        ( reg.constant.number.attrib | reg.constant.c-expression.attrib )
+    
+    reg.constant.number.attrib =
+        ## An enumerator/constant value which is just an integer number.
+        attribute number { xsd:integer }
+    
+    reg.constant.c-expression.attrib =
+        ## A C-expression defining an enumerator/constant's value.
+        ## These could be a floating-point number or a more complex expression
+        ## such as (~0LL) or somesuch
+        attribute c-expression { text }
+
+    reg.enums.attlist =
+        empty
+        
+    reg.enumeration.attlist =
+        reg.definition.common.model,
+        reg.enum.range.model?
+        
+    reg.enum.range.model =
+        ##Represents a range of enumerators.
+        reg.enum.range-start.attrib,
+        reg.enum.range-end.attrib?
+    
+    reg.enum.range-start.attrib =
+        ## Beginning of an enumerator value range
+        attribute range-start { xsd:integer }
+    
+    reg.enum.range-end.attrib =
+        ## End fo an enumerator value range
+        attribute range-end { xsd:integer }
+        
+    reg.enumeration.unused-range.attlist =
+        reg.enum.range.model
+        
+    reg.enumeration.enum.attlist =
+        reg.definition.common.model,
+        reg.enum.value.model
+        
+    reg.bitmask.attlist =
+        reg.definition.common.model
+        
+    reg.bitmask.bit.attlist =
+        reg.definition.common.model,
+        ( reg.bitmask.pos.attrib | reg.bitmask.mask-hex.attrib )
+    
+    reg.bitmask.pos.attrib =
+        ## Specifies the index of the bit to set for this field.
+        attribute pos { xsd:nonNegativeInteger }
+        
+    reg.bitmask.mask-hex.attrib =
+        ## Specifies a hexadecimal integer that represents all the bits set by this mask.
+        ## Not prefixed with "0x".
+        attribute mask-hex { reg.hexadecimal.data }
 }
 
 ## Data types
@@ -556,6 +673,7 @@ div
     reg.identifier.data = text
     
     ## Recognize a hexadecimal number.
+    ## Not prefixed with "0x"
     reg.hexadecimal.data = text
     
     ## Comma separated identifiers.
