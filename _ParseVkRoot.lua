@@ -9,6 +9,7 @@ local tbl =
 	vendorids =		require "_ParseVkVendorIds",
 	tags =			require "_ParseVkTags",
 	types = 		require "_ParseVkTypes",
+	commands =		require "_ParseVkCommands",
 }
 
 return tbl

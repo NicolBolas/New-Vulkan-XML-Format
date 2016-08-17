@@ -46,4 +46,60 @@ end
 
 
 
+local function WriteCondAttrib(writer, data, attrib, override)
+	if(data[attrib]) then
+		if(override) then
+			writer:AddAttribute(attrib, override)
+		else
+			writer:AddAttribute(attrib, tostring(data[attrib]))
+		end
+	end
+end
+
+funcs.WriteCondAttrib = WriteCondAttrib
+
+--Writes reg.variable.definition.model stuff.
+--That is, the typing information.
+function funcs.WriteVarDef(writer, data)
+	writer:AddAttribute("basetype", data.basetype)
+	WriteCondAttrib(writer, data, "const", "true")
+	WriteCondAttrib(writer, data, "reference")
+	WriteCondAttrib(writer, data, "struct")
+
+	if(data.array) then
+		writer:AddAttribute("array", data.array)
+		if(data.array == "static") then
+			writer:AddAttribute("size", data.size)
+		else
+			--dynamic
+			WriteCondAttrib(writer, data, "size")
+			WriteCondAttrib(writer, data, "null-terminate")
+		end
+	end
+end
+
+--Writes reg.variable.meta-data.model stuff.
+--Whether the variable is considered optional, auto-validity, inout parameters, etc.
+function funcs.WriteVarMetadata(writer, data)
+	WriteCondAttrib(writer, data, "optional")
+	WriteCondAttrib(writer, data, "auto-validity")
+	WriteCondAttrib(writer, data, "inout")
+	WriteCondAttrib(writer, data, "sync")
+end
+
+function funcs.WriteNamedVariable(writer, data)
+	if(data.name) then
+		writer:AddAttribute("name", data.name)
+	end
+	if(data.notation) then
+		writer:AddAttribute("notation", data.notation)
+	end
+	
+	funcs.WriteVarDef(writer, data)
+	funcs.WriteVarMetadata(writer, data)
+end
+
+
+
+
 return funcs

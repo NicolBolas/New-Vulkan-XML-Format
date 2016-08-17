@@ -11,6 +11,7 @@ local internal_writers =
 	definitions =	require "_NewTypesWriters",
 	constants =		require "_NewConstantsWriters",
 	enums =			require "_NewEnumsWriters",
+	commands =		require "_NewCommandsWriters",
 }
 
 --Writers for the root elements

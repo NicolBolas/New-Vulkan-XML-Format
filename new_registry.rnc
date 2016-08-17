@@ -195,8 +195,7 @@ div
             element usage { reg.validity.usage.contents }
             
         reg.validity.usage.contents =
-            ## Required to be documentation text.
-            text
+            reg.spec-language.data
     
         reg.union =
             ## Defines a union, where the object's value is only one of the members.
@@ -296,9 +295,64 @@ div
         reg.bitmask.bit.contents =
             reg.bitmask.bit.attlist
     }
+    
+    ## Command elements
+    div
+    {
+        reg.commands =
+            ## Defines a list of Vulkan entrypoints.
+            element commands { reg.commands.contents }
+            
+        reg.commands.contents =
+            reg.commands.attlist,
+            (reg.command | reg.command-alias)+
+            
+        reg.command =
+            ## Defines a single Vulkan entrypoint.
+            element command { reg.command.contents }
+            
+        reg.command.contents =
+            reg.command.attlist,
+            reg.return-type,
+            reg.param*,
+            reg.command.description?,
+            reg.command.external-sync?,
+            reg.validity?
+            
+        reg.command.description =
+            ## Textual description of the command... in some form?
+            element description { reg.command.description.contents }
+            
+        reg.command.description.contents =
+            reg.command.description.attlist,
+            reg.spec-language.data
+            
+        reg.command.external-sync =
+            ## Describes instances of implicit external synchronizations.
+            ## These cannot be captured by the parameters themselves.
+            element external-sync { reg.command.external-sync.contents }
+            
+        reg.command.external-sync.contents =
+            reg.command.external-sync.attlist,
+            reg.external-sync.sync+
+            
+        reg.external-sync.sync =
+            ## A single aspect of implicit external synchronization.
+            element sync { reg.external-sync.sync.contents }
 
-    reg.commands =
-        element commands {INCOMPLETE}
+        reg.external-sync.sync.contents =
+            reg.external-sync.sync.attlist,
+            reg.spec-language.data
+            
+        reg.command-alias =
+            ## Defines an alternate name for an existing command. All information about
+            ## the new command comes from the existing one.
+            element command-alias { reg.command-alias.contents }
+            
+        reg.command-alias.contents =
+            reg.command-alias.attlist
+    }
+
         
     reg.features =
         element features {INCOMPLETE}
@@ -664,11 +718,70 @@ div
         ## Specifies a hexadecimal integer that represents all the bits set by this mask.
         ## Not prefixed with "0x".
         attribute mask-hex { reg.hexadecimal.data }
+        
+    reg.commands.attlist =
+        empty
+        
+    reg.command.attlist =
+        reg.definition.common.model,
+        (reg.command.successcodes.attrib, reg.command.errorcodes.attrib)?, ## Both or neither.
+        reg.command.renderpass.attrib?,
+        reg.command.cmdbufferlevel.attrib?,
+        reg.command.queues.attrib?
+    
+    reg.command.successcodes.attrib =
+        ## Specifies the return codes that represent successful function execution.
+        ## When not specified, then the command doesn't return `VkResult`
+        attribute successcodes { reg.csident.data }
+
+    reg.command.errorcodes.attrib =
+        ## Specifies the return codes that represent error conditions.
+        ## When not specified, either the command doesn't return `VkResult` or it cannot "fail".
+        attribute errorcodes { reg.csident.data }
+        
+    reg.command.renderpass.attrib =
+        ## Specifies how the command may be called, relative to render pass instance scopes.
+        ## When not specified, the command does not care about render pass scoping,
+        ## or the command isn't a vkCmd command.
+        attribute renderpass { "inside" | "outside" | "both" }
+        
+    reg.command.cmdbufferlevel.attrib =
+        ## Specifies the level of command buffer that the command can be used with.
+        ## When not specified, the command does not go into a command buffer.
+        attribute cmdbufferlevel { "primary" | "secondary" | "primary,secondary" }
+
+    reg.command.queues.attrib =
+        ## Comma-separated list of queues that support this operation.
+        ## When not specified, the function cannot be used in a queue.
+        attribute queues { reg.csident.data }
+    
+    reg.command.description.attlist =
+        empty
+        
+    reg.command.external-sync.attlist =
+        empty
+        
+    reg.external-sync.sync.attlist =
+        empty
+        
+    reg.command-alias.attlist =
+        reg.definition.common.model,
+        reg.command-alias.target.attrib
+        
+    reg.command-alias.target.attrib =
+        ## Specifies the target name of the alias. This may be another alias,
+        ## so long as the eventual chain of targets leads to an actual command.
+        attribute target { reg.identifier.data }
 }
 
 ## Data types
 div
 {
+    ## Represents text formatted in accord with the Vulkan standard.
+    ## Such text can be copied and pasted into the spec, using the spec's
+    ## format.
+    reg.spec-language.data = text
+
     ## Should be a valid C/C++ identifier.
     reg.identifier.data = text
     
