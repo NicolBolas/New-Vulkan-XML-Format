@@ -60,6 +60,13 @@ function Elems.command(node)
 		data.external_sync = external_sync
 	end
 	
+	--HACK: Fix for oddity.
+	if(data.successcodes and not data.errorcodes) then
+		data.errorcodes = ""
+	elseif(not data.successcodes and data.errorcodes) then
+		data.successcodes = ""
+	end
+	
 	return data
 end
 
