@@ -1,8 +1,6 @@
 % Improved Vulkan XML format
 
-An attempt to improve the Vulkan XML registry file.
-
-Design goals, in roughly priority order:
+This project is an attempt to improve the Vulkan XML registry file. The design goals for the new format, in roughly priority order:
 
 1. Ensure that 100% of the current information in `vk.xml` is captured in the new format. Transformation back and forth should be lossless.
 
@@ -21,4 +19,22 @@ Design goals, in roughly priority order:
 7. Layout the RelaxNG schema in a way that makes it easier to extend via RelaxNG's own extension/inclusion mechanisms. This also makes it easier to extend when adding new kinds of data. It should be possible to search for where an attribute or element is defined just by knowing the attribute/element's name.
 
 8. Make the format amenable to transformation to and processing in non-XML formats like JSON. This means avoiding lots of "markup"-style formatting.
+
+## Files of interest
+
+`new_registry.rnc` contains the RelaxNG compact schema that defines the new XML format. `new_registr.rng` is a non-compact version of the schema (it may be out of date, since I primarily edit the compact version).
+
+The old registry schema and `vk.xml` files are in the `src` directory.
+
+All of the .lua files are tools for converting between the old and new formats.
+
+`reading_the_schema.md` explains some of the decisions behind the way the schema is defined, as well as providing the conventions used in its authoring.
+
+## Dependencies
+
+Generating the new format requires the use of [Lua 5.1 or later](http://www.lua.org/download.html). It requires no other dependencies than this; any files needed for XML processing are provided.
+
+## Usage
+
+Executing `lua.exe ConvertToNewFmt.lua` from this directory will generate `test.xml`, which is a file that stores the `vk.xml` data in the new format. No other parameters are needed for this process.
 
