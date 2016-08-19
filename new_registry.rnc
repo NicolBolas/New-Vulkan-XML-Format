@@ -140,7 +140,7 @@ div
             
         reg.typedef.attlist =
             reg.named.ident.model,
-            reg.typedef.base-type.attrib
+            reg.typedef.basetype.attrib
             
         reg.reference =
             ## Definition that references a type that comes from an include file.
@@ -160,9 +160,12 @@ div
             element bitmask { reg.def.bitmask.contents }
             
         reg.def.bitmask.contents =
-            ## Uses the same structure and meaning as typedefs.
-            reg.typedef.attlist
-        
+                reg.def.bitmask.attlist
+                
+        reg.def.bitmask.attlist =
+            reg.typedef.attlist,
+            reg.bitmask.enumref.attrib?
+            
         reg.define =
             ## Definition that represents a C #define statement.
             element define { reg.define.contents }
@@ -381,7 +384,7 @@ div
         reg.constants.attlist = empty
             
         reg.constant =
-            ##Contains a named constant value that is not typed to an enum or a bitmask.
+            ##Contains a named constant value that is not typed to an enumeration.
             element constant { reg.constant.contents }
             
         reg.constant.contents =
@@ -391,9 +394,16 @@ div
             reg.named.ident.model,
             reg.enum.value.model
         
-        ## Constants can be either numbers or arbitrary C-expressions.
+        ##Enumerators can be decimal integers, C-expressions, bit positions, or hexadecimal bitmasks.
         reg.enum.value.model =
-            ( reg.constant.number.attrib | reg.constant.c-expression.attrib )
+            ## Decimal integer
+            reg.enum.number.attrib |
+            ## Unsigned hexadecimal value, mainly for bitmasks.
+            reg.enum.hex.attrib |
+            ## Bit position, to be transformed into a number by `1 << bitpos`.
+            reg.enum.bitpos.attrib |
+            ## C-expression that results in a number.
+            reg.enum.c-expression.attrib
         
         reg.enums =
             ## Contains both enumerations and bitmasks.
@@ -401,7 +411,7 @@ div
             
         reg.enums.contents =
             reg.enums.attlist,
-            ( reg.enumeration | reg.bitmask )+
+            reg.enumeration+
     
         reg.enums.attlist =
             empty
@@ -417,6 +427,7 @@ div
             
         reg.enumeration.attlist =
             reg.named.ident.model,
+            reg.enum.purpose.attrib?,
             reg.enum.range.model?
             
         reg.enum.range.model =
@@ -442,31 +453,6 @@ div
             
         reg.enumeration.unused-range.attlist =
             reg.enum.range.model
-            
-        reg.bitmask =
-            element bitmask { reg.bitmask.contents }
-            
-        reg.bitmask.contents =
-            reg.bitmask.attlist,
-            ## Empty bitmasks are OK; extensions can fill them.
-            reg.bitmask.bit*
-            
-        reg.bitmask.attlist =
-            reg.named.ident.model
-            
-        reg.bitmask.bit =
-            element bit { reg.bitmask.bit.contents }
-            
-        reg.bitmask.bit.contents =
-            reg.bitmask.bit.attlist
-
-        reg.bitmask.bit.attlist =
-            reg.named.ident.model,
-            reg.bitmask.bit.data.model
-
-        reg.bitmask.bit.data.model =
-            reg.bitmask.pos.attrib |
-            reg.bitmask.mask-hex.attrib
     }
     
     ## Command elements
@@ -704,13 +690,11 @@ div
             reg.extension.constant.value.model
             
         reg.extension.constant.value.model =
-            ## The index of a bit, for a bitflag-like constant.
-            reg.extension.constant.bit.attrib |
             ## A string literal, for a string constant.
             reg.extension.constant.string.attrib |
             ## A reference to an existing enumerator or constant.
             reg.extension.constant.enumref.attrib |
-            ## An integer or C-expression, like with enums.
+            ## Anything an enumerator/constant can handle.
             reg.enum.value.model
 
         reg.extension.enum =
@@ -727,7 +711,6 @@ div
             
         reg.extension.enum.data.model =
             reg.enum.value.model |
-            reg.bitmask.bit.data.model |
             ## A copy of an enumerator's value.
             reg.extension.constant.enumref.attrib
 
@@ -798,16 +781,20 @@ div
         [ a:default-value = "false" ]
         attribute need-ext { reg.boolean.data }
         
-    reg.typedef.base-type.attrib =
+    reg.typedef.basetype.attrib =
         ## Specifies the original typename for the typedef.
         ## This name should reference an existing definition.
-        attribute base-type { reg.identifier.data }
+        attribute basetype { reg.identifier.data }
         
     reg.reference.include.attrib =
         ## Specifies the include file that produces the name.
         ## This text should specify the name of an existing definition of
         ## type `include`.
         attribute include { text }
+        
+    reg.bitmask.enumref.attrib =
+        ## Specifies the name of an enumerator that the bitmask gets its bits from.
+        attribute enumref { reg.identifier.data }
         
     reg.define.disabled.attrib =
         ## If "true", then the processor should generate the #define in a comment.
@@ -866,7 +853,7 @@ div
             "pointer" |
              ## Type is a pointer-to-a-pointer, perhaps a dynamic array of pointers
             "pointer-pointer" |
-            ## Type is a `* const *`. A dynamic array of const pointers to (possibly const) base-type.
+            ## Type is a `* const *`. A dynamic array of const pointers to (possibly const) basetype.
             "pointer-const-pointer"
         }
 
@@ -935,15 +922,31 @@ div
         ## Comma-separated list of enumerators that this member can be given.
         attribute type-enums { reg.csident.data }
     
-    reg.constant.number.attrib =
+    reg.enum.number.attrib =
         ## An enumerator/constant value which is just an integer number.
         attribute number { xsd:integer }
     
-    reg.constant.c-expression.attrib =
+    reg.enum.hex.attrib =
+        ## Specifies a hexadecimal integer that represents all the bits set by this mask.
+        ## Not prefixed with "0x".
+        attribute hex { reg.hexadecimal.data }
+        
+    reg.enum.bitpos.attrib =
+        ## Specifies the index of the bit to set for this field.
+        attribute bitpos { xsd:nonNegativeInteger }
+        
+    reg.enum.c-expression.attrib =
         ## A C-expression defining an enumerator/constant's value.
         ## These could be a floating-point number or a more complex expression
         ## such as (~0LL) or somesuch
         attribute c-expression { text }
+
+    reg.enum.purpose.attrib =
+        ## Identifies a special meaning behind the enumeration.
+        ## "bitmask" means that the enumerators are either specific bits or
+        ## combinations of bits. There should be a `bitmask` definition
+        ## attribute which uses this enumeration as the source for its enums.
+        attribute purpose { "bitmask" }
 
     reg.enum.range-start.attrib =
         ## Beginning of an enumerator value range
@@ -952,15 +955,6 @@ div
     reg.enum.range-end.attrib =
         ## End fo an enumerator value range
         attribute range-end { xsd:integer }
-        
-    reg.bitmask.pos.attrib =
-        ## Specifies the index of the bit to set for this field.
-        attribute pos { xsd:nonNegativeInteger }
-        
-    reg.bitmask.mask-hex.attrib =
-        ## Specifies a hexadecimal integer that represents all the bits set by this mask.
-        ## Not prefixed with "0x".
-        attribute mask-hex { reg.hexadecimal.data }
         
     reg.command.successcodes.attrib =
         ## Specifies the return codes that represent successful function execution.

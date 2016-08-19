@@ -193,7 +193,7 @@ function Procs.Basetype(node)
 	local data = { kind = "typedef" }
 	
 	data.name = parse_dom.ExtractFullText(parse_dom.FindChildElement(node, "name"))
-	data["base-type"] = parse_dom.ExtractFullText(parse_dom.FindChildElement(node, "type"))
+	data.basetype = parse_dom.ExtractFullText(parse_dom.FindChildElement(node, "type"))
 
 	return data
 end
@@ -204,9 +204,10 @@ end
 
 --`type` and `name` are sub-elements.
 function Procs.Bitmask(node)
-	--Uses the same content model as typedefs.
+	--Uses mostly the same content model as typedefs.
 	local data = Procs.Basetype(node)
 	data.kind = "bitmask"
+	data.enumref = node.attr.requires
 	return data
 end
 

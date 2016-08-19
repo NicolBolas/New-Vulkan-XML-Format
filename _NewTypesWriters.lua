@@ -4,9 +4,9 @@ local write_utils = require "_NewFormatUtils"
 local tag_only =
 {
 	include =		{"name", "style", "need-ext", "notation"},
-	typedef =		{"name", "base-type", "notation", },
+	typedef =		{"name", "basetype", "notation", },
 	reference =		{"name", "include", "notation", },
-	bitmask =		{"name", "base-type", "notation", },
+	bitmask =		{"name", "basetype", "enumref", "notation", },
 	handle =		{"name", "type", "parent", "notation", },
 	enumeration =	{"name", "notation", },
 }

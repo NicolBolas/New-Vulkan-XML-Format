@@ -9,8 +9,36 @@ local function ParseValue(data, value)
 	if(value:match("^[+-]?%d+$")) then
 		data.number = value
 	else
-		data["c-expression"] = value
+		local hex = value:match("^0x(%d+)$")
+		if(hex) then
+			data.hex = hex
+		else
+			data["c-expression"] = value
+		end
 	end
+end
+
+--Returns the name of the attribute and the data.
+local function ExtractEnumNameData(node)
+	if(node.attr.value) then
+		local value = node.attr.value
+		if(value:match("^[+-]?%d+$")) then
+			return "number", value
+		else
+			local hex = value:match("^0x(%d+)$")
+			if(hex) then
+				return "hex", hex
+			else
+				return "c-expression", value
+			end
+		end
+	end
+	
+	if(node.attr.bitpos) then
+		return "bitpos", node.attr.bitpos
+	end
+	
+	assert(false, node.attr.name)
 end
 
 local function ParseConstants(node)
@@ -23,7 +51,8 @@ local function ParseConstants(node)
 		constants[#constants + 1] = constant
 		
 		constant.name = node.attr.name
-		ParseValue(constant, node.attr.value)
+		local name, value = ExtractEnumNameData(node)
+		constant[name] = value
 	end
 	
 	procs[1] =
@@ -57,7 +86,8 @@ function enumerator_elems.enum(node)
 	
 	data.name = node.attr.name
 	data.notation = node.attr.comment
-	ParseValue(data, node.attr.value)
+	local name, value = ExtractEnumNameData(node)
+	data[name] = value
 	
 	return data
 end
@@ -72,11 +102,14 @@ function enumerator_elems.unused(node)
 end
 
 local function ParseEnum(node)
-	local data = { kind = "enumeration" }
-	
+	local data = { kind = "enumeration" }	
 	data.name = node.attr.name
 	data.notation = node.attr.comment
 	ParseRange(data, node)
+	
+	if(node.attr.type == "bitmask") then
+		data.purpose = "bitmask"
+	end
 	
 	data.enumerators = {}
 	data.unused = {}
@@ -84,48 +117,6 @@ local function ParseEnum(node)
 	local proc_tbl = parse_dom.GenProcTable(nil, nil, enumerator_elems, function(new)
 		if(new.kind == "enum") then table.insert(data.enumerators, new) end
 		if(new.kind == "unused-range") then table.insert(data.unused, new) end
-	end)
-	
-	parse_dom.ProcNodes(proc_tbl, node.kids)
-	
-	return data
-end
-
-local bitmask_elems = {}
-function bitmask_elems.enum(node)
-	local data = { kind = "bit" }
-	
-	data.name = node.attr.name
-	data.notation = node.attr.comment
-	
-	if(node.attr.bitpos) then
-		data.pos = node.attr.bitpos
-	else
-		local match = node.attr.value:match("0x(%d+)")
-		if(match) then
-			data["mask-hex"] = match
-		else
-			--Convert to hex.
-			local value = assert(tonumber(node.attr.value))
-			data["mask-hex"] = string.format("%x", value)
-		end
-	end
-	
-	return data
-end
-
-
-
-local function ParseBitmask(node)
-	local data = { kind = "bitmask" }
-
-	data.name = node.attr.name
-	data.notation = node.attr.comment
-	
-	data.bits = {}
-
-	local proc_tbl = parse_dom.GenProcTable(nil, nil, bitmask_elems, function(new)
-		data.bits[#data.bits + 1] = new
 	end)
 	
 	parse_dom.ProcNodes(proc_tbl, node.kids)
@@ -142,11 +133,8 @@ function funcs.ProcessSingleEnum(node)
 	if(not node.attr.type) then
 		return ParseConstants(node)
 	end
-	if(node.attr.type == "enum") then
-		return ParseEnum(node)
-	end
-	assert(node.attr.type == "bitmask", node.attr.name)
-	return ParseBitmask(node)
+
+	return ParseEnum(node)
 end
 
 return funcs
