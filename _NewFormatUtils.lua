@@ -14,6 +14,8 @@ local function WriteAttribs(writer, attribList, data)
 	end
 end
 
+funcs.WriteAttribs = WriteAttribs
+
 --Produces a function that is passed the `writer` and `...`.
 --The function will create an element named `name`,
 --call `Func` with `writer` and `...`,
@@ -43,8 +45,6 @@ function funcs.AttributeWriter(name, attribList)
 		writer:PopElement()
 	end
 end
-
-
 
 local function WriteCondAttrib(writer, data, attrib, override)
 	if(data[attrib]) then

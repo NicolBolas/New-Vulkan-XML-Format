@@ -8,10 +8,11 @@ func_attribs["command-alias"] = {"name", "target", "notation", }
 func_writers["command-alias"] = function(writer, data)
 end
 
-func_attribs.command = {"name", "successcodes", "errorcodes",
+func_attribs.command = {"name",
 		"renderpass", "cmdbufferlevel", "queues", "notation",}
 function func_writers.command(writer, data)
 	writer:PushElement("return-type")
+	write_utils.WriteAttribs(writer, {"successcodes", "errorcodes"}, data.return_type)
 	write_utils.WriteVarDef(writer, data.return_type)
 	writer:PopElement()
 

@@ -8,8 +8,6 @@ local Elems = {}
 function Elems.command(node)
 	local data = { kind = "command" }
 	
-	data.successcodes = node.attr.successcodes
-	data.errorcodes = node.attr.errorcodes
 	data.renderpass = node.attr.renderpass
 	data.cmdbufferlevel = node.attr.cmdbufferlevel
 	data.queues = node.attr.queues
@@ -29,7 +27,11 @@ function Elems.command(node)
 	end
 	
 	return_string = table.concat(return_string)
-	data.return_type = common.ParseReturnType(return_string)
+	local return_type = common.ParseReturnType(return_string)
+	--Success and error codes belong on the return type.
+	return_type.successcodes = node.attr.successcodes
+	return_type.errorcodes = node.attr.errorcodes
+	data.return_type = return_type
 	
 	--Extract parameters
 	local params = nil
@@ -61,10 +63,10 @@ function Elems.command(node)
 	end
 	
 	--HACK: Fix for oddity.
-	if(data.successcodes and not data.errorcodes) then
-		data.errorcodes = ""
-	elseif(not data.successcodes and data.errorcodes) then
-		data.successcodes = ""
+	if(return_type.successcodes and not return_type.errorcodes) then
+		return_type.errorcodes = ""
+	elseif(not return_type.successcodes and return_type.errorcodes) then
+		return_type.successcodes = ""
 	end
 	
 	return data
