@@ -33,10 +33,12 @@
                 <ref name="reg.enums"/>
             </optional>
             <ref name="reg.commands"/>
-            <ref name="reg.features"/>
-            <optional>
-                <ref name="reg.extensions"/>
-            </optional>
+            <oneOrMore>
+                <ref name="reg.feature"/>
+            </oneOrMore>
+            <zeroOrMore>
+                <ref name="reg.extension"/>
+            </zeroOrMore>
         </define>
         <define name="reg.registry.attlist">
             <empty/>
@@ -190,7 +192,7 @@ The `name` attribute does double-duty, in that it also includes text.</a:documen
             </define>
             <define name="reg.typedef.attlist">
                 <ref name="reg.named.ident.model"/>
-                <ref name="reg.typedef.base-type.attrib"/>
+                <ref name="reg.typedef.basetype.attrib"/>
             </define>
             <define name="reg.reference">
                 <element name="reference">
@@ -214,9 +216,13 @@ The members of the bitmask are declared elsewhere. </a:documentation>
                 </element>
             </define>
             <define name="reg.def.bitmask.contents">
-                <ref name="reg.typedef.attlist">
-                    <a:documentation>Uses the same structure and meaning as typedefs.</a:documentation>
-                </ref>
+                <ref name="reg.def.bitmask.attlist"/>
+            </define>
+            <define name="reg.def.bitmask.attlist">
+                <ref name="reg.typedef.attlist"/>
+                <optional>
+                    <ref name="reg.bitmask.enumref.attrib"/>
+                </optional>
             </define>
             <define name="reg.define">
                 <element name="define">
@@ -500,6 +506,13 @@ does not qualify as a parameter type.</a:documentation>
             </define>
             <define name="reg.return-type.attlist">
                 <ref name="reg.type.model"/>
+                <optional>
+                    <ref name="reg.error-code.model"/>
+                </optional>
+            </define>
+            <define name="reg.error-code.model">
+                <ref name="reg.command.successcodes.attrib"/>
+                <ref name="reg.command.errorcodes.attrib"/>
             </define>
             <define name="reg.param">
                 <element name="param">
@@ -536,7 +549,7 @@ does not qualify as a parameter type.</a:documentation>
             </define>
             <define name="reg.constant">
                 <element name="constant">
-                    <a:documentation>Contains a named constant value that is not typed to an enum or a bitmask.</a:documentation>
+                    <a:documentation>Contains a named constant value that is not typed to an enumeration.</a:documentation>
                     <ref name="reg.constant.contents"/>
                 </element>
             </define>
@@ -548,10 +561,20 @@ does not qualify as a parameter type.</a:documentation>
                 <ref name="reg.enum.value.model"/>
             </define>
             <define name="reg.enum.value.model">
-                <a:documentation>Constants can be either numbers or arbitrary C-expressions.</a:documentation>
+                <a:documentation>Enumerators can be decimal integers, C-expressions, bit positions, or hexadecimal bitmasks.</a:documentation>
                 <choice>
-                    <ref name="reg.constant.number.attrib"/>
-                    <ref name="reg.constant.c-expression.attrib"/>
+                    <ref name="reg.enum.number.attrib">
+                        <a:documentation>Decimal integer</a:documentation>
+                    </ref>
+                    <ref name="reg.enum.hex.attrib">
+                        <a:documentation>Unsigned hexadecimal value, mainly for bitmasks.</a:documentation>
+                    </ref>
+                    <ref name="reg.enum.bitpos.attrib">
+                        <a:documentation>Bit position, to be transformed into a number by `1 &lt;&lt; bitpos`.</a:documentation>
+                    </ref>
+                    <ref name="reg.enum.c-expression.attrib">
+                        <a:documentation>C-expression that results in a number.</a:documentation>
+                    </ref>
                 </choice>
             </define>
             <define name="reg.enums">
@@ -563,10 +586,7 @@ does not qualify as a parameter type.</a:documentation>
             <define name="reg.enums.contents">
                 <ref name="reg.enums.attlist"/>
                 <oneOrMore>
-                    <choice>
-                        <ref name="reg.enumeration"/>
-                        <ref name="reg.bitmask"/>
-                    </choice>
+                    <ref name="reg.enumeration"/>
                 </oneOrMore>
             </define>
             <define name="reg.enums.attlist">
@@ -590,6 +610,9 @@ does not qualify as a parameter type.</a:documentation>
             </define>
             <define name="reg.enumeration.attlist">
                 <ref name="reg.named.ident.model"/>
+                <optional>
+                    <ref name="reg.enum.purpose.attrib"/>
+                </optional>
                 <optional>
                     <ref name="reg.enum.range.model"/>
                 </optional>
@@ -624,37 +647,6 @@ does not qualify as a parameter type.</a:documentation>
             </define>
             <define name="reg.enumeration.unused-range.attlist">
                 <ref name="reg.enum.range.model"/>
-            </define>
-            <define name="reg.bitmask">
-                <element name="bitmask">
-                    <ref name="reg.bitmask.contents"/>
-                </element>
-            </define>
-            <define name="reg.bitmask.contents">
-                <ref name="reg.bitmask.attlist"/>
-                <zeroOrMore>
-                    <ref name="reg.bitmask.bit">
-                        <a:documentation>Empty bitmasks are OK; extensions can fill them.</a:documentation>
-                    </ref>
-                </zeroOrMore>
-            </define>
-            <define name="reg.bitmask.attlist">
-                <ref name="reg.named.ident.model"/>
-            </define>
-            <define name="reg.bitmask.bit">
-                <element name="bit">
-                    <ref name="reg.bitmask.bit.contents"/>
-                </element>
-            </define>
-            <define name="reg.bitmask.bit.contents">
-                <ref name="reg.bitmask.bit.attlist"/>
-            </define>
-            <define name="reg.bitmask.bit.attlist">
-                <ref name="reg.named.ident.model"/>
-                <choice>
-                    <ref name="reg.bitmask.pos.attrib"/>
-                    <ref name="reg.bitmask.mask-hex.attrib"/>
-                </choice>
             </define>
         </div>
         <div>
@@ -704,13 +696,7 @@ does not qualify as a parameter type.</a:documentation>
             <define name="reg.command.attlist">
                 <ref name="reg.named.ident.model"/>
                 <optional>
-                    <ref name="reg.command.successcodes.attrib"/>
-                    <ref name="reg.command.errorcodes.attrib"/>
-                </optional>
-                <optional>
-                    <ref name="reg.command.renderpass.attrib">
-                        <a:documentation>Both or neither.</a:documentation>
-                    </ref>
+                    <ref name="reg.command.renderpass.attrib"/>
                 </optional>
                 <optional>
                     <ref name="reg.command.cmdbufferlevel.attrib"/>
@@ -776,24 +762,286 @@ the new command comes from the existing one.</a:documentation>
                 <ref name="reg.command-alias.target.attrib"/>
             </define>
         </div>
-        <define name="reg.features">
-            <a:documentation>Old format heavily overloads "enum":
+        <div>
+            <a:documentation>Features and Extensions</a:documentation>
+            <define name="reg.feature">
+                <element name="feature">
+                    <a:documentation>Defines the base API for a Vulkan specification.
+Represents a specific major/minor version of Vulkan.</a:documentation>
+                    <ref name="reg.feature.contents"/>
+                </element>
+            </define>
+            <define name="reg.feature.contents">
+                <ref name="reg.feature.attlist"/>
+                <oneOrMore>
+                    <ref name="reg.feature.specification.model"/>
+                </oneOrMore>
+            </define>
+            <define name="reg.feature.attlist">
+                <ref name="reg.api.name.attrib"/>
+                <optional>
+                    <ref name="reg.notation.attrib"/>
+                </optional>
+                <ref name="reg.feature.api.attrib"/>
+                <ref name="reg.feature.version.attrib"/>
+                <optional>
+                    <ref name="ref.feature.define.attrib"/>
+                </optional>
+            </define>
+            <define name="reg.feature.specification.model">
+                <choice>
+                    <ref name="reg.feature.require"/>
+                    <ref name="reg.feature.remove"/>
+                </choice>
+            </define>
+            <define name="reg.feature.require">
+                <element name="require">
+                    <a:documentation>Definitions that are exposed by the specification.</a:documentation>
+                    <ref name="reg.feature.require.contents"/>
+                </element>
+            </define>
+            <define name="reg.feature.require.contents">
+                <ref name="reg.feature.require.attlist"/>
+                <oneOrMore>
+                    <ref name="reg.feature.reference.model"/>
+                </oneOrMore>
+                <optional>
+                    <ref name="reg.feature.validity"/>
+                </optional>
+            </define>
+            <define name="reg.feature.require.attlist">
+                <optional>
+                    <ref name="reg.feature.profile.attrib"/>
+                </optional>
+                <optional>
+                    <ref name="reg.notation.attrib"/>
+                </optional>
+            </define>
+            <define name="reg.feature.reference.model">
+                <choice>
+                    <ref name="reg.feature.typeref"/>
+                    <ref name="reg.feature.commandref"/>
+                </choice>
+            </define>
+            <define name="reg.feature.typeref">
+                <element name="typeref">
+                    <a:documentation>Reference to a named `definitions` child.</a:documentation>
+                    <ref name="reg.feature.typeref.contents"/>
+                </element>
+            </define>
+            <define name="reg.feature.typeref.contents">
+                <ref name="reg.feature.typeref.attlist"/>
+            </define>
+            <define name="reg.feature.typeref.attlist">
+                <ref name="reg.named.ident.model"/>
+            </define>
+            <define name="reg.feature.commandref">
+                <element name="commandref">
+                    <a:documentation>Reference to a named `commands` child.</a:documentation>
+                    <ref name="reg.feature.commandref.contents"/>
+                </element>
+            </define>
+            <define name="reg.feature.commandref.contents">
+                <ref name="reg.feature.commandref.attlist"/>
+            </define>
+            <define name="reg.feature.commandref.attlist">
+                <ref name="reg.named.ident.model"/>
+            </define>
+            <define name="reg.feature.validity">
+                <element name="validity">
+                    <a:documentation>Provides additional validity checks when this API/extension is active.</a:documentation>
+                    <ref name="reg.feature.validity.contents"/>
+                </element>
+            </define>
+            <define name="reg.feature.validity.contents">
+                <ref name="reg.feature.validity.attlist"/>
+                <oneOrMore>
+                    <ref name="reg.feature.usage"/>
+                </oneOrMore>
+            </define>
+            <define name="reg.feature.validity.attlist">
+                <empty/>
+            </define>
+            <define name="reg.feature.usage">
+                <element name="usage">
+                    <a:documentation>A single usage validity check.</a:documentation>
+                    <ref name="reg.feature.usage.contents"/>
+                </element>
+            </define>
+            <define name="reg.feature.usage.contents">
+                <ref name="reg.feature.usage.attlist"/>
+                <ref name="reg.validity.usage.contents"/>
+            </define>
+            <define name="reg.feature.usage.attlist">
+                <choice>
+                    <ref name="reg.feature.usage.struct.attrib"/>
+                    <ref name="reg.feature.usage.command.attrib"/>
+                </choice>
+            </define>
+            <define name="reg.feature.remove">
+                <element name="remove">
+                    <a:documentation>Definitions which are *not* to be exposed by the specification.</a:documentation>
+                    <ref name="reg.feature.remove.contents"/>
+                </element>
+            </define>
+            <define name="reg.feature.remove.contents">
+                <ref name="reg.feature.remove.attlist"/>
+                <ref name="reg.feature.require.contents"/>
+            </define>
+            <define name="reg.feature.remove.attlist">
+                <empty/>
+            </define>
+            <define name="reg.extension">
+                <element name="extension">
+                    <a:documentation>Specifies the types exposed/forbidden by an extension.</a:documentation>
+                    <ref name="reg.extension.contents"/>
+                </element>
+            </define>
+            <define name="reg.extension.contents">
+                <ref name="reg.extension.attlist"/>
+                <oneOrMore>
+                    <ref name="reg.extension.specification.model"/>
+                </oneOrMore>
+            </define>
+            <define name="reg.extension.attlist">
+                <ref name="reg.named.ident.model"/>
+                <ref name="reg.extension.number.attrib"/>
+                <ref name="reg.extension.supported.attrib"/>
+                <optional>
+                    <ref name="ref.feature.define.attrib"/>
+                </optional>
+                <optional>
+                    <ref name="ref.extension.author.attrib"/>
+                </optional>
+                <ref name="ref.extension.contact.attrib"/>
+            </define>
+            <define name="reg.extension.specification.model">
+                <choice>
+                    <ref name="reg.extension.require"/>
+                    <ref name="reg.extension.remove"/>
+                </choice>
+            </define>
+            <define name="reg.extension.require">
+                <element name="require">
+                    <a:documentation>Exactly like the feature version, but with an optional `api` tag.</a:documentation>
+                    <ref name="reg.extension.require.contents"/>
+                </element>
+            </define>
+            <define name="reg.extension.require.contents">
+                <ref name="reg.extension.require.attlist"/>
+                <ref name="reg.feature.require.attlist"/>
+                <oneOrMore>
+                    <ref name="reg.extension.definition.model"/>
+                </oneOrMore>
+                <optional>
+                    <ref name="reg.feature.validity"/>
+                </optional>
+            </define>
+            <define name="reg.extension.definition.model">
+                <a:documentation>Old format heavily overloads "enum":
  `enum` with a `value` or `bitpos` and nothing else is declaring a *constant*, not an
-     enumerator. The constant may be a number, a quoted string, or an existing
+     enumerator. The constant may be a number/bitpos, a quoted string, or an existing
      enumerator/constant. The existing constant may come from the same extension.
  `enum` with a `value/bitpos` and `extends` is extending an existing enumeration with
      the specific value.
  `enum` with an `offset/dir` and `extends` is extending an existing enumeration,
      using the extension scheme outlined in the docs.</a:documentation>
-            <element name="features">
-                <ref name="INCOMPLETE"/>
-            </element>
-        </define>
-        <define name="reg.extensions">
-            <element name="extensions">
-                <ref name="INCOMPLETE"/>
-            </element>
-        </define>
+                <choice>
+                    <ref name="reg.feature.typeref"/>
+                    <ref name="reg.feature.commandref"/>
+                    <ref name="reg.extension.enumref"/>
+                    <ref name="reg.extension.constant"/>
+                    <ref name="reg.extension.enum"/>
+                </choice>
+            </define>
+            <define name="reg.extension.enumref">
+                <element name="enumref">
+                    <a:documentation>References a specific enumerator.</a:documentation>
+                    <ref name="reg.extension.enumref.contents"/>
+                </element>
+            </define>
+            <define name="reg.extension.enumref.contents">
+                <ref name="reg.extension.enumref.attlist"/>
+            </define>
+            <define name="reg.extension.enumref.attlist">
+                <ref name="reg.named.ident.model"/>
+            </define>
+            <define name="reg.extension.constant">
+                <element name="constant">
+                    <a:documentation>Defines a constant exported by an extension.
+These are not enumerators.</a:documentation>
+                    <ref name="reg.extension.constant.contents"/>
+                </element>
+            </define>
+            <define name="reg.extension.constant.contents">
+                <ref name="reg.extension.constant.attlist"/>
+            </define>
+            <define name="reg.extension.constant.attlist">
+                <ref name="reg.named.ident.model"/>
+                <ref name="reg.extension.constant.value.model"/>
+            </define>
+            <define name="reg.extension.constant.value.model">
+                <choice>
+                    <ref name="reg.extension.constant.string.attrib">
+                        <a:documentation>A string literal, for a string constant.</a:documentation>
+                    </ref>
+                    <ref name="reg.extension.constant.enumref.attrib">
+                        <a:documentation>A reference to an existing enumerator or constant.</a:documentation>
+                    </ref>
+                    <ref name="reg.enum.value.model">
+                        <a:documentation>Anything an enumerator/constant can handle.</a:documentation>
+                    </ref>
+                </choice>
+            </define>
+            <define name="reg.extension.enum">
+                <element name="enum">
+                    <a:documentation>Declares a new enumerator that is added to an existing enumerator.</a:documentation>
+                    <ref name="reg.extension.enum.contents"/>
+                </element>
+            </define>
+            <define name="reg.extension.enum.contents">
+                <ref name="reg.extension.enum.attlist"/>
+            </define>
+            <define name="reg.extension.enum.attlist">
+                <ref name="reg.named.ident.model"/>
+                <ref name="reg.extension.enum.extends.attrib"/>
+                <ref name="reg.extension.enum.data.model"/>
+            </define>
+            <define name="reg.extension.enum.data.model">
+                <choice>
+                    <ref name="reg.enum.value.model"/>
+                    <ref name="reg.extension.constant.enumref.attrib">
+                        <a:documentation>A copy of an enumerator's value.</a:documentation>
+                    </ref>
+                </choice>
+            </define>
+            <define name="reg.extension.require.attlist">
+                <optional>
+                    <ref name="reg.extension.api.attrib"/>
+                </optional>
+            </define>
+            <define name="reg.extension.remove">
+                <element name="remove">
+                    <a:documentation>Exactly like the feature version, but with an optional `api` tag.</a:documentation>
+                    <ref name="reg.extension.remove.contents"/>
+                </element>
+            </define>
+            <define name="reg.extension.remove.contents">
+                <ref name="reg.extension.remove.attlist"/>
+                <ref name="reg.feature.require.attlist"/>
+                <oneOrMore>
+                    <ref name="reg.extension.definition.model"/>
+                </oneOrMore>
+                <optional>
+                    <ref name="reg.feature.validity"/>
+                </optional>
+            </define>
+            <define name="reg.extension.remove.attlist">
+                <optional>
+                    <ref name="reg.extension.api.attrib"/>
+                </optional>
+            </define>
+        </div>
     </div>
     <div>
         <a:documentation>Supplementary elements and definitions.</a:documentation>
@@ -853,8 +1101,8 @@ not included in the name. In all other cases, it is.</a:documentation>
                 <ref name="reg.boolean.data"/>
             </attribute>
         </define>
-        <define name="reg.typedef.base-type.attrib">
-            <attribute name="base-type">
+        <define name="reg.typedef.basetype.attrib">
+            <attribute name="basetype">
                 <a:documentation>Specifies the original typename for the typedef.
 This name should reference an existing definition.</a:documentation>
                 <ref name="reg.identifier.data"/>
@@ -865,6 +1113,12 @@ This name should reference an existing definition.</a:documentation>
                 <a:documentation>Specifies the include file that produces the name.
 This text should specify the name of an existing definition of
 type `include`.</a:documentation>
+            </attribute>
+        </define>
+        <define name="reg.bitmask.enumref.attrib">
+            <attribute name="enumref">
+                <a:documentation>Specifies the name of an enumerator that the bitmask gets its bits from.</a:documentation>
+                <ref name="reg.identifier.data"/>
             </attribute>
         </define>
         <define name="reg.define.disabled.attrib">
@@ -941,7 +1195,7 @@ This does not guarantee that variable is an *array*.</a:documentation>
                     <value>pointer-pointer</value>
                     <a:documentation>Type is a pointer-to-a-pointer, perhaps a dynamic array of pointers</a:documentation>
                     <value>pointer-const-pointer</value>
-                    <a:documentation>Type is a `* const *`. A dynamic array of const pointers to (possibly const) base-type.</a:documentation>
+                    <a:documentation>Type is a `* const *`. A dynamic array of const pointers to (possibly const) basetype.</a:documentation>
                 </choice>
             </attribute>
         </define>
@@ -1037,17 +1291,39 @@ If absent, then external synchronization is not necessary.</a:documentation>
                 <ref name="reg.csident.data"/>
             </attribute>
         </define>
-        <define name="reg.constant.number.attrib">
+        <define name="reg.enum.number.attrib">
             <attribute name="number">
                 <a:documentation>An enumerator/constant value which is just an integer number.</a:documentation>
                 <data type="integer"/>
             </attribute>
         </define>
-        <define name="reg.constant.c-expression.attrib">
+        <define name="reg.enum.hex.attrib">
+            <attribute name="hex">
+                <a:documentation>Specifies a hexadecimal integer that represents all the bits set by this mask.
+Not prefixed with "0x".</a:documentation>
+                <ref name="reg.hexadecimal.data"/>
+            </attribute>
+        </define>
+        <define name="reg.enum.bitpos.attrib">
+            <attribute name="bitpos">
+                <a:documentation>Specifies the index of the bit to set for this field.</a:documentation>
+                <data type="nonNegativeInteger"/>
+            </attribute>
+        </define>
+        <define name="reg.enum.c-expression.attrib">
             <attribute name="c-expression">
                 <a:documentation>A C-expression defining an enumerator/constant's value.
 These could be a floating-point number or a more complex expression
 such as (~0LL) or somesuch</a:documentation>
+            </attribute>
+        </define>
+        <define name="reg.enum.purpose.attrib">
+            <attribute name="purpose">
+                <a:documentation>Identifies a special meaning behind the enumeration.
+"bitmask" means that the enumerators are either specific bits or
+combinations of bits. There should be a `bitmask` definition
+attribute which uses this enumeration as the source for its enums.</a:documentation>
+                <value>bitmask</value>
             </attribute>
         </define>
         <define name="reg.enum.range-start.attrib">
@@ -1060,19 +1336,6 @@ such as (~0LL) or somesuch</a:documentation>
             <attribute name="range-end">
                 <a:documentation>End fo an enumerator value range</a:documentation>
                 <data type="integer"/>
-            </attribute>
-        </define>
-        <define name="reg.bitmask.pos.attrib">
-            <attribute name="pos">
-                <a:documentation>Specifies the index of the bit to set for this field.</a:documentation>
-                <data type="nonNegativeInteger"/>
-            </attribute>
-        </define>
-        <define name="reg.bitmask.mask-hex.attrib">
-            <attribute name="mask-hex">
-                <a:documentation>Specifies a hexadecimal integer that represents all the bits set by this mask.
-Not prefixed with "0x".</a:documentation>
-                <ref name="reg.hexadecimal.data"/>
             </attribute>
         </define>
         <define name="reg.command.successcodes.attrib">
@@ -1123,6 +1386,93 @@ When not specified, the function cannot be used in a queue.</a:documentation>
             <attribute name="target">
                 <a:documentation>Specifies the target name of the alias. This may be another alias,
 so long as the eventual chain of targets leads to an actual command.</a:documentation>
+                <ref name="reg.identifier.data"/>
+            </attribute>
+        </define>
+        <define name="reg.feature.api.attrib">
+            <attribute name="api">
+                <a:documentation>The name of the API that a feature defines.</a:documentation>
+            </attribute>
+        </define>
+        <define name="reg.feature.version.attrib">
+            <attribute name="version">
+                <a:documentation>Version number for the feature.</a:documentation>
+                <data type="float"/>
+            </attribute>
+        </define>
+        <define name="ref.feature.define.attrib">
+            <attribute name="define">
+                <a:documentation>When generating C-style information, use this as the #define wrapper
+around this feature.</a:documentation>
+                <ref name="reg.identifier.data"/>
+            </attribute>
+        </define>
+        <define name="reg.feature.profile.attrib">
+            <attribute name="profile">
+                <a:documentation>The name of the API profile which this specialization element
+is associated. All specified requirements/exclusions apply
+only to that profile.</a:documentation>
+            </attribute>
+        </define>
+        <define name="reg.feature.usage.struct.attrib">
+            <attribute name="struct">
+                <a:documentation>Specifies the name of a &lt;struct&gt; which this `usage` statement extends.</a:documentation>
+                <ref name="reg.identifier.data"/>
+            </attribute>
+        </define>
+        <define name="reg.feature.usage.command.attrib">
+            <attribute name="command">
+                <a:documentation>Specifies the name of a &lt;command&gt; which this `usage` statement extends.</a:documentation>
+                <ref name="reg.identifier.data"/>
+            </attribute>
+        </define>
+        <define name="reg.extension.number.attrib">
+            <attribute name="number">
+                <a:documentation>The extension's registration number.
+Used to compute the offsets for enumerators and the like.</a:documentation>
+                <data type="positiveInteger"/>
+            </attribute>
+        </define>
+        <define name="reg.extension.supported.attrib">
+            <attribute name="supported">
+                <a:documentation>A regex used to match an `api` tag on a `feature` element.</a:documentation>
+            </attribute>
+        </define>
+        <define name="ref.extension.author.attrib">
+            <attribute name="author">
+                <a:documentation>The name of the author of an extension, typically a company.
+When absent, can be gleamed by using the `name` and parsing out the
+author part of the name, then finding the corresponding `tag` element.</a:documentation>
+            </attribute>
+        </define>
+        <define name="ref.extension.contact.attrib">
+            <attribute name="contact">
+                <a:documentation>The name and contact info for the person who is responsible for
+the extension. Can be inferred in the same way as `author`.</a:documentation>
+            </attribute>
+        </define>
+        <define name="reg.extension.api.attrib">
+            <attribute name="api">
+                <a:documentation>Specifies that the extensions or removals only apply to that specific
+API being generated. If not present, it applies to all APIs.</a:documentation>
+            </attribute>
+        </define>
+        <define name="reg.extension.constant.string.attrib">
+            <attribute name="string">
+                <a:documentation>An arbitrary string constant. The string here is not contained in quotes.
+So you should add your own.</a:documentation>
+            </attribute>
+        </define>
+        <define name="reg.extension.constant.enumref.attrib">
+            <attribute name="enumref">
+                <a:documentation>Specifies a constant who's value comes from an enum
+or another existing constant.</a:documentation>
+                <ref name="reg.identifier.data"/>
+            </attribute>
+        </define>
+        <define name="reg.extension.enum.extends.attrib">
+            <attribute name="extends">
+                <a:documentation>The name of an `enumeration` to be extended.</a:documentation>
                 <ref name="reg.identifier.data"/>
             </attribute>
         </define>

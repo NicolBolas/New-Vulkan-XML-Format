@@ -2,7 +2,6 @@
 local parse_dom = require "_ParseVkDom"
 local root = require "_ParseVkRoot"
 local vkxml = parse_dom.DOM()
-local parse_enums = require "_ParseVkEnums"
 
 --Used to remap from vk.xml element names to new_registry element names.
 local name_remap =
@@ -35,6 +34,7 @@ function root_procs.comment(node, roots)
 	roots[#roots + 1] = data
 end
 
+local parse_enums = require "_ParseVkEnums"
 --"enum" is unorthodox, so it needs special parsing.
 function root_procs.enums(node, roots)
 	local data = parse_enums.ProcessSingleEnum(node)
@@ -65,6 +65,18 @@ function root_procs.enums(node, roots)
 	end
 end
 
+local parse_enums = require "_ParseVkFeatures"
+function root_procs.feature(node, roots)
+	local data = parse_enums.ProcessSingle(node)
+
+	if(not roots.features_index) then
+		roots.features_index = #roots + 1
+		local features = { kind = "features" }
+		roots[roots.features_index] = features
+	end
+	
+	table.insert(roots[roots.features_index], data)
+end
 
 local funcs = {}
 

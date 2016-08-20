@@ -12,6 +12,7 @@ local internal_writers =
 	constants =		require "_NewConstantsWriters",
 	enums =			require "_NewEnumsWriters",
 	commands =		require "_NewCommandsWriters",
+	features =		require "_NewFeaturesWriters",
 }
 
 --Writers for the root elements
@@ -40,9 +41,6 @@ for name, writers in pairs(internal_writers) do
 		writer:PopElement()
 	end
 end
-
---TODO: Constants and enumerations have to be generated specially, since originally
---they were in the same root node. So in the parsed data, they're in the same collection.
 
 local input = parse_vk.Parse()
 

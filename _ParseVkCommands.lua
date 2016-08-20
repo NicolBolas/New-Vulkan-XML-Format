@@ -2,7 +2,6 @@
 local parse_dom = require "_ParseVkDom"
 local common = require "_ParseVkCommon"
 
-
 local Elems = {}
 
 function Elems.command(node)

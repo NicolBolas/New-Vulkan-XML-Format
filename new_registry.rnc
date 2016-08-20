@@ -24,8 +24,8 @@ div
         reg.constants?,
         reg.enums?,
         reg.commands,
-        reg.feature+,
-        reg.extension*
+        reg.features,
+        reg.extensions?
     
     reg.registry.attlist = empty
 
@@ -275,9 +275,22 @@ div
         ## Which one is used changes the meaning of the `size` attribute.
         ## Static arrays must have a `size`; dynamic do not.
         reg.type.array.model =
-            ((reg.type.static.array.attrib, reg.type.static.array.size.attrib) |
-            (reg.type.dynamic.array.attrib, reg.type.dynamic.array.size.attrib?,
-            reg.type.dynamic.array.null-terminate.attrib?))
+            reg.type.static.array.model |
+            reg.type.dynamic.array.model
+            
+        ## Static arrays have `array` set to "static" and `size` set to a number or
+        ## constant reference.
+        reg.type.static.array.model =
+            reg.type.static.array.attrib,
+            reg.type.static.array.size.attrib
+
+        ## Dynamic arrays have `array` set to "dynamic", and may have
+        ## either the `null-terminate` attribute or the `size` attribute or both.
+        ## If it has neither, then the size is not determinable.
+        reg.type.dynamic.array.model =
+            reg.type.dynamic.array.attrib,
+            reg.type.dynamic.array.size.attrib?,
+            reg.type.dynamic.array.null-terminate.attrib?
         
         ## Data model describing type information for a variable.
         ## Variables have a type, but they also have additional data about
@@ -532,6 +545,15 @@ div
     ## Features and Extensions
     div
     {
+        reg.features =
+            element features { reg.features.contents }
+            
+        reg.features.contents =
+            reg.features.attlist,
+            reg.feature+
+            
+        reg.features.attlist = empty
+    
         reg.feature =
             ## Defines the base API for a Vulkan specification.
             ## Represents a specific major/minor version of Vulkan.
@@ -566,17 +588,18 @@ div
             reg.notation.attrib?
         
         reg.feature.reference.model =
-            reg.feature.typeref |
-            reg.feature.commandref
+            reg.feature.defref |
+            reg.feature.commandref |
+            reg.feature.enumref
             
-        reg.feature.typeref =
+        reg.feature.defref =
             ## Reference to a named `definitions` child.
-            element typeref { reg.feature.typeref.contents }
+            element defref { reg.feature.defref.contents }
 
-        reg.feature.typeref.contents =
-            reg.feature.typeref.attlist
+        reg.feature.defref.contents =
+            reg.feature.defref.attlist
         
-        reg.feature.typeref.attlist =
+        reg.feature.defref.attlist =
             reg.named.ident.model
             
         reg.feature.commandref =
@@ -589,6 +612,16 @@ div
         reg.feature.commandref.attlist =
             reg.named.ident.model
         
+        reg.feature.enumref =
+            ## References a specific enumerator or constant.
+            element enumref { reg.feature.enumref.contents }
+
+        reg.feature.enumref.contents =
+            reg.feature.enumref.attlist
+            
+        reg.feature.enumref.attlist =
+            reg.named.ident.model
+
         reg.feature.validity =
             ## Provides additional validity checks when this API/extension is active.
             element validity { reg.feature.validity.contents }
@@ -620,6 +653,15 @@ div
             reg.feature.require.contents
             
         reg.feature.remove.attlist = empty
+        
+        reg.extensions =
+            element extensions { reg.extensions.contents }
+            
+        reg.extensions.contents =
+            reg.extensions.attlist,
+            reg.extension+
+            
+        reg.extensions.attlist = empty
             
         reg.extension =
             ## Specifies the types exposed/forbidden by an extension.
@@ -661,21 +703,11 @@ div
         ##      using the extension scheme outlined in the docs.
 
         reg.extension.definition.model =
-            reg.feature.typeref |
+            reg.feature.defref |
             reg.feature.commandref |
-            reg.extension.enumref |
+            reg.feature.enumref |
             reg.extension.constant |
             reg.extension.enum
-
-        reg.extension.enumref =
-            ## References a specific enumerator.
-            element enumref { reg.extension.enumref.contents }
-
-        reg.extension.enumref.contents =
-            reg.extension.enumref.attlist
-            
-        reg.extension.enumref.attlist =
-            reg.named.ident.model
 
         reg.extension.constant =
             ## Defines a constant exported by an extension.

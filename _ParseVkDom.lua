@@ -40,7 +40,7 @@ function funcs.GenProcTable(Tests, Procs, Elems, StoreFunc)
 			local Proc = assert(Procs[name])
 			
 			procEntry.Proc = function(node, ...)
-				local data = Proc(node)
+				local data = Proc(node, ...)
 				StoreFunc(data, ...)
 			end
 		end
@@ -48,7 +48,7 @@ function funcs.GenProcTable(Tests, Procs, Elems, StoreFunc)
 	if(Elems) then
 		for name, Proc in pairs(Elems) do
 			procTable[name] = function(node, ...)
-				local data = Proc(node)
+				local data = Proc(node, ...)
 				StoreFunc(data, ...)
 			end
 		end
@@ -125,7 +125,11 @@ end
 --Effectively strips out all markup.
 function funcs.ExtractFullText(node)
 	local list = {}
-	ExtractText(node, list)
+	if(node.type == "text") then
+		return node.value
+	else
+		ExtractText(node, list)
+	end
 	return table.concat(list)
 end
 
