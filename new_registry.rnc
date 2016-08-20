@@ -677,7 +677,7 @@ div
             reg.extension.supported.attrib,
             ref.feature.define.attrib?,
             ref.extension.author.attrib?,
-            ref.extension.contact.attrib
+            ref.extension.contact.attrib?
 
         reg.extension.specification.model =
             reg.extension.require |

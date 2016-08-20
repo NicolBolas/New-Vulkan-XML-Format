@@ -32,7 +32,8 @@ local function WriteReference(writer, data)
 		writer:PushElement("validity")
 		for _, usage in ipairs(data.usages) do
 			writer:PushElement("usage")
-			writer:AddText(usage)
+			write_utils.WriteAttribs(writer, {"struct", "command"}, usage)
+			writer:AddText(usage.text)
 			writer:PopElement()
 		end
 		writer:PopElement()

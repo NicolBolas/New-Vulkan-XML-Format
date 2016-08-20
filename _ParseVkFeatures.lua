@@ -40,14 +40,19 @@ function require_elem_funcs.enum(node, isExtension)
 end
 
 function require_elem_funcs.usage(node, isExtension)
-	return parse_dom.ExtractFullText(node)
+	local data = { kind = "usage" }
+	
+	data.text = parse_dom.ExtractFullText(node)
+	data.command = node.attr.command
+	data.struct = node.attr.struct
+	
+	return data
 end
-
 
 
 local require_proc = parse_dom.GenProcTable(nil, nil, require_elem_funcs,
 function(data, _, req_data)
-	if(type(data) == "string") then
+	if(data.kind == "usage") then
 		--Usage. Add to usages.
 		if(not req_data.usages) then
 			req_data.usages = {}
