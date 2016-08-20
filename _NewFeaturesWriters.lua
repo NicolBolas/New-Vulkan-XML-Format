@@ -7,6 +7,8 @@ local reference_writers = {}
 reference_attribs.defref = {"name", "notation"}
 reference_attribs.commandref = {"name", "notation"}
 reference_attribs.enumref = {"name", "notation"}
+reference_attribs.constant = {"name", "number", "c-expression", "enumref", "string", "notation"}
+reference_attribs.enum = {"name", "extends", "offset", "negate", "number", "bitpos", "hex", "c-expression", "notation"}
 
 local reference_funcs = {}
 for name, attribs in pairs(reference_attribs) do
@@ -52,6 +54,13 @@ function func_writers.feature(writer, data)
 	end
 end
 
+
+func_attribs.extension = {"name", "number", "match-api", "define", "author", "contact", "notation", }
+function func_writers.extension(writer, data)
+	for _, reference in ipairs(data.references) do
+		WriteReference(writer, reference, true)
+	end
+end
 local writers = {}
 
 for name, func in pairs(func_writers) do

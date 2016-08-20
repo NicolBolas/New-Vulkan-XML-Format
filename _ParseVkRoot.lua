@@ -10,6 +10,7 @@ local tbl =
 	tags =			require "_ParseVkTags",
 	types = 		require "_ParseVkTypes",
 	commands =		require "_ParseVkCommands",
+	extensions =	require "_ParseVkFeatures",
 }
 
 return tbl

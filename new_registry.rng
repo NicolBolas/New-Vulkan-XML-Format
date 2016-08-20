@@ -33,12 +33,10 @@
                 <ref name="reg.enums"/>
             </optional>
             <ref name="reg.commands"/>
-            <oneOrMore>
-                <ref name="reg.feature"/>
-            </oneOrMore>
-            <zeroOrMore>
-                <ref name="reg.extension"/>
-            </zeroOrMore>
+            <ref name="reg.features"/>
+            <optional>
+                <ref name="reg.extensions"/>
+            </optional>
         </define>
         <define name="reg.registry.attlist">
             <empty/>
@@ -388,20 +386,27 @@ struct member, function parameter or return value.</a:documentation>
 Which one is used changes the meaning of the `size` attribute.
 Static arrays must have a `size`; dynamic do not.</a:documentation>
                 <choice>
-                    <group>
-                        <ref name="reg.type.static.array.attrib"/>
-                        <ref name="reg.type.static.array.size.attrib"/>
-                    </group>
-                    <group>
-                        <ref name="reg.type.dynamic.array.attrib"/>
-                        <optional>
-                            <ref name="reg.type.dynamic.array.size.attrib"/>
-                        </optional>
-                        <optional>
-                            <ref name="reg.type.dynamic.array.null-terminate.attrib"/>
-                        </optional>
-                    </group>
+                    <ref name="reg.type.static.array.model"/>
+                    <ref name="reg.type.dynamic.array.model"/>
                 </choice>
+            </define>
+            <define name="reg.type.static.array.model">
+                <a:documentation>Static arrays have `array` set to "static" and `size` set to a number or
+constant reference.</a:documentation>
+                <ref name="reg.type.static.array.attrib"/>
+                <ref name="reg.type.static.array.size.attrib"/>
+            </define>
+            <define name="reg.type.dynamic.array.model">
+                <a:documentation>Dynamic arrays have `array` set to "dynamic", and may have
+either the `null-terminate` attribute or the `size` attribute or both.
+If it has neither, then the size is not determinable.</a:documentation>
+                <ref name="reg.type.dynamic.array.attrib"/>
+                <optional>
+                    <ref name="reg.type.dynamic.array.size.attrib"/>
+                </optional>
+                <optional>
+                    <ref name="reg.type.dynamic.array.null-terminate.attrib"/>
+                </optional>
             </define>
             <define name="reg.typed.variable.model">
                 <a:documentation>Data model describing type information for a variable.
@@ -764,6 +769,20 @@ the new command comes from the existing one.</a:documentation>
         </div>
         <div>
             <a:documentation>Features and Extensions</a:documentation>
+            <define name="reg.features">
+                <element name="features">
+                    <ref name="reg.features.contents"/>
+                </element>
+            </define>
+            <define name="reg.features.contents">
+                <ref name="reg.features.attlist"/>
+                <oneOrMore>
+                    <ref name="reg.feature"/>
+                </oneOrMore>
+            </define>
+            <define name="reg.features.attlist">
+                <empty/>
+            </define>
             <define name="reg.feature">
                 <element name="feature">
                     <a:documentation>Defines the base API for a Vulkan specification.
@@ -819,20 +838,21 @@ Represents a specific major/minor version of Vulkan.</a:documentation>
             </define>
             <define name="reg.feature.reference.model">
                 <choice>
-                    <ref name="reg.feature.typeref"/>
+                    <ref name="reg.feature.defref"/>
                     <ref name="reg.feature.commandref"/>
+                    <ref name="reg.feature.enumref"/>
                 </choice>
             </define>
-            <define name="reg.feature.typeref">
-                <element name="typeref">
+            <define name="reg.feature.defref">
+                <element name="defref">
                     <a:documentation>Reference to a named `definitions` child.</a:documentation>
-                    <ref name="reg.feature.typeref.contents"/>
+                    <ref name="reg.feature.defref.contents"/>
                 </element>
             </define>
-            <define name="reg.feature.typeref.contents">
-                <ref name="reg.feature.typeref.attlist"/>
+            <define name="reg.feature.defref.contents">
+                <ref name="reg.feature.defref.attlist"/>
             </define>
-            <define name="reg.feature.typeref.attlist">
+            <define name="reg.feature.defref.attlist">
                 <ref name="reg.named.ident.model"/>
             </define>
             <define name="reg.feature.commandref">
@@ -845,6 +865,18 @@ Represents a specific major/minor version of Vulkan.</a:documentation>
                 <ref name="reg.feature.commandref.attlist"/>
             </define>
             <define name="reg.feature.commandref.attlist">
+                <ref name="reg.named.ident.model"/>
+            </define>
+            <define name="reg.feature.enumref">
+                <element name="enumref">
+                    <a:documentation>References a specific enumerator or constant.</a:documentation>
+                    <ref name="reg.feature.enumref.contents"/>
+                </element>
+            </define>
+            <define name="reg.feature.enumref.contents">
+                <ref name="reg.feature.enumref.attlist"/>
+            </define>
+            <define name="reg.feature.enumref.attlist">
                 <ref name="reg.named.ident.model"/>
             </define>
             <define name="reg.feature.validity">
@@ -891,6 +923,20 @@ Represents a specific major/minor version of Vulkan.</a:documentation>
             <define name="reg.feature.remove.attlist">
                 <empty/>
             </define>
+            <define name="reg.extensions">
+                <element name="extensions">
+                    <ref name="reg.extensions.contents"/>
+                </element>
+            </define>
+            <define name="reg.extensions.contents">
+                <ref name="reg.extensions.attlist"/>
+                <oneOrMore>
+                    <ref name="reg.extension"/>
+                </oneOrMore>
+            </define>
+            <define name="reg.extensions.attlist">
+                <empty/>
+            </define>
             <define name="reg.extension">
                 <element name="extension">
                     <a:documentation>Specifies the types exposed/forbidden by an extension.</a:documentation>
@@ -906,14 +952,16 @@ Represents a specific major/minor version of Vulkan.</a:documentation>
             <define name="reg.extension.attlist">
                 <ref name="reg.named.ident.model"/>
                 <ref name="reg.extension.number.attrib"/>
-                <ref name="reg.extension.supported.attrib"/>
+                <ref name="reg.extension.match-api.attrib"/>
                 <optional>
                     <ref name="ref.feature.define.attrib"/>
                 </optional>
                 <optional>
                     <ref name="ref.extension.author.attrib"/>
                 </optional>
-                <ref name="ref.extension.contact.attrib"/>
+                <optional>
+                    <ref name="ref.extension.contact.attrib"/>
+                </optional>
             </define>
             <define name="reg.extension.specification.model">
                 <choice>
@@ -938,33 +986,13 @@ Represents a specific major/minor version of Vulkan.</a:documentation>
                 </optional>
             </define>
             <define name="reg.extension.definition.model">
-                <a:documentation>Old format heavily overloads "enum":
- `enum` with a `value` or `bitpos` and nothing else is declaring a *constant*, not an
-     enumerator. The constant may be a number/bitpos, a quoted string, or an existing
-     enumerator/constant. The existing constant may come from the same extension.
- `enum` with a `value/bitpos` and `extends` is extending an existing enumeration with
-     the specific value.
- `enum` with an `offset/dir` and `extends` is extending an existing enumeration,
-     using the extension scheme outlined in the docs.</a:documentation>
                 <choice>
-                    <ref name="reg.feature.typeref"/>
+                    <ref name="reg.feature.defref"/>
                     <ref name="reg.feature.commandref"/>
-                    <ref name="reg.extension.enumref"/>
+                    <ref name="reg.feature.enumref"/>
                     <ref name="reg.extension.constant"/>
                     <ref name="reg.extension.enum"/>
                 </choice>
-            </define>
-            <define name="reg.extension.enumref">
-                <element name="enumref">
-                    <a:documentation>References a specific enumerator.</a:documentation>
-                    <ref name="reg.extension.enumref.contents"/>
-                </element>
-            </define>
-            <define name="reg.extension.enumref.contents">
-                <ref name="reg.extension.enumref.attlist"/>
-            </define>
-            <define name="reg.extension.enumref.attlist">
-                <ref name="reg.named.ident.model"/>
             </define>
             <define name="reg.extension.constant">
                 <element name="constant">
@@ -1010,10 +1038,14 @@ These are not enumerators.</a:documentation>
             <define name="reg.extension.enum.data.model">
                 <choice>
                     <ref name="reg.enum.value.model"/>
-                    <ref name="reg.extension.constant.enumref.attrib">
-                        <a:documentation>A copy of an enumerator's value.</a:documentation>
-                    </ref>
+                    <ref name="reg.extension.enum.relative.model"/>
                 </choice>
+            </define>
+            <define name="reg.extension.enum.relative.model">
+                <ref name="reg.extension.enum.offset.attrib"/>
+                <optional>
+                    <ref name="reg.extension.enum.negate.attrib"/>
+                </optional>
             </define>
             <define name="reg.extension.require.attlist">
                 <optional>
@@ -1433,9 +1465,10 @@ Used to compute the offsets for enumerators and the like.</a:documentation>
                 <data type="positiveInteger"/>
             </attribute>
         </define>
-        <define name="reg.extension.supported.attrib">
-            <attribute name="supported">
-                <a:documentation>A regex used to match an `api` tag on a `feature` element.</a:documentation>
+        <define name="reg.extension.match-api.attrib">
+            <attribute name="match-api">
+                <a:documentation>A regex used to match an `api` tag on a `feature` element.
+If it matches, then the extension can be used with that API.</a:documentation>
             </attribute>
         </define>
         <define name="ref.extension.author.attrib">
@@ -1474,6 +1507,19 @@ or another existing constant.</a:documentation>
             <attribute name="extends">
                 <a:documentation>The name of an `enumeration` to be extended.</a:documentation>
                 <ref name="reg.identifier.data"/>
+            </attribute>
+        </define>
+        <define name="reg.extension.enum.offset.attrib">
+            <attribute name="offset">
+                <a:documentation>Compute the enum's value based on an integer offset.</a:documentation>
+                <data type="nonNegativeInteger"/>
+            </attribute>
+        </define>
+        <define name="reg.extension.enum.negate.attrib">
+            <attribute name="negate" a:default-value="false">
+                <a:documentation>If true, the offset's value should be negated.
+Primarily for error codes.</a:documentation>
+                <ref name="reg.boolean.data"/>
             </attribute>
         </define>
     </div>

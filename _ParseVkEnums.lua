@@ -1,45 +1,9 @@
 local parse_dom = require "_ParseVkDom"
+local common = require "_ParseVkCommon"
 
 --Handles all of the enum types.
 
 local funcs = {}
-
-local function ParseValue(data, value)
-	assert(value)
-	if(value:match("^[+-]?%d+$")) then
-		data.number = value
-	else
-		local hex = value:match("^0x(%d+)$")
-		if(hex) then
-			data.hex = hex
-		else
-			data["c-expression"] = value
-		end
-	end
-end
-
---Returns the name of the attribute and the data.
-local function ExtractEnumNameData(node)
-	if(node.attr.value) then
-		local value = node.attr.value
-		if(value:match("^[+-]?%d+$")) then
-			return "number", value
-		else
-			local hex = value:match("^0x(%d+)$")
-			if(hex) then
-				return "hex", hex
-			else
-				return "c-expression", value
-			end
-		end
-	end
-	
-	if(node.attr.bitpos) then
-		return "bitpos", node.attr.bitpos
-	end
-	
-	assert(false, node.attr.name)
-end
 
 local function ParseConstants(node)
 	local constants = { kind = "constants" }
@@ -51,7 +15,7 @@ local function ParseConstants(node)
 		constants[#constants + 1] = constant
 		
 		constant.name = node.attr.name
-		local name, value = ExtractEnumNameData(node)
+		local name, value = common.ExtractEnumNameData(node)
 		constant[name] = value
 	end
 	
@@ -86,7 +50,7 @@ function enumerator_elems.enum(node)
 	
 	data.name = node.attr.name
 	data.notation = node.attr.comment
-	local name, value = ExtractEnumNameData(node)
+	local name, value = common.ExtractEnumNameData(node)
 	data[name] = value
 	
 	return data

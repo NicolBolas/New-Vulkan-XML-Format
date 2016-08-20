@@ -13,6 +13,7 @@ local internal_writers =
 	enums =			require "_NewEnumsWriters",
 	commands =		require "_NewCommandsWriters",
 	features =		require "_NewFeaturesWriters",
+	extensions =	require "_NewFeaturesWriters", --From same place.
 }
 
 --Writers for the root elements
@@ -44,9 +45,10 @@ end
 
 local input = parse_vk.Parse()
 
-local writer = XmlWriter.XmlWriter("test.xml")
+local filename = ... or "vk_new.xml"
 
--- <?oxygen RNGSchema="new_registry.rnc" type="compact"?>
+local writer = XmlWriter.XmlWriter(filename)
+
 writer:AddProcessingInstruction("oxygen", [[RNGSchema="new_registry.rnc" type="compact"]])
 
 writer:PushElement("registry")

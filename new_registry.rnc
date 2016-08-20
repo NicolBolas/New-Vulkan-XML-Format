@@ -674,7 +674,7 @@ div
         reg.extension.attlist =
             reg.named.ident.model,
             reg.extension.number.attrib,
-            reg.extension.supported.attrib,
+            reg.extension.match-api.attrib,
             ref.feature.define.attrib?,
             ref.extension.author.attrib?,
             ref.extension.contact.attrib?
@@ -693,15 +693,6 @@ div
             reg.extension.definition.model+,
             reg.feature.validity?
             
-        ## Old format heavily overloads "enum":
-        ##  `enum` with a `value` or `bitpos` and nothing else is declaring a *constant*, not an
-        ##      enumerator. The constant may be a number/bitpos, a quoted string, or an existing
-        ##      enumerator/constant. The existing constant may come from the same extension.
-        ##  `enum` with a `value/bitpos` and `extends` is extending an existing enumeration with
-        ##      the specific value.
-        ##  `enum` with an `offset/dir` and `extends` is extending an existing enumeration,
-        ##      using the extension scheme outlined in the docs.
-
         reg.extension.definition.model =
             reg.feature.defref |
             reg.feature.commandref |
@@ -740,12 +731,15 @@ div
             reg.named.ident.model,
             reg.extension.enum.extends.attrib,
             reg.extension.enum.data.model
-            
+        
         reg.extension.enum.data.model =
             reg.enum.value.model |
-            ## A copy of an enumerator's value.
-            reg.extension.constant.enumref.attrib
-
+            reg.extension.enum.relative.model
+            
+        reg.extension.enum.relative.model =
+            reg.extension.enum.offset.attrib,
+            reg.extension.enum.negate.attrib?
+            
         reg.extension.require.attlist =
             reg.extension.api.attrib?
 
@@ -1051,9 +1045,10 @@ div
         ## Used to compute the offsets for enumerators and the like.
         attribute number { xsd:positiveInteger }
     
-    reg.extension.supported.attrib =
+    reg.extension.match-api.attrib =
         ## A regex used to match an `api` tag on a `feature` element.
-        attribute supported { text }
+        ## If it matches, then the extension can be used with that API.
+        attribute match-api { text }
 
     ref.extension.author.attrib =
         ## The name of the author of an extension, typically a company.
@@ -1084,6 +1079,17 @@ div
     reg.extension.enum.extends.attrib =
         ## The name of an `enumeration` to be extended.
         attribute extends { reg.identifier.data }
+     
+    reg.extension.enum.offset.attrib =
+        ## Compute the enum's value based on an integer offset.
+        attribute offset { xsd:nonNegativeInteger }
+    
+    reg.extension.enum.negate.attrib =
+        ## If true, the offset's value should be negated.
+        ## Primarily for error codes.
+        [a:default-value = "false"]
+        attribute negate { reg.boolean.data }
+
 }
 
 ## Data types

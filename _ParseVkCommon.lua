@@ -4,6 +4,31 @@ local parse_dom = require "_ParseVkDom"
 
 local funcs = {}
 
+--Returns the name of the attribute for the output and the data.
+function funcs.ExtractEnumNameData(node)
+	if(node.attr.value) then
+		local value = node.attr.value
+		if(value:match("^[+-]?%d+$")) then
+			return "number", value
+		else
+			local hex = value:match("^0x(%d+)$")
+			if(hex) then
+				return "hex", hex
+			else
+				return "c-expression", value
+			end
+		end
+	end
+	
+	if(node.attr.bitpos) then
+		return "bitpos", node.attr.bitpos
+	end
+	
+	assert(false, node.attr.name)
+end
+
+
+
 function funcs.rtrim(s)
   local n = #s
   while n > 0 and s:find("^%s", n) do n = n - 1 end

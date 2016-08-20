@@ -1,4 +1,4 @@
 syntax: glob
 vkreg.xpr
 *.html
-test.xml
+./*.xml

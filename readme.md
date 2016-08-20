@@ -36,5 +36,5 @@ Generating the new format requires the use of [Lua 5.1 or later](http://www.lua.
 
 ## Usage
 
-Executing `lua.exe ConvertToNewFmt.lua` from this directory will generate `test.xml`, which is a file that stores the `vk.xml` data in the new format. No other parameters are needed for this process.
+Executing `lua.exe ConvertToNewFmt.lua` from this directory will generate `vk_new.xml`, which is a file that stores the `vk.xml` data in the new format. No other parameters are needed for this process. Though if you want to profide a filename, you can via `lua.exe ConvertToNewFmt.lua <filename>`.
 
