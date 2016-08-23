@@ -156,7 +156,7 @@ div
         reg.def.bitmask =
             ## Definition that specifies a bitmask, using a particular existing type.
             ## Contents are the same as `typedef`.
-            ## The members of the bitmask are declared elsewhere. 
+            ## The possible bits can be defined by a specific, referenced enumeration.
             element bitmask { reg.def.bitmask.contents }
             
         reg.def.bitmask.contents =
@@ -842,7 +842,7 @@ div
         attribute value { text }
 
     reg.handle.parent.attrib =
-        ## The name of a handle object that is the parent of this handle.
+        ## The name(s) of a handle object that is the parent of this handle.
         attribute parent { reg.csident.data }
 
     reg.handle.type.attrib =
