@@ -95,7 +95,7 @@ local function Process(writer, node, proc)
 			name = name(node)
 		end
 		
-		assert(name)
+		assert(name, proc.test)
 		
 		local verbatim = element.verbatim
 		
@@ -108,7 +108,8 @@ local function Process(writer, node, proc)
 					outname, value = map, node.attr[attrib]
 				elseif(map == true) then
 					outname, value = attrib, node.attr[attrib]
-				else
+				elseif(node.attr[attrib]) then
+					--No mapping if input attribute doesn't exist.
 					outname, value = map(node.attr[attrib], node)
 				end
 				

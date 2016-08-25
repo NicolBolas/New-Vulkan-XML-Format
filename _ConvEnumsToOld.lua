@@ -1,6 +1,8 @@
 
 local common = require "_ConvCommon"
 
+
+
 local enumerator =
 {
 	{
@@ -10,14 +12,7 @@ local enumerator =
 		{
 			name = "enum",
 			
-			attribs =
-			{
-				name = "name",
-				number = "value",
-				hex = "value",
-				["c-expression"] = "value",
-				bitpos = "bitpos",
-			},
+			attribs = common.TableAttribToOldEnumModel(),
 		},
 	},
 	

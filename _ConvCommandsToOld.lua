@@ -1,10 +1,6 @@
 
 local common = require "_ConvCommon"
 
-local function WriteParam(writer, node)
-	common.OldWriteVariable(writer, node)
-end
-
 local cmd_children =
 {
 	{
@@ -15,7 +11,7 @@ local cmd_children =
 			name = "param",
 			verbatim = true,
 			
-			proc = WriteParam,
+			proc = common.OldWriteVariable,
 		},
 	},
 	{

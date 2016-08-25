@@ -648,6 +648,7 @@ div
             ## Definitions which are *not* to be exposed by the specification.
             element remove { reg.feature.remove.contents }
             
+        ##Uses same content model as `require`.
         reg.feature.remove.contents =
             reg.feature.remove.attlist,
             reg.feature.require.contents

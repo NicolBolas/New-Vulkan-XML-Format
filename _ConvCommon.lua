@@ -1,4 +1,8 @@
 
+local function iff(test, true_val, false_val)
+	if(test) then return true_val else return false_val end
+end
+
 local funcs = {}
 
 local function CopyAttribIfPresent(writer, node, inputAttrib, outputAttrib)
@@ -95,6 +99,164 @@ function funcs.OldWriteVariable(writer, node)
 		writer:AddText("]")
 	end
 end
+
+--Creates a new table containing the standard enum model stuff.
+function funcs.TableAttribToOldEnumModel()
+	return
+	{
+		name = "name",
+		number = "value",
+		hex = "value",
+		["c-expression"] = "value",
+		bitpos = "bitpos",
+	}
+end
+
+
+
+--Processing just the refs.
+local toOldRefs =
+{
+	{	test = "defref",
+		
+		element =
+		{	name = "type",
+			attribs =
+			{
+				name = "name",
+				notation = "comment",
+			},
+		}
+	},
+	{	test = "commandref",
+		
+		element =
+		{	name = "command",
+			attribs =
+			{
+				name = "name",
+				notation = "comment",
+			},
+		},
+	},
+	{	test = "enumref",
+		
+		element =
+		{	name = "enum",
+			attribs =
+			{
+				name = "name",
+				notation = "comment",
+			},
+		},
+	},
+}
+
+
+local toOldContantAttribs = funcs.TableAttribToOldEnumModel()
+--Quoted string
+toOldContantAttribs["string"] = function(value, node) return "value", '"' .. value .. '"' end
+toOldContantAttribs["enumref"] = "value"
+
+local toOldEnumAttribs = funcs.TableAttribToOldEnumModel()
+toOldEnumAttribs["extends"] = true
+toOldEnumAttribs["offset"] = true
+toOldEnumAttribs["negate"] = function(value, node)
+	if(value == "true") then
+		return "dir", "-"
+	else
+		return nil, nil
+	end
+end
+
+--Constant and enum processing.
+local toOldDeclarations =
+{
+	{	test = "constant",
+	
+		element =
+		{	name = "enum",
+			attribs = toOldContantAttribs,
+		},
+	},
+	{	test = "enum",
+	
+		element =
+		{	name = "enum",
+			attribs = toOldEnumAttribs,
+		},
+	},
+}
+
+local toOldValidity =
+{	test = "validity",
+
+	children =
+	{
+		{	test = "usage",
+			element =
+			{	name = "usage",
+				attribs =
+				{
+					struct = "struct",
+					command = "command",
+				},
+				
+				proc = function(writer, node)
+					writer:AddText(funcs.ExtractFullText(node))
+				end
+			},
+		},
+	},
+}
+
+--Generates table for converting request/removes to the old format.
+function funcs.TableConvToOldReqRem(isFeature)
+	local children = {}
+	for _, test in ipairs(toOldRefs) do
+		children[#children + 1] = test
+	end
+	if(isFeature == false) then
+		for _, test in ipairs(toOldDeclarations) do
+			children[#children + 1] = test
+		end
+	end
+	
+	children[#children + 1] = toOldValidity
+	
+	return
+	{
+		{	test = "require",
+			
+			element =
+			{	name = "require",
+				attribs =
+				{
+					profile = "profile",
+					notation = "comment",
+					api = iff(isFeature == false, "api", nil),
+				},
+			},
+			
+			children = children,
+		},
+		{	test = "remove",
+			
+			element =
+			{	name = "remove",
+				attribs =
+				{
+					profile = "profile",
+					notation = "comment",
+					api = iff(isFeature == false, "api", nil),
+				},
+			},
+			
+			children = children,
+		},
+	}
+end
+
 
 --Returns a child element of `node` named `name`.
 function funcs.FindChildElement(node, name)

@@ -28,6 +28,8 @@ local registry_proc =
 		require "_ConvConstantsToOld",
 		require "_ConvEnumsToOld",
 		require "_ConvCommandsToOld",
+		require "_ConvFeaturesToOld",
+		require "_ConvExtensionsToOld",
 	},
 }
 
