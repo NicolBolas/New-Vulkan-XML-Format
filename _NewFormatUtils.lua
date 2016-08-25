@@ -47,7 +47,7 @@ function funcs.AttributeWriter(name, attribList)
 end
 
 local function WriteCondAttrib(writer, data, attrib, override)
-	if(data[attrib]) then
+	if(data[attrib] ~= nil) then
 		if(override) then
 			writer:AddAttribute(attrib, override)
 		else
