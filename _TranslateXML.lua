@@ -112,11 +112,14 @@ local function Process(writer, node, proc)
 					outname, value = map(node.attr[attrib], node)
 				end
 				
-				if(type(value) ~= "string") then
-					value = tostring(value)
-				end
+				--Don't write nils
+				if(value ~= nil) then
+					if(type(value) ~= "string") then
+						value = tostring(value)
+					end
 				
-				writer:AddAttribute(outname, value)
+					writer:AddAttribute(outname, value)
+				end
 			end
 		end
 		

@@ -20,6 +20,16 @@ This project is an attempt to improve the Vulkan XML registry file. The design g
 
 8. Make the format amenable to transformation to and processing in non-XML formats like JSON. This means avoiding lots of "markup"-style formatting.
 
+## Dependencies
+
+Generating the new format requires the use of [Lua 5.1 or later](http://www.lua.org/download.html). It requires no other dependencies than this; any files needed for XML processing are provided.
+
+## Usage
+
+Executing `lua.exe ConvertToNewFmt.lua` from this directory will generate `vk_new.xml`, which is a file that stores the `vk.xml` data in the new format. No other parameters are needed for this process. Though if you want to provide a filename, you can via `lua.exe ConvertToNewFmt.lua <filename>`.
+
+Executing `lua.exe ConvertFromNewFmt.lua` from this directory will generate `vk_old.xml` from `vk_new.xml`. The main purpose of this tool is to ensure that the generated XML contains all of the same data as the original file.
+
 ## Files of interest
 
 `new_registry.rnc` contains the RelaxNG compact schema that defines the new XML format. `new_registr.rng` is a non-compact version of the schema (it may be out of date, since I primarily edit the compact version).
@@ -29,12 +39,4 @@ The old registry schema and `vk.xml` files are in the `src` directory.
 All of the .lua files are tools for converting between the old and new formats.
 
 `reading_the_schema.md` explains some of the decisions behind the way the schema is defined, as well as providing the conventions used in its authoring.
-
-## Dependencies
-
-Generating the new format requires the use of [Lua 5.1 or later](http://www.lua.org/download.html). It requires no other dependencies than this; any files needed for XML processing are provided.
-
-## Usage
-
-Executing `lua.exe ConvertToNewFmt.lua` from this directory will generate `vk_new.xml`, which is a file that stores the `vk.xml` data in the new format. No other parameters are needed for this process. Though if you want to profide a filename, you can via `lua.exe ConvertToNewFmt.lua <filename>`.
 
