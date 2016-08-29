@@ -16,6 +16,12 @@ end
 
 funcs.CopyAttribIfPresent = CopyAttribIfPresent
 
+function funcs.WriteTextElement(writer, elementName, ...)
+	writer:PushElement(elementName)
+	writer:AddText(...)
+	writer:PopElement()
+end
+
 local old_reference_map =
 {
 	["pointer"] = "*",
@@ -256,6 +262,32 @@ function funcs.TableConvToOldReqRem(isFeature)
 		},
 	}
 end
+
+funcs.cmdStructValidityToOld =
+{
+	test = "validity",
+	
+	element =
+	{
+		name = "validity",
+	},
+	
+	children =
+	{
+		{
+			test = "usage",
+			
+			element =
+			{
+				name = "usage",
+				
+				proc = function(writer, node)
+					writer:AddText(funcs.ExtractFullText(node))
+				end
+			},
+		},
+	}
+}
 
 
 --Returns a child element of `node` named `name`.

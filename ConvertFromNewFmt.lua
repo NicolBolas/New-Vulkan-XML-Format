@@ -24,7 +24,7 @@ local registry_proc =
 		require "_ConvNotationToOld",
 		require "_ConvVendorIdsToOld",
 		require "_ConvTagsToOld",
-		
+		require "_ConvDefinitionsToOld",
 		require "_ConvConstantsToOld",
 		require "_ConvEnumsToOld",
 		require "_ConvCommandsToOld",

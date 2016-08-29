@@ -199,7 +199,7 @@ div
             (reg.define.replace.attrib?, reg.define.defref*, reg.define.param*, reg.c-expression)
         
         reg.define.defref =
-            ## Specifies a definition that this #define references in its C-expression.
+            ## Specifies a definition that is referenced in the C-expression.
             element defref { reg.identifier.data }
             
         reg.define.param =
@@ -824,7 +824,8 @@ div
         attribute enumref { reg.identifier.data }
         
     reg.define.disabled.attrib =
-        ## If "true", then the processor should generate the #define in a comment.
+        ## If "true", then the processing system should add comments to each line of the 
+        ## #define.
         ## That is, the #define exists, but has been commented out for some reason.
         [ a:default-value = "false" ]
         attribute disabled { reg.boolean.data }

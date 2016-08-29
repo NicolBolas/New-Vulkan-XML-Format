@@ -14,30 +14,7 @@ local cmd_children =
 			proc = common.OldWriteVariable,
 		},
 	},
-	{
-		test = "validity",
-		
-		element =
-		{
-			name = "validity",
-		},
-		
-		children =
-		{
-			{
-				test = "usage",
-				
-				element =
-				{
-					name = "usage",
-					
-					proc = function(writer, node)
-						writer:AddText(common.ExtractFullText(node))
-					end
-				},
-			},
-		}
-	},
+	common.cmdStructValidityToOld,
 	{
 		test = "external-sync",
 		
