@@ -377,24 +377,40 @@ local children =
 		
 		children = struct_children,
 	},
-}
-
-local da =
-{	test = "typedef",
-		
-	element =
-	{	name = "type",
-		verbatim = true,
-		
-		attribs =
-		{
-			notation = "comment",
+	{	test = "funcptr",
+		element =
+		{	name = "type",
+			verbatim = true,
+			
+			proc = function(writer, node)
+				writer:AddAttribute("category", "funcpointer")
+				
+				writer:AddText("typedef ")
+				--write return type, no type element.
+				common.OldWritePrenameType(writer,
+					common.FindChildElement(node, "return-type"), false)
+				writer:AddText(" (VKAPI_PTR *")
+				--write name in <name> element.
+				common.WriteTextElement(writer, "name", node.attr.name)
+				writer:AddText(")(")
+				--If no parameters, write "void)".
+				local found_param = false
+				for _, child in ipairs(node.el) do
+					if(child.name == "param") then
+						found_param = true
+						writer:AddText("\n\t")
+						common.OldWriteVariable(writer, child, true)
+					end
+				end
+				
+				if(not found_param) then
+					writer:AddText("void")
+				end
+				
+				writer:AddText(")")
+			end
 		},
-		
-		proc = function(writer, node)
-			writer:AddAttribute("category", "include")
-		end
-	}
+	},
 }
 
 

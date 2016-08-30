@@ -56,7 +56,7 @@ function funcs.OldWritePrenameType(writer, type_node, wrapInType)
 	end
 end
 
-function funcs.OldWriteVariable(writer, node)
+function funcs.OldWriteVariable(writer, node, rawName)
 	--Write the typed.variable.model attributes.
 	CopyAttribIfPresent(writer, node, "optional")
 	CopyAttribIfPresent(writer, node, "sync", "externalsync")
@@ -84,9 +84,13 @@ function funcs.OldWriteVariable(writer, node)
 	--Insert the name.
 	writer:AddText(" ")
 
-	writer:PushElement("name")
-	writer:AddText(node.attr.name)
-	writer:PopElement()
+	if(rawName) then
+	else
+		funcs.OldWriteVariable(writer, "name", node.attr.name)
+		writer:PushElement("name")
+		writer:AddText(node.attr.name)
+		writer:PopElement()
+	end
 	
 	--Add any static array stuff.
 	if(node.attr.array == "static") then
