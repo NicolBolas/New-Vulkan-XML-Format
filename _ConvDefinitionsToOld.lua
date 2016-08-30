@@ -1,5 +1,82 @@
 
+require "_Utils"
 local common = require "_ConvCommon"
+
+--Splits the string into a sequence of strings, based on an identifier.
+--So we verify that the character just before it is not a valid identifier character
+--and that the character after it is not a valid identifier.
+--Replaces the split value with a given value.
+local function SplitOnIdent(str, ident, replace)
+	local t = {}
+	local fpat = "(.-)" .. ident
+	local last_end = 1
+	local s, e, cap = str:find(fpat, 1)
+	while s do
+		--Match is either at the beginning or the last character in the capture
+		--is not an identifier character.
+		local first_char_correct = (#cap == 0 or cap:match("[^_%w]$"))
+		--Match is either at the end, or the character after
+		--the match is not an identifier character.
+		local last_char_correct = (e == #str or str:sub(e + 1, e + 1):match("[^_%w]"))
+		
+		if(first_char_correct and last_char_correct) then
+			if(#cap == 0) then --match at the beginning.
+				t[#t + 1] = replace
+			else
+				t[#t + 1] = cap
+				t[#t + 1] = replace
+			end
+		else
+			--If the first or last characters don't work out, then take the whole
+			--thing.
+			t[#t + 1] = str:sub(s, e)
+		end
+		
+		--Regardless of whether the characters are correct, move to the next
+		--character.
+		last_end = e + 1
+		s, e, cap = str:find(fpat, last_end)
+	end
+
+	if last_end <= #str then
+		cap = str:sub(last_end)
+		t[#t + 1] = cap
+	end
+	
+	return t
+end
+
+--[====[
+local temp = "_V332A"
+local test_strings =
+{
+	"_V332A",
+	"Stuff _V332A",
+	"_V332A Stuff",
+	"_V332A(Stuff)",
+	"(Stuff)_V332A",
+	"_V332A Stuff _V332A",
+	"_V332A(_V332A)_V332A(_V332A)",
+	"Stuff",
+	"AD_V332A",
+	"_V332AAD",
+	"AD_V332AAD",
+	"_V332A _V332AAD_V332A _V332A daa-_V332AQ",
+}
+
+for _, test in ipairs(test_strings) do
+	print('\t"' .. test .. '"')
+	local tbl = SplitOnIdent(test, temp, "VAAPAD")
+	print('"' .. table.concat(tbl) .. '"', #tbl)
+end
+]====]
+
+local function CopyArray(out_arr, in_arr)
+	local start = #out_arr
+	for _, value in ipairs(in_arr) do
+		out_arr[start + _] = value
+	end
+end
 
 local struct_children =
 {
@@ -169,41 +246,59 @@ local children =
 				local defrefs = {}
 				local params = {}
 				for _, child in ipairs(node.el) do
-					--
 					if(child.name == "defref") then
 						defrefs[#defrefs + 1] = common.ExtractFullText(child)
 					elseif(child.name == "param") then
 						params[#params + 1] = common.ExtractFullText(child)
-					else
-						--Next is the c-expression.
-						break
 					end
 				end
 				
-				local stmt = "#define " .. node.attr.name
-				if(#params > 0) then
-					stmt = stmt .. "(" .. table.concat(params, ", ") .. ")"
+				if(node.attr.disabled == "true") then
+					writer:AddText("//")
 				end
-				
-				stmt = stmt .. " "
+				writer:AddText("#define ")
+				common.WriteTextElement(writer, "name", node.attr.name)
+				if(#params > 0) then
+					writer:AddText("(", table.concat(params, ", "),  ")")
+				end
+				writer:AddText(" ")
 				
 				--Split c-expression up into lines.
 				local c_expr = common.FindChildElement(node, "c-expression")
 				c_expr = common.ExtractFullText(c_expr)
-				local lines = {}
-				for str in c_expr:gmatch("([^\n]+)") do
-					lines[#lines + 1] = str
+
+				if(node.attr.disabled == "true") then
+					--Replace every "\n" with "\n//"
+					c_expr:gsub("\n", "\n//")
 				end
 
-				--Comment the lines out.
-				if(node.attr.disable == "true") then
-					for _, line in ipairs(lines) do
-						lines[_] = "//" .. line
-					end
-				end
 				
 				--TODO: Make defrefs work.
-				writer:AddText(stmt, table.concat(lines, "\n"))
+				if(#defrefs ~= 0) then
+					local curr_arr = {c_expr}
+					local new_arr = {}
+					--Split each line of text based on defrefs.
+					--Replace the defref text with an array of one element
+					--containing the defref name.
+					for _, defref in ipairs(defrefs) do
+						for _, elem in ipairs(curr_arr) do
+							local tbl = SplitOnIdent(elem, defref, {defref})
+							CopyArray(new_arr, tbl)
+						end
+						curr_arr = new_arr
+						new_arr = {}
+					end
+					
+					for _, elem in ipairs(curr_arr) do
+						if(type(elem) == "string") then
+							writer:AddText(elem)
+						else
+							common.WriteTextElement(writer, "type", elem[1])
+						end
+					end
+				else
+					writer:AddText(c_expr)
+				end
 			end
 		}
 	},

@@ -1,7 +1,5 @@
 
-local function iff(test, true_val, false_val)
-	if(test) then return true_val else return false_val end
-end
+require "_Utils"
 
 local funcs = {}
 

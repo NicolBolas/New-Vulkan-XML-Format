@@ -18,6 +18,10 @@ function funcs.require_local_path(path, ...)
 	return unpack(rets, 1, rets.n)
 end
 
+function funcs.iff(test, true_val, false_val)
+	if(test) then return true_val else return false_val end
+end
+
 --Make all of these available in the global namespace.
 for key, func in pairs(funcs) do
 	_G[key] = func
