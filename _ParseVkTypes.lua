@@ -121,10 +121,17 @@ function Procs.Define(node)
 	
 	local comment = {}
 	local real_lines = {}
+	local storeCommentsInLines = false
 	for _, str in ipairs(text_lines) do
 		local test = str:match("%s*//%s*(.+)")
 		if(test) then
-			comment[#comment + 1] = test
+			--If the comment is a #define, then it's the actual data.
+			if(storeCommentsInLines or test:match("^#define")) then
+				storeCommentsInLines = true
+				real_lines[#real_lines + 1] = test
+			else
+				comment[#comment + 1] = test
+			end
 		else
 			real_lines[#real_lines + 1] = str
 		end
