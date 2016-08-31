@@ -9,7 +9,7 @@ local children =
 		{
 			name = "vendorid",
 			
-			attribs =
+			map_attribs =
 			{
 				id = "id",
 				name = "name",

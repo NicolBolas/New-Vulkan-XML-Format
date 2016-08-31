@@ -8,7 +8,7 @@ local children =
 		element =
 		{	name = "extension",
 			
-			attribs =
+			map_attribs =
 			{
 				name = "name",
 				number = "number",

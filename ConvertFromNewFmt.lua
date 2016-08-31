@@ -43,5 +43,3 @@ trans.TranslateXML(writer, vk_new.kids, procs)
 writer:Close()
 
 
-
-

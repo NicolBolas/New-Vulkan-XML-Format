@@ -9,7 +9,7 @@ local children =
 		{
 			name = "tag",
 			
-			attribs =
+			map_attribs =
 			{
 				name = "name",
 				author = "author",

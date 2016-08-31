@@ -8,7 +8,7 @@ local children =
 		element =
 		{	name = "feature",
 			
-			attribs =
+			map_attribs =
 			{
 				name = "name",
 				notation = "comment",

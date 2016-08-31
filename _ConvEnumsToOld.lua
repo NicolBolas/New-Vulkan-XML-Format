@@ -12,7 +12,7 @@ local enumerator =
 		{
 			name = "enum",
 			
-			attribs = common.TableAttribToOldEnumModel(),
+			map_attribs = common.TableAttribToOldEnumModel(),
 		},
 	},
 	
@@ -23,7 +23,7 @@ local enumerator =
 		{
 			name = "unused",
 			
-			attribs =
+			map_attribs =
 			{
 				["range-start"] = "start",
 				["range-end"] = "end",
@@ -41,7 +41,7 @@ local children =
 		{
 			name = "enums",
 			
-			attribs =
+			map_attribs =
 			{
 				name = "name",
 				purpose = "type",

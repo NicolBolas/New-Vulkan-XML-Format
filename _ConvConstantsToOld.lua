@@ -10,7 +10,7 @@ local children =
 		{
 			name = "enum",
 			
-			attribs =
+			map_attribs =
 			{
 				name = "name",
 				number = "value",
@@ -29,7 +29,7 @@ return {
 	{
 		name = "enums",
 		
-		attribs =
+		map_attribs =
 		{
 			notation = "comment"
 		},

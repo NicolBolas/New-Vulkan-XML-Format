@@ -85,11 +85,9 @@ function funcs.OldWriteVariable(writer, node, rawName)
 	writer:AddText(" ")
 
 	if(rawName) then
-	else
-		funcs.OldWriteVariable(writer, "name", node.attr.name)
-		writer:PushElement("name")
 		writer:AddText(node.attr.name)
-		writer:PopElement()
+	else
+		funcs.WriteTextElement(writer, "name", node.attr.name)
 	end
 	
 	--Add any static array stuff.
@@ -129,7 +127,7 @@ local toOldRefs =
 		
 		element =
 		{	name = "type",
-			attribs =
+			map_attribs =
 			{
 				name = "name",
 				notation = "comment",
@@ -140,7 +138,7 @@ local toOldRefs =
 		
 		element =
 		{	name = "command",
-			attribs =
+			map_attribs =
 			{
 				name = "name",
 				notation = "comment",
@@ -151,7 +149,7 @@ local toOldRefs =
 		
 		element =
 		{	name = "enum",
-			attribs =
+			map_attribs =
 			{
 				name = "name",
 				notation = "comment",
@@ -184,14 +182,14 @@ local toOldDeclarations =
 	
 		element =
 		{	name = "enum",
-			attribs = toOldContantAttribs,
+			map_attribs = toOldContantAttribs,
 		},
 	},
 	{	test = "enum",
 	
 		element =
 		{	name = "enum",
-			attribs = toOldEnumAttribs,
+			map_attribs = toOldEnumAttribs,
 		},
 	},
 }
@@ -204,7 +202,7 @@ local toOldValidity =
 		{	test = "usage",
 			element =
 			{	name = "usage",
-				attribs =
+				map_attribs =
 				{
 					struct = "struct",
 					command = "command",
@@ -238,7 +236,7 @@ function funcs.TableConvToOldReqRem(isFeature)
 			
 			element =
 			{	name = "require",
-				attribs =
+				map_attribs =
 				{
 					profile = "profile",
 					notation = "comment",
@@ -252,7 +250,7 @@ function funcs.TableConvToOldReqRem(isFeature)
 			
 			element =
 			{	name = "remove",
-				attribs =
+				map_attribs =
 				{
 					profile = "profile",
 					notation = "comment",

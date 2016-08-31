@@ -88,7 +88,7 @@ local struct_children =
 			name = "member",
 			verbatim = true,
 			
-			attribs =
+			map_attribs =
 			{
 				["extension-structs"] = "validextensionstructs",
 				["type-enums"] = "values",
@@ -108,9 +108,8 @@ local children =
 		{	name = "type",
 			verbatim = true,
 			
-			attribs =
-			{
-				name = function(value, node)
+			map_attribs =
+			{	name = function(value, node)
 					if(node.attr["need-ext"] == "true") then
 						return "name", node.attr.name
 					end
@@ -119,13 +118,15 @@ local children =
 				notation = "comment",
 			},
 			
+			attribs =
+			{	category = "include",
+			},
+			
 			proc = function(writer, node)
 				local style = {
 					{ quote = '"', bracket = "<"},
 					{ quote = '"', bracket = ">"},
 				}
-				
-				writer:AddAttribute("category", "include")
 				
 				writer:AddText("#include ", style[1][node.attr.style])
 				if(node.attr["need-ext"] == "true") then
@@ -143,7 +144,7 @@ local children =
 		{	name = "type",
 			verbatim = true,
 			
-			attribs =
+			map_attribs =
 			{
 				notation = "comment",
 			},
@@ -165,7 +166,7 @@ local children =
 		{	name = "type",
 			verbatim = true,
 			
-			attribs =
+			map_attribs =
 			{
 				name = "name",
 				notation = "comment",
@@ -179,7 +180,7 @@ local children =
 		{	name = "type",
 			verbatim = true,
 			
-			attribs =
+			map_attribs =
 			{
 				notation = "comment",
 				enumref = "requires",
@@ -202,7 +203,7 @@ local children =
 		{	name = "type",
 			verbatim = true,
 			
-			attribs =
+			map_attribs =
 			{
 				notation = "comment",
 			},
@@ -307,7 +308,7 @@ local children =
 		{	name = "type",
 			verbatim = true,
 			
-			attribs =
+			map_attribs =
 			{
 				notation = "comment",
 				parent = "parent",
@@ -331,7 +332,7 @@ local children =
 		element =
 		{	name = "type",
 			
-			attribs =
+			map_attribs =
 			{
 				name = "name",
 				notation = "comment",
@@ -346,7 +347,7 @@ local children =
 		element =
 		{	name = "type",
 			
-			attribs =
+			map_attribs =
 			{
 				name = "name",
 				notation = "comment",
@@ -364,7 +365,7 @@ local children =
 		element =
 		{	name = "type",
 			
-			attribs =
+			map_attribs =
 			{
 				name = "name",
 				notation = "comment",
