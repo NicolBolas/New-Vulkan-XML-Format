@@ -14,6 +14,7 @@ The first division of a pattern names in this schema will always be `reg`. This 
 
 Certain pattern name suffixes have special meaning. These are:
 
+* `elem`: Defines an element.
 * `contents`: Defines the content model for a single element.
 * `attlist`: Defines a list of attributes associated with a single element.
 * `attrib`: Defines a single attribute.
@@ -22,9 +23,9 @@ Certain pattern name suffixes have special meaning. These are:
 
 ### Single Element
 
-Any pattern name which does not have one of these suffixes defines a *single* element. The name of the element defined by that pattern is *always* equivalent to the name of the last division used in the pattern. So `reg.temp.foo` will define an the element named `foo`. `reg.bar` will define the element named `bar`.
+Any pattern name that ends in `elem` defines a *single* element. The name of the element defined by that pattern is *always* equivalent to the name of the division before `elem`. So `reg.temp.foo.elem` will define an the element named `foo`. `reg.bar.elem` will define the element named `bar`.
 
-The subdivisions that aren't part of the element's name are usually used to associate the element with its parent element. `reg.temp.foo` might define the `foo` element that is a child of the `temp` element, for example. This is typically used when an element is tightly coupled with its parent.
+The subdivisions that aren't part of the element's name are usually used to associate the element with its parent element. `reg.temp.foo.elem` might define the `foo` element that is a child of the `temp` element, for example. This is typically used when an element is tightly coupled with its parent.
 
 Every element defined by the schema will have a single pattern that defines it.
 
@@ -38,7 +39,7 @@ Every attribute defined by the schema will have a single pattern that defines it
 
 ### Element contents
 
-Every element definition is of the form `element element-name { contents }`, where `contents` is a single pattern. The name of this pattern is the element's pattern name with the `contents` suffix. So if there is a pattern named `reg.temp.foo`, then it will define an element named `foo`, which will have its contents defined by the pattern `reg.temp.foo.contents`.
+Every element definition is of the form `element element-name { contents }`, where `contents` is a single pattern. The name of this pattern is the element's pattern name with the `contents` suffix. So if there is a pattern named `reg.temp.foo.elem`, then it will define an element named `foo`, which will have its contents defined by the pattern `reg.temp.foo.contents`.
 
 This is done to make it easier to extend the data model for an element without having to redefine the entire element.
 
@@ -46,9 +47,9 @@ This is done to make it easier to extend the data model for an element without h
 
 In most cases, attributes for an element do not participate in the overall content model of the element. That is, the presence or absence of most attributes will not affect whether certain sub-elements will exist in the element. As such, most attributes are simply listed first.
 
-Every element will have a pattern named the same as the element's pattern with the `attlist` suffix. It is used by the `contents` pattern for that element, and it includes the attributes which do not affect the overall element contents.
+Every element will have a pattern named the same as the element's pattern with the `attlist` suffix. It is used by the `contents` pattern for that element, and it includes the attributes which do not affect the overall element contents. Even if that element has no attributes, it will have an empty `attlist` pattern.
 
-As an example, `reg.temp.foo` will have a `reg.temp.foo.contents`. One of the patterns used in the contents will be `reg.temp.foo.attlist`, which specifies most of the attributes for that element.
+As an example, `reg.temp.foo.elem` will have a `reg.temp.foo.contents`. One of the patterns used in the contents will be `reg.temp.foo.attlist`, which specifies most of the attributes for that element.
 
 Attributes will only be used outside of an `attlist` if they affect the sub-element contents of the attribute. If the element has no attributes, the `attlist` pattern will still exist; it will simply be `empty`.
 

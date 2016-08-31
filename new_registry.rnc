@@ -6,30 +6,30 @@ namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
 ## All elements and primary content models
 div
 {
-    start = reg.root-element
+    start = reg.root-element.model
     
-    reg.root-element =
-        reg.registry
+    reg.root-element.model =
+        reg.registry.elem
     
-    reg.registry =
+    reg.registry.elem =
         ##Base element. Contains all of the information for Vulkan.
         element registry { reg.registry.contents }
        
     reg.registry.contents =
         reg.registry.attlist,
-        reg.notation?,
-        reg.vendorids?,
-        reg.tags?,
-        reg.definitions,
-        reg.constants?,
-        reg.enums?,
-        reg.commands,
-        reg.features,
-        reg.extensions?
+        reg.notation.elem?,
+        reg.vendorids.elem?,
+        reg.tags.elem?,
+        reg.definitions.elem,
+        reg.constants.elem?,
+        reg.enums.elem?,
+        reg.commands.elem,
+        reg.features.elem,
+        reg.extensions.elem?
     
     reg.registry.attlist = empty
 
-    reg.notation =
+    reg.notation.elem =
         ##A textual annotation regarding a particular element.
         element notation { text }
 
@@ -42,17 +42,17 @@ div
     ## Front matter: vendorids and tags.
     div
     {
-        reg.vendorids =
+        reg.vendorids.elem =
             ## The list of all vendorid elements.
             element vendorids { reg.vendorids.contents }
             
         reg.vendorids.contents =
             reg.vendorids.attlist,
-            reg.vendorid+
+            reg.vendorid.elem+
             
         reg.vendorids.attlist = empty
         
-        reg.vendorid =
+        reg.vendorid.elem =
             ## List of identifiers for vendors.
             element vendorid { reg.vendorid.contents }
         
@@ -64,17 +64,17 @@ div
             reg.vendorid.id.attrib,
             reg.notation.attrib?
 
-        reg.tags =
+        reg.tags.elem =
             ## List of authors
             element tags { reg.tags.contents }
             
         reg.tags.contents =
             reg.tags.attlist,
-            reg.tag+
+            reg.tag.elem+
             
         reg.tags.attlist = empty
         
-        reg.tag =
+        reg.tag.elem =
             ## A single author for Vulkan
             element tag { reg.tag.contents }
             
@@ -91,7 +91,7 @@ div
     ## Definition elements.
     div
     {
-        reg.definitions =
+        reg.definitions.elem =
             ## List of all definitions used by Vulkan 
             element definitions { reg.definitions.contents }
             
@@ -102,21 +102,21 @@ div
         reg.definitions.attlist = empty
         
         reg.definitions.model =
-            reg.include | 
+            reg.include.elem | 
             ## Formerly `basetype`
-            reg.typedef | 
+            reg.typedef.elem | 
             ## Formerly no category. Simply specifies the existence of a named type that
             ## usually is brought in by a `requires` attribute.
-            reg.reference |   
-            reg.def.bitmask |
-            reg.struct |
-            reg.union |
-            reg.define |
-            reg.handle |
-            reg.def.enumeration |
-            reg.funcptr
+            reg.reference.elem |   
+            reg.def.bitmask.elem |
+            reg.struct.elem |
+            reg.union.elem |
+            reg.define.elem |
+            reg.handle.elem |
+            reg.def.enumeration.elem |
+            reg.funcptr.elem
         
-        reg.include =
+        reg.include.elem =
             ## Definition that represents a file being included, which is named.
             ## The `name` attribute does double-duty, in that it also includes text.
             element include { reg.include.contents }
@@ -131,7 +131,7 @@ div
             reg.include.style.attrib,
             reg.include.need-ext.attrib?
         
-        reg.typedef =
+        reg.typedef.elem =
             ## Definition that defines a new name for an existing type. 
             element typedef { reg.typedef.contents }
             
@@ -142,7 +142,7 @@ div
             reg.named.ident.model,
             reg.typedef.basetype.attrib
             
-        reg.reference =
+        reg.reference.elem =
             ## Definition that references a type that comes from an include file.
             element reference { reg.reference.contents }
         
@@ -153,7 +153,7 @@ div
             reg.named.ident.model,
             reg.reference.include.attrib
             
-        reg.def.bitmask =
+        reg.def.bitmask.elem =
             ## Definition that specifies a bitmask, using a particular existing type.
             ## Contents are the same as `typedef`.
             ## The possible bits can be defined by a specific, referenced enumeration.
@@ -166,7 +166,7 @@ div
             reg.typedef.attlist,
             reg.bitmask.enumref.attrib?
             
-        reg.define =
+        reg.define.elem =
             ## Definition that represents a C #define statement.
             element define { reg.define.contents }
             
@@ -180,14 +180,14 @@ div
         ## Defines can also reference other definitions.    
         reg.define.contents =
             reg.define.attlist,
-            reg.comment?,
+            reg.comment.elem?,
             reg.define.model
             
         reg.define.attlist =
             reg.named.ident.model,
             reg.define.disabled.attrib?
             
-        reg.comment =
+        reg.comment.elem =
             ## Specifies a possibly multi-line in-language comment which is expected to be
             ## placed near the element in which `comment` appears.
             element comment {text}
@@ -196,23 +196,26 @@ div
             (reg.define.value.attrib | reg.define.complex.model)
     
         reg.define.complex.model =
-            (reg.define.replace.attrib?, reg.define.defref*, reg.define.param*, reg.c-expression)
+            reg.define.replace.attrib?,
+            reg.define.defref.elem*,
+            reg.define.param.elem*,
+            reg.c-expression.elem
         
-        reg.define.defref =
+        reg.define.defref.elem =
             ## Specifies a definition that is referenced in the C-expression.
             element defref { reg.identifier.data }
             
-        reg.define.param =
+        reg.define.param.elem =
             ## The name of a #define's parameter.
             element param { reg.identifier.data }
         
-        reg.c-expression =
+        reg.c-expression.elem =
             ## Text that is intended to be used verbatim in C or C++ implementations.
             ## If the `replace` attribute is not `true`, then the processor should
             ## generate the `#define NAME(PARAMS)` part of the define before the c-expression.
             element c-expression { text }
             
-        reg.handle =
+        reg.handle.elem =
             ## Creates a definition for a handle.
             element handle { reg.handle.contents }
             
@@ -224,7 +227,7 @@ div
             reg.handle.parent.attrib?,
             reg.handle.type.attrib
             
-        reg.def.enumeration =
+        reg.def.enumeration.elem =
             ## Defines the name of an enumeration.
             ## The members and base type of the enumeration are defined elsewhere.
             element enumeration { reg.def.enumeration.contents }
@@ -235,21 +238,21 @@ div
         reg.def.enumeration.attlist =
             reg.named.ident.model
     
-        reg.struct =
+        reg.struct.elem =
             ## Definition that represents a data structure.
             ## Contains a list of members and optional validation information.
             element struct { reg.struct.contents }
         
         reg.struct.contents =
             reg.struct.attlist,
-            reg.struct.member+,
-            reg.validity?
+            reg.struct.member.elem+,
+            reg.validity.elem?
             
         reg.struct.attlist =
             reg.named.ident.model,
             reg.struct.is-return.attrib?
 
-        reg.struct.member =
+        reg.struct.member.elem =
             ## Specifies a named member of a data structure.
             element member { reg.struct.member.contents }
         
@@ -302,17 +305,17 @@ div
             reg.variable.inout.attrib?,
             reg.variable.sync.attrib?
 
-        reg.validity =
+        reg.validity.elem =
             ## Defines validation text related to objects and commands.
             element validity { reg.validity.contents }
             
         reg.validity.contents =
             reg.validity.attlist,
-            reg.validity.usage+
+            reg.validity.usage.elem+
         
         reg.validity.attlist = empty
         
-        reg.validity.usage =
+        reg.validity.usage.elem =
             ## A specific validation rule, spelled out in documentation text.
             element usage { reg.validity.usage.contents }
             
@@ -322,18 +325,18 @@ div
             
         reg.validity.usage.attlist = empty
     
-        reg.union =
+        reg.union.elem =
             ## Defines a union, where the object's value is only one of the members.
             element union { reg.union.contents }
             
         reg.union.contents =
             reg.union.attlist,
-            reg.union.member+
+            reg.union.member.elem+
     
         reg.union.attlist =
             reg.named.ident.model
         
-        reg.union.member =
+        reg.union.member.elem =
             ## Specifies a named member of a union.
             element member { reg.union.member.contents }
             
@@ -344,7 +347,7 @@ div
             reg.named.ident.model,
             reg.type.model
 
-        reg.funcptr =
+        reg.funcptr.elem =
             ## Defines a function pointer.
             element funcptr { reg.funcptr.contents }
             
@@ -353,13 +356,13 @@ div
         ## does not qualify as a parameter type.
         reg.funcptr.contents =
             reg.funcptr.attlist,
-            reg.return-type,
-            reg.param*
+            reg.return-type.elem,
+            reg.param.elem*
     
         reg.funcptr.attlist =
             reg.named.ident.model
 
-        reg.return-type =
+        reg.return-type.elem =
             element return-type { reg.return-type.contents }
             
         reg.return-type.contents =
@@ -370,9 +373,10 @@ div
             reg.error-code.model?
         
         reg.error-code.model =
-            reg.command.successcodes.attrib, reg.command.errorcodes.attrib
+            reg.command.successcodes.attrib,
+            reg.command.errorcodes.attrib
 
-        reg.param =
+        reg.param.elem =
             element param { reg.param.contents }
         
         reg.param.contents =
@@ -387,16 +391,16 @@ div
     ## Constants and Enumeration elements.
     div 
     {
-        reg.constants =
+        reg.constants.elem =
             element constants { reg.constants.contents }
             
         reg.constants.contents =
             reg.constants.attlist,
-            reg.constant+
+            reg.constant.elem+
             
         reg.constants.attlist = empty
             
-        reg.constant =
+        reg.constant.elem =
             ##Contains a named constant value that is not typed to an enumeration.
             element constant { reg.constant.contents }
             
@@ -418,25 +422,25 @@ div
             ## C-expression that results in a number.
             reg.enum.c-expression.attrib
         
-        reg.enums =
+        reg.enums.elem =
             ## Contains both enumerations and bitmasks.
             element enums { reg.enums.contents }
             
         reg.enums.contents =
             reg.enums.attlist,
-            reg.enumeration+
+            reg.enumeration.elem+
     
         reg.enums.attlist =
             empty
             
-        reg.enumeration =
+        reg.enumeration.elem =
             element enumeration { reg.enumeration.contents }
             
         reg.enumeration.contents =
             reg.enumeration.attlist,
             ## Empty enumerations are OK; extensions could fill them.
-            reg.enumeration.enum*,
-            reg.enumeration.unused-range*
+            reg.enumeration.enum.elem*,
+            reg.enumeration.unused-range.elem*
             
         reg.enumeration.attlist =
             reg.named.ident.model,
@@ -448,7 +452,7 @@ div
             reg.enum.range-start.attrib,
             reg.enum.range-end.attrib?
         
-        reg.enumeration.enum =
+        reg.enumeration.enum.elem =
             element enum { reg.enumeration.enum.contents }
             
         reg.enumeration.enum.contents =
@@ -458,7 +462,7 @@ div
             reg.named.ident.model,
             reg.enum.value.model
             
-        reg.enumeration.unused-range =
+        reg.enumeration.unused-range.elem =
             element unused-range { reg.enumeration.unused-range.contents }
             
         reg.enumeration.unused-range.contents =
@@ -471,25 +475,25 @@ div
     ## Command elements
     div
     {
-        reg.commands =
+        reg.commands.elem =
             ## Defines a list of Vulkan entrypoints.
             element commands { reg.commands.contents }
             
         reg.commands.contents =
             reg.commands.attlist,
-            (reg.command | reg.command-alias)+
+            (reg.command.elem | reg.command-alias.elem)+
 
         reg.commands.attlist = empty
         
-        reg.command =
+        reg.command.elem =
             ## Defines a single Vulkan entrypoint.
             element command { reg.command.contents }
             
         reg.command.contents =
             reg.command.attlist,
-            reg.return-type,
-            reg.param*,
-            ( reg.command.description? & reg.command.external-sync? & reg.validity? )
+            reg.return-type.elem,
+            reg.param.elem*,
+            ( reg.command.description.elem? & reg.command.external-sync.elem? & reg.validity.elem? )
             
         reg.command.attlist =
             reg.named.ident.model,
@@ -497,7 +501,7 @@ div
             reg.command.cmdbufferlevel.attrib?,
             reg.command.queues.attrib?
             
-        reg.command.description =
+        reg.command.description.elem =
             ## Textual description of the command... in some form?
             element description { reg.command.description.contents }
             
@@ -507,18 +511,18 @@ div
             
         reg.command.description.attlist = empty
             
-        reg.command.external-sync =
+        reg.command.external-sync.elem =
             ## Describes instances of implicit external synchronizations.
             ## These cannot be captured by the parameters themselves.
             element external-sync { reg.command.external-sync.contents }
             
         reg.command.external-sync.contents =
             reg.command.external-sync.attlist,
-            reg.external-sync.sync+
+            reg.external-sync.sync.elem+
             
         reg.command.external-sync.attlist = empty
             
-        reg.external-sync.sync =
+        reg.external-sync.sync.elem =
             ## A single aspect of implicit external synchronization.
             element sync { reg.external-sync.sync.contents }
 
@@ -528,7 +532,7 @@ div
             
         reg.external-sync.sync.attlist = empty
             
-        reg.command-alias =
+        reg.command-alias.elem =
             ## Defines an alternate name for an existing command. All information about
             ## the new command comes from the existing one.
             element command-alias { reg.command-alias.contents }
@@ -545,16 +549,16 @@ div
     ## Features and Extensions
     div
     {
-        reg.features =
+        reg.features.elem =
             element features { reg.features.contents }
             
         reg.features.contents =
             reg.features.attlist,
-            reg.feature+
+            reg.feature.elem+
             
         reg.features.attlist = empty
     
-        reg.feature =
+        reg.feature.elem =
             ## Defines the base API for a Vulkan specification.
             ## Represents a specific major/minor version of Vulkan.
             element feature { reg.feature.contents }
@@ -571,28 +575,28 @@ div
             ref.feature.define.attrib?
         
         reg.feature.specification.model =
-            reg.feature.require |
-            reg.feature.remove
+            reg.feature.require.elem |
+            reg.feature.remove.elem
         
-        reg.feature.require =
+        reg.feature.require.elem =
             ## Definitions that are exposed by the specification.
             element require { reg.feature.require.contents }
             
         reg.feature.require.contents =
             reg.feature.require.attlist,
             reg.feature.reference.model+,
-            reg.feature.validity?
+            reg.feature.validity.elem?
             
         reg.feature.require.attlist =
             reg.feature.profile.attrib?,
             reg.notation.attrib?
         
         reg.feature.reference.model =
-            reg.feature.defref |
-            reg.feature.commandref |
-            reg.feature.enumref
+            reg.feature.defref.elem |
+            reg.feature.commandref.elem |
+            reg.feature.enumref.elem
             
-        reg.feature.defref =
+        reg.feature.defref.elem =
             ## Reference to a named `definitions` child.
             element defref { reg.feature.defref.contents }
 
@@ -602,9 +606,9 @@ div
         reg.feature.defref.attlist =
             reg.named.ident.model
             
-        reg.feature.commandref =
+        reg.feature.commandref.elem =
             ## Reference to a named `commands` child.
-            element commandref { reg.feature.commandref.contents }
+            element commandref.elem { reg.feature.commandref.contents }
             
         reg.feature.commandref.contents =
             reg.feature.commandref.attlist
@@ -612,7 +616,7 @@ div
         reg.feature.commandref.attlist =
             reg.named.ident.model
         
-        reg.feature.enumref =
+        reg.feature.enumref.elem =
             ## References a specific enumerator or constant.
             element enumref { reg.feature.enumref.contents }
 
@@ -622,17 +626,17 @@ div
         reg.feature.enumref.attlist =
             reg.named.ident.model
 
-        reg.feature.validity =
+        reg.feature.validity.elem =
             ## Provides additional validity checks when this API/extension is active.
             element validity { reg.feature.validity.contents }
         
         reg.feature.validity.contents =
             reg.feature.validity.attlist,
-            reg.feature.usage+
+            reg.feature.usage.elem+
         
         reg.feature.validity.attlist = empty
         
-        reg.feature.usage =
+        reg.feature.usage.elem =
             ## A single usage validity check.
             element usage { reg.feature.usage.contents }
             
@@ -644,7 +648,7 @@ div
             reg.feature.usage.struct.attrib |
             reg.feature.usage.command.attrib 
         
-        reg.feature.remove =
+        reg.feature.remove.elem =
             ## Definitions which are *not* to be exposed by the specification.
             element remove { reg.feature.remove.contents }
             
@@ -655,16 +659,16 @@ div
             
         reg.feature.remove.attlist = empty
         
-        reg.extensions =
+        reg.extensions.elem =
             element extensions { reg.extensions.contents }
             
         reg.extensions.contents =
             reg.extensions.attlist,
-            reg.extension+
+            reg.extension.elem+
             
         reg.extensions.attlist = empty
             
-        reg.extension =
+        reg.extension.elem =
             ## Specifies the types exposed/forbidden by an extension.
             element extension { reg.extension.contents }
         
@@ -681,10 +685,10 @@ div
             ref.extension.contact.attrib?
 
         reg.extension.specification.model =
-            reg.extension.require |
-            reg.extension.remove
+            reg.extension.require.elem |
+            reg.extension.remove.elem
             
-        reg.extension.require =
+        reg.extension.require.elem =
             ## Exactly like the feature version, but with an optional `api` tag.
             element require { reg.extension.require.contents }
             
@@ -692,16 +696,16 @@ div
             reg.extension.require.attlist,
             reg.feature.require.attlist,
             reg.extension.definition.model+,
-            reg.feature.validity?
+            reg.feature.validity.elem?
             
         reg.extension.definition.model =
-            reg.feature.defref |
-            reg.feature.commandref |
-            reg.feature.enumref |
-            reg.extension.constant |
-            reg.extension.enum
+            reg.feature.defref.elem |
+            reg.feature.commandref.elem |
+            reg.feature.enumref.elem |
+            reg.extension.constant.elem |
+            reg.extension.enum.elem
 
-        reg.extension.constant =
+        reg.extension.constant.elem =
             ## Defines a constant exported by an extension.
             ## These are not enumerators.
             element constant { reg.extension.constant.contents }
@@ -721,7 +725,7 @@ div
             ## Anything an enumerator/constant can handle.
             reg.enum.value.model
 
-        reg.extension.enum =
+        reg.extension.enum.elem =
             ## Declares a new enumerator that is added to an existing enumerator.
             element enum { reg.extension.enum.contents }
             
@@ -744,7 +748,7 @@ div
         reg.extension.require.attlist =
             reg.extension.api.attrib?
 
-        reg.extension.remove =
+        reg.extension.remove.elem =
             ## Exactly like the feature version, but with an optional `api` tag.
             element remove { reg.extension.remove.contents }
             
@@ -752,21 +756,12 @@ div
             reg.extension.remove.attlist,
             reg.feature.require.attlist,
             reg.extension.definition.model+,
-            reg.feature.validity?
+            reg.feature.validity.elem?
         
         reg.extension.remove.attlist =
             reg.extension.api.attrib?
     }
 }
-
-
-## Supplementary elements and definitions.
-div
-{
-    
-    INCOMPLETE = empty
-}
-
 
 ## Attribute definitions
 div
@@ -1113,4 +1108,11 @@ div
     reg.csident.data = text
     
     reg.boolean.data = xsd:boolean
+}
+
+## Supplementary elements and definitions.
+div
+{
+    
+    INCOMPLETE = empty
 }

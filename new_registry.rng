@@ -3,12 +3,12 @@
     <div>
         <a:documentation>All elements and primary content models</a:documentation>
         <start>
-            <ref name="reg.root-element"/>
+            <ref name="reg.root-element.model"/>
         </start>
-        <define name="reg.root-element">
-            <ref name="reg.registry"/>
+        <define name="reg.root-element.model">
+            <ref name="reg.registry.elem"/>
         </define>
-        <define name="reg.registry">
+        <define name="reg.registry.elem">
             <element name="registry">
                 <a:documentation>Base element. Contains all of the information for Vulkan.</a:documentation>
                 <ref name="reg.registry.contents"/>
@@ -17,31 +17,31 @@
         <define name="reg.registry.contents">
             <ref name="reg.registry.attlist"/>
             <optional>
-                <ref name="reg.notation"/>
+                <ref name="reg.notation.elem"/>
             </optional>
             <optional>
-                <ref name="reg.vendorids"/>
+                <ref name="reg.vendorids.elem"/>
             </optional>
             <optional>
-                <ref name="reg.tags"/>
+                <ref name="reg.tags.elem"/>
             </optional>
-            <ref name="reg.definitions"/>
+            <ref name="reg.definitions.elem"/>
             <optional>
-                <ref name="reg.constants"/>
+                <ref name="reg.constants.elem"/>
             </optional>
             <optional>
-                <ref name="reg.enums"/>
+                <ref name="reg.enums.elem"/>
             </optional>
-            <ref name="reg.commands"/>
-            <ref name="reg.features"/>
+            <ref name="reg.commands.elem"/>
+            <ref name="reg.features.elem"/>
             <optional>
-                <ref name="reg.extensions"/>
+                <ref name="reg.extensions.elem"/>
             </optional>
         </define>
         <define name="reg.registry.attlist">
             <empty/>
         </define>
-        <define name="reg.notation">
+        <define name="reg.notation.elem">
             <element name="notation">
                 <a:documentation>A textual annotation regarding a particular element.</a:documentation>
                 <text/>
@@ -57,7 +57,7 @@ All such identifiers can have a notation.</a:documentation>
         </define>
         <div>
             <a:documentation>Front matter: vendorids and tags.</a:documentation>
-            <define name="reg.vendorids">
+            <define name="reg.vendorids.elem">
                 <element name="vendorids">
                     <a:documentation>The list of all vendorid elements.</a:documentation>
                     <ref name="reg.vendorids.contents"/>
@@ -66,13 +66,13 @@ All such identifiers can have a notation.</a:documentation>
             <define name="reg.vendorids.contents">
                 <ref name="reg.vendorids.attlist"/>
                 <oneOrMore>
-                    <ref name="reg.vendorid"/>
+                    <ref name="reg.vendorid.elem"/>
                 </oneOrMore>
             </define>
             <define name="reg.vendorids.attlist">
                 <empty/>
             </define>
-            <define name="reg.vendorid">
+            <define name="reg.vendorid.elem">
                 <element name="vendorid">
                     <a:documentation>List of identifiers for vendors.</a:documentation>
                     <ref name="reg.vendorid.contents"/>
@@ -88,7 +88,7 @@ All such identifiers can have a notation.</a:documentation>
                     <ref name="reg.notation.attrib"/>
                 </optional>
             </define>
-            <define name="reg.tags">
+            <define name="reg.tags.elem">
                 <element name="tags">
                     <a:documentation>List of authors</a:documentation>
                     <ref name="reg.tags.contents"/>
@@ -97,13 +97,13 @@ All such identifiers can have a notation.</a:documentation>
             <define name="reg.tags.contents">
                 <ref name="reg.tags.attlist"/>
                 <oneOrMore>
-                    <ref name="reg.tag"/>
+                    <ref name="reg.tag.elem"/>
                 </oneOrMore>
             </define>
             <define name="reg.tags.attlist">
                 <empty/>
             </define>
-            <define name="reg.tag">
+            <define name="reg.tag.elem">
                 <element name="tag">
                     <a:documentation>A single author for Vulkan</a:documentation>
                     <ref name="reg.tag.contents"/>
@@ -123,7 +123,7 @@ All such identifiers can have a notation.</a:documentation>
         </div>
         <div>
             <a:documentation>Definition elements.</a:documentation>
-            <define name="reg.definitions">
+            <define name="reg.definitions.elem">
                 <element name="definitions">
                     <a:documentation>List of all definitions used by Vulkan </a:documentation>
                     <ref name="reg.definitions.contents"/>
@@ -140,24 +140,24 @@ All such identifiers can have a notation.</a:documentation>
             </define>
             <define name="reg.definitions.model">
                 <choice>
-                    <ref name="reg.include"/>
-                    <ref name="reg.typedef">
+                    <ref name="reg.include.elem"/>
+                    <ref name="reg.typedef.elem">
                         <a:documentation>Formerly `basetype`</a:documentation>
                     </ref>
-                    <ref name="reg.reference">
+                    <ref name="reg.reference.elem">
                         <a:documentation>Formerly no category. Simply specifies the existence of a named type that
 usually is brought in by a `requires` attribute.</a:documentation>
                     </ref>
-                    <ref name="reg.def.bitmask"/>
-                    <ref name="reg.struct"/>
-                    <ref name="reg.union"/>
-                    <ref name="reg.define"/>
-                    <ref name="reg.handle"/>
-                    <ref name="reg.def.enumeration"/>
-                    <ref name="reg.funcptr"/>
+                    <ref name="reg.def.bitmask.elem"/>
+                    <ref name="reg.struct.elem"/>
+                    <ref name="reg.union.elem"/>
+                    <ref name="reg.define.elem"/>
+                    <ref name="reg.handle.elem"/>
+                    <ref name="reg.def.enumeration.elem"/>
+                    <ref name="reg.funcptr.elem"/>
                 </choice>
             </define>
-            <define name="reg.include">
+            <define name="reg.include.elem">
                 <element name="include">
                     <a:documentation>Definition that represents a file being included, which is named.
 The `name` attribute does double-duty, in that it also includes text.</a:documentation>
@@ -179,7 +179,7 @@ The `name` attribute does double-duty, in that it also includes text.</a:documen
                     <ref name="reg.include.need-ext.attrib"/>
                 </optional>
             </define>
-            <define name="reg.typedef">
+            <define name="reg.typedef.elem">
                 <element name="typedef">
                     <a:documentation>Definition that defines a new name for an existing type. </a:documentation>
                     <ref name="reg.typedef.contents"/>
@@ -192,7 +192,7 @@ The `name` attribute does double-duty, in that it also includes text.</a:documen
                 <ref name="reg.named.ident.model"/>
                 <ref name="reg.typedef.basetype.attrib"/>
             </define>
-            <define name="reg.reference">
+            <define name="reg.reference.elem">
                 <element name="reference">
                     <a:documentation>Definition that references a type that comes from an include file.</a:documentation>
                     <ref name="reg.reference.contents"/>
@@ -205,11 +205,11 @@ The `name` attribute does double-duty, in that it also includes text.</a:documen
                 <ref name="reg.named.ident.model"/>
                 <ref name="reg.reference.include.attrib"/>
             </define>
-            <define name="reg.def.bitmask">
+            <define name="reg.def.bitmask.elem">
                 <element name="bitmask">
                     <a:documentation>Definition that specifies a bitmask, using a particular existing type.
 Contents are the same as `typedef`.
-The members of the bitmask are declared elsewhere. </a:documentation>
+The possible bits can be defined by a specific, referenced enumeration.</a:documentation>
                     <ref name="reg.def.bitmask.contents"/>
                 </element>
             </define>
@@ -222,7 +222,7 @@ The members of the bitmask are declared elsewhere. </a:documentation>
                     <ref name="reg.bitmask.enumref.attrib"/>
                 </optional>
             </define>
-            <define name="reg.define">
+            <define name="reg.define.elem">
                 <element name="define">
                     <a:documentation>Definition that represents a C #define statement.</a:documentation>
                     <ref name="reg.define.contents"/>
@@ -239,7 +239,7 @@ contains the actual "#define" internally or not.
 Defines can also reference other definitions.    </a:documentation>
                 <ref name="reg.define.attlist"/>
                 <optional>
-                    <ref name="reg.comment"/>
+                    <ref name="reg.comment.elem"/>
                 </optional>
                 <ref name="reg.define.model"/>
             </define>
@@ -249,7 +249,7 @@ Defines can also reference other definitions.    </a:documentation>
                     <ref name="reg.define.disabled.attrib"/>
                 </optional>
             </define>
-            <define name="reg.comment">
+            <define name="reg.comment.elem">
                 <element name="comment">
                     <a:documentation>Specifies a possibly multi-line in-language comment which is expected to be
 placed near the element in which `comment` appears.</a:documentation>
@@ -267,26 +267,26 @@ placed near the element in which `comment` appears.</a:documentation>
                     <ref name="reg.define.replace.attrib"/>
                 </optional>
                 <zeroOrMore>
-                    <ref name="reg.define.defref"/>
+                    <ref name="reg.define.defref.elem"/>
                 </zeroOrMore>
                 <zeroOrMore>
-                    <ref name="reg.define.param"/>
+                    <ref name="reg.define.param.elem"/>
                 </zeroOrMore>
-                <ref name="reg.c-expression"/>
+                <ref name="reg.c-expression.elem"/>
             </define>
-            <define name="reg.define.defref">
+            <define name="reg.define.defref.elem">
                 <element name="defref">
-                    <a:documentation>Specifies a definition that this #define references in its C-expression.</a:documentation>
+                    <a:documentation>Specifies a definition that is referenced in the C-expression.</a:documentation>
                     <ref name="reg.identifier.data"/>
                 </element>
             </define>
-            <define name="reg.define.param">
+            <define name="reg.define.param.elem">
                 <element name="param">
                     <a:documentation>The name of a #define's parameter.</a:documentation>
                     <ref name="reg.identifier.data"/>
                 </element>
             </define>
-            <define name="reg.c-expression">
+            <define name="reg.c-expression.elem">
                 <element name="c-expression">
                     <a:documentation>Text that is intended to be used verbatim in C or C++ implementations.
 If the `replace` attribute is not `true`, then the processor should
@@ -294,7 +294,7 @@ generate the `#define NAME(PARAMS)` part of the define before the c-expression.<
                     <text/>
                 </element>
             </define>
-            <define name="reg.handle">
+            <define name="reg.handle.elem">
                 <element name="handle">
                     <a:documentation>Creates a definition for a handle.</a:documentation>
                     <ref name="reg.handle.contents"/>
@@ -310,7 +310,7 @@ generate the `#define NAME(PARAMS)` part of the define before the c-expression.<
                 </optional>
                 <ref name="reg.handle.type.attrib"/>
             </define>
-            <define name="reg.def.enumeration">
+            <define name="reg.def.enumeration.elem">
                 <element name="enumeration">
                     <a:documentation>Defines the name of an enumeration.
 The members and base type of the enumeration are defined elsewhere.</a:documentation>
@@ -323,7 +323,7 @@ The members and base type of the enumeration are defined elsewhere.</a:documenta
             <define name="reg.def.enumeration.attlist">
                 <ref name="reg.named.ident.model"/>
             </define>
-            <define name="reg.struct">
+            <define name="reg.struct.elem">
                 <element name="struct">
                     <a:documentation>Definition that represents a data structure.
 Contains a list of members and optional validation information.</a:documentation>
@@ -333,10 +333,10 @@ Contains a list of members and optional validation information.</a:documentation
             <define name="reg.struct.contents">
                 <ref name="reg.struct.attlist"/>
                 <oneOrMore>
-                    <ref name="reg.struct.member"/>
+                    <ref name="reg.struct.member.elem"/>
                 </oneOrMore>
                 <optional>
-                    <ref name="reg.validity"/>
+                    <ref name="reg.validity.elem"/>
                 </optional>
             </define>
             <define name="reg.struct.attlist">
@@ -345,7 +345,7 @@ Contains a list of members and optional validation information.</a:documentation
                     <ref name="reg.struct.is-return.attrib"/>
                 </optional>
             </define>
-            <define name="reg.struct.member">
+            <define name="reg.struct.member.elem">
                 <element name="member">
                     <a:documentation>Specifies a named member of a data structure.</a:documentation>
                     <ref name="reg.struct.member.contents"/>
@@ -426,7 +426,7 @@ the purpose of the variable.</a:documentation>
                     <ref name="reg.variable.sync.attrib"/>
                 </optional>
             </define>
-            <define name="reg.validity">
+            <define name="reg.validity.elem">
                 <element name="validity">
                     <a:documentation>Defines validation text related to objects and commands.</a:documentation>
                     <ref name="reg.validity.contents"/>
@@ -435,13 +435,13 @@ the purpose of the variable.</a:documentation>
             <define name="reg.validity.contents">
                 <ref name="reg.validity.attlist"/>
                 <oneOrMore>
-                    <ref name="reg.validity.usage"/>
+                    <ref name="reg.validity.usage.elem"/>
                 </oneOrMore>
             </define>
             <define name="reg.validity.attlist">
                 <empty/>
             </define>
-            <define name="reg.validity.usage">
+            <define name="reg.validity.usage.elem">
                 <element name="usage">
                     <a:documentation>A specific validation rule, spelled out in documentation text.</a:documentation>
                     <ref name="reg.validity.usage.contents"/>
@@ -454,7 +454,7 @@ the purpose of the variable.</a:documentation>
             <define name="reg.validity.usage.attlist">
                 <empty/>
             </define>
-            <define name="reg.union">
+            <define name="reg.union.elem">
                 <element name="union">
                     <a:documentation>Defines a union, where the object's value is only one of the members.</a:documentation>
                     <ref name="reg.union.contents"/>
@@ -463,13 +463,13 @@ the purpose of the variable.</a:documentation>
             <define name="reg.union.contents">
                 <ref name="reg.union.attlist"/>
                 <oneOrMore>
-                    <ref name="reg.union.member"/>
+                    <ref name="reg.union.member.elem"/>
                 </oneOrMore>
             </define>
             <define name="reg.union.attlist">
                 <ref name="reg.named.ident.model"/>
             </define>
-            <define name="reg.union.member">
+            <define name="reg.union.member.elem">
                 <element name="member">
                     <a:documentation>Specifies a named member of a union.</a:documentation>
                     <ref name="reg.union.member.contents"/>
@@ -482,7 +482,7 @@ the purpose of the variable.</a:documentation>
                 <ref name="reg.named.ident.model"/>
                 <ref name="reg.type.model"/>
             </define>
-            <define name="reg.funcptr">
+            <define name="reg.funcptr.elem">
                 <element name="funcptr">
                     <a:documentation>Defines a function pointer.</a:documentation>
                     <ref name="reg.funcptr.contents"/>
@@ -493,15 +493,15 @@ the purpose of the variable.</a:documentation>
 "void" in the parameter list. And just "void" should not be in a `&lt;type&gt;` element, as it
 does not qualify as a parameter type.</a:documentation>
                 <ref name="reg.funcptr.attlist"/>
-                <ref name="reg.return-type"/>
+                <ref name="reg.return-type.elem"/>
                 <zeroOrMore>
-                    <ref name="reg.param"/>
+                    <ref name="reg.param.elem"/>
                 </zeroOrMore>
             </define>
             <define name="reg.funcptr.attlist">
                 <ref name="reg.named.ident.model"/>
             </define>
-            <define name="reg.return-type">
+            <define name="reg.return-type.elem">
                 <element name="return-type">
                     <ref name="reg.return-type.contents"/>
                 </element>
@@ -519,7 +519,7 @@ does not qualify as a parameter type.</a:documentation>
                 <ref name="reg.command.successcodes.attrib"/>
                 <ref name="reg.command.errorcodes.attrib"/>
             </define>
-            <define name="reg.param">
+            <define name="reg.param.elem">
                 <element name="param">
                     <ref name="reg.param.contents"/>
                 </element>
@@ -538,7 +538,7 @@ does not qualify as a parameter type.</a:documentation>
         </div>
         <div>
             <a:documentation>Constants and Enumeration elements.</a:documentation>
-            <define name="reg.constants">
+            <define name="reg.constants.elem">
                 <element name="constants">
                     <ref name="reg.constants.contents"/>
                 </element>
@@ -546,13 +546,13 @@ does not qualify as a parameter type.</a:documentation>
             <define name="reg.constants.contents">
                 <ref name="reg.constants.attlist"/>
                 <oneOrMore>
-                    <ref name="reg.constant"/>
+                    <ref name="reg.constant.elem"/>
                 </oneOrMore>
             </define>
             <define name="reg.constants.attlist">
                 <empty/>
             </define>
-            <define name="reg.constant">
+            <define name="reg.constant.elem">
                 <element name="constant">
                     <a:documentation>Contains a named constant value that is not typed to an enumeration.</a:documentation>
                     <ref name="reg.constant.contents"/>
@@ -582,7 +582,7 @@ does not qualify as a parameter type.</a:documentation>
                     </ref>
                 </choice>
             </define>
-            <define name="reg.enums">
+            <define name="reg.enums.elem">
                 <element name="enums">
                     <a:documentation>Contains both enumerations and bitmasks.</a:documentation>
                     <ref name="reg.enums.contents"/>
@@ -591,13 +591,13 @@ does not qualify as a parameter type.</a:documentation>
             <define name="reg.enums.contents">
                 <ref name="reg.enums.attlist"/>
                 <oneOrMore>
-                    <ref name="reg.enumeration"/>
+                    <ref name="reg.enumeration.elem"/>
                 </oneOrMore>
             </define>
             <define name="reg.enums.attlist">
                 <empty/>
             </define>
-            <define name="reg.enumeration">
+            <define name="reg.enumeration.elem">
                 <element name="enumeration">
                     <ref name="reg.enumeration.contents"/>
                 </element>
@@ -605,12 +605,12 @@ does not qualify as a parameter type.</a:documentation>
             <define name="reg.enumeration.contents">
                 <ref name="reg.enumeration.attlist"/>
                 <zeroOrMore>
-                    <ref name="reg.enumeration.enum">
+                    <ref name="reg.enumeration.enum.elem">
                         <a:documentation>Empty enumerations are OK; extensions could fill them.</a:documentation>
                     </ref>
                 </zeroOrMore>
                 <zeroOrMore>
-                    <ref name="reg.enumeration.unused-range"/>
+                    <ref name="reg.enumeration.unused-range.elem"/>
                 </zeroOrMore>
             </define>
             <define name="reg.enumeration.attlist">
@@ -630,7 +630,7 @@ does not qualify as a parameter type.</a:documentation>
                     <ref name="reg.enum.range-end.attrib"/>
                 </optional>
             </define>
-            <define name="reg.enumeration.enum">
+            <define name="reg.enumeration.enum.elem">
                 <element name="enum">
                     <ref name="reg.enumeration.enum.contents"/>
                 </element>
@@ -642,7 +642,7 @@ does not qualify as a parameter type.</a:documentation>
                 <ref name="reg.named.ident.model"/>
                 <ref name="reg.enum.value.model"/>
             </define>
-            <define name="reg.enumeration.unused-range">
+            <define name="reg.enumeration.unused-range.elem">
                 <element name="unused-range">
                     <ref name="reg.enumeration.unused-range.contents"/>
                 </element>
@@ -656,7 +656,7 @@ does not qualify as a parameter type.</a:documentation>
         </div>
         <div>
             <a:documentation>Command elements</a:documentation>
-            <define name="reg.commands">
+            <define name="reg.commands.elem">
                 <element name="commands">
                     <a:documentation>Defines a list of Vulkan entrypoints.</a:documentation>
                     <ref name="reg.commands.contents"/>
@@ -666,15 +666,15 @@ does not qualify as a parameter type.</a:documentation>
                 <ref name="reg.commands.attlist"/>
                 <oneOrMore>
                     <choice>
-                        <ref name="reg.command"/>
-                        <ref name="reg.command-alias"/>
+                        <ref name="reg.command.elem"/>
+                        <ref name="reg.command-alias.elem"/>
                     </choice>
                 </oneOrMore>
             </define>
             <define name="reg.commands.attlist">
                 <empty/>
             </define>
-            <define name="reg.command">
+            <define name="reg.command.elem">
                 <element name="command">
                     <a:documentation>Defines a single Vulkan entrypoint.</a:documentation>
                     <ref name="reg.command.contents"/>
@@ -682,19 +682,19 @@ does not qualify as a parameter type.</a:documentation>
             </define>
             <define name="reg.command.contents">
                 <ref name="reg.command.attlist"/>
-                <ref name="reg.return-type"/>
+                <ref name="reg.return-type.elem"/>
                 <zeroOrMore>
-                    <ref name="reg.param"/>
+                    <ref name="reg.param.elem"/>
                 </zeroOrMore>
                 <interleave>
                     <optional>
-                        <ref name="reg.command.description"/>
+                        <ref name="reg.command.description.elem"/>
                     </optional>
                     <optional>
-                        <ref name="reg.command.external-sync"/>
+                        <ref name="reg.command.external-sync.elem"/>
                     </optional>
                     <optional>
-                        <ref name="reg.validity"/>
+                        <ref name="reg.validity.elem"/>
                     </optional>
                 </interleave>
             </define>
@@ -710,7 +710,7 @@ does not qualify as a parameter type.</a:documentation>
                     <ref name="reg.command.queues.attrib"/>
                 </optional>
             </define>
-            <define name="reg.command.description">
+            <define name="reg.command.description.elem">
                 <element name="description">
                     <a:documentation>Textual description of the command... in some form?</a:documentation>
                     <ref name="reg.command.description.contents"/>
@@ -723,7 +723,7 @@ does not qualify as a parameter type.</a:documentation>
             <define name="reg.command.description.attlist">
                 <empty/>
             </define>
-            <define name="reg.command.external-sync">
+            <define name="reg.command.external-sync.elem">
                 <element name="external-sync">
                     <a:documentation>Describes instances of implicit external synchronizations.
 These cannot be captured by the parameters themselves.</a:documentation>
@@ -733,13 +733,13 @@ These cannot be captured by the parameters themselves.</a:documentation>
             <define name="reg.command.external-sync.contents">
                 <ref name="reg.command.external-sync.attlist"/>
                 <oneOrMore>
-                    <ref name="reg.external-sync.sync"/>
+                    <ref name="reg.external-sync.sync.elem"/>
                 </oneOrMore>
             </define>
             <define name="reg.command.external-sync.attlist">
                 <empty/>
             </define>
-            <define name="reg.external-sync.sync">
+            <define name="reg.external-sync.sync.elem">
                 <element name="sync">
                     <a:documentation>A single aspect of implicit external synchronization.</a:documentation>
                     <ref name="reg.external-sync.sync.contents"/>
@@ -752,7 +752,7 @@ These cannot be captured by the parameters themselves.</a:documentation>
             <define name="reg.external-sync.sync.attlist">
                 <empty/>
             </define>
-            <define name="reg.command-alias">
+            <define name="reg.command-alias.elem">
                 <element name="command-alias">
                     <a:documentation>Defines an alternate name for an existing command. All information about
 the new command comes from the existing one.</a:documentation>
@@ -769,7 +769,7 @@ the new command comes from the existing one.</a:documentation>
         </div>
         <div>
             <a:documentation>Features and Extensions</a:documentation>
-            <define name="reg.features">
+            <define name="reg.features.elem">
                 <element name="features">
                     <ref name="reg.features.contents"/>
                 </element>
@@ -777,13 +777,13 @@ the new command comes from the existing one.</a:documentation>
             <define name="reg.features.contents">
                 <ref name="reg.features.attlist"/>
                 <oneOrMore>
-                    <ref name="reg.feature"/>
+                    <ref name="reg.feature.elem"/>
                 </oneOrMore>
             </define>
             <define name="reg.features.attlist">
                 <empty/>
             </define>
-            <define name="reg.feature">
+            <define name="reg.feature.elem">
                 <element name="feature">
                     <a:documentation>Defines the base API for a Vulkan specification.
 Represents a specific major/minor version of Vulkan.</a:documentation>
@@ -809,11 +809,11 @@ Represents a specific major/minor version of Vulkan.</a:documentation>
             </define>
             <define name="reg.feature.specification.model">
                 <choice>
-                    <ref name="reg.feature.require"/>
-                    <ref name="reg.feature.remove"/>
+                    <ref name="reg.feature.require.elem"/>
+                    <ref name="reg.feature.remove.elem"/>
                 </choice>
             </define>
-            <define name="reg.feature.require">
+            <define name="reg.feature.require.elem">
                 <element name="require">
                     <a:documentation>Definitions that are exposed by the specification.</a:documentation>
                     <ref name="reg.feature.require.contents"/>
@@ -825,7 +825,7 @@ Represents a specific major/minor version of Vulkan.</a:documentation>
                     <ref name="reg.feature.reference.model"/>
                 </oneOrMore>
                 <optional>
-                    <ref name="reg.feature.validity"/>
+                    <ref name="reg.feature.validity.elem"/>
                 </optional>
             </define>
             <define name="reg.feature.require.attlist">
@@ -838,12 +838,12 @@ Represents a specific major/minor version of Vulkan.</a:documentation>
             </define>
             <define name="reg.feature.reference.model">
                 <choice>
-                    <ref name="reg.feature.defref"/>
-                    <ref name="reg.feature.commandref"/>
-                    <ref name="reg.feature.enumref"/>
+                    <ref name="reg.feature.defref.elem"/>
+                    <ref name="reg.feature.commandref.elem"/>
+                    <ref name="reg.feature.enumref.elem"/>
                 </choice>
             </define>
-            <define name="reg.feature.defref">
+            <define name="reg.feature.defref.elem">
                 <element name="defref">
                     <a:documentation>Reference to a named `definitions` child.</a:documentation>
                     <ref name="reg.feature.defref.contents"/>
@@ -855,8 +855,8 @@ Represents a specific major/minor version of Vulkan.</a:documentation>
             <define name="reg.feature.defref.attlist">
                 <ref name="reg.named.ident.model"/>
             </define>
-            <define name="reg.feature.commandref">
-                <element name="commandref">
+            <define name="reg.feature.commandref.elem">
+                <element name="commandref.elem">
                     <a:documentation>Reference to a named `commands` child.</a:documentation>
                     <ref name="reg.feature.commandref.contents"/>
                 </element>
@@ -867,7 +867,7 @@ Represents a specific major/minor version of Vulkan.</a:documentation>
             <define name="reg.feature.commandref.attlist">
                 <ref name="reg.named.ident.model"/>
             </define>
-            <define name="reg.feature.enumref">
+            <define name="reg.feature.enumref.elem">
                 <element name="enumref">
                     <a:documentation>References a specific enumerator or constant.</a:documentation>
                     <ref name="reg.feature.enumref.contents"/>
@@ -879,7 +879,7 @@ Represents a specific major/minor version of Vulkan.</a:documentation>
             <define name="reg.feature.enumref.attlist">
                 <ref name="reg.named.ident.model"/>
             </define>
-            <define name="reg.feature.validity">
+            <define name="reg.feature.validity.elem">
                 <element name="validity">
                     <a:documentation>Provides additional validity checks when this API/extension is active.</a:documentation>
                     <ref name="reg.feature.validity.contents"/>
@@ -888,13 +888,13 @@ Represents a specific major/minor version of Vulkan.</a:documentation>
             <define name="reg.feature.validity.contents">
                 <ref name="reg.feature.validity.attlist"/>
                 <oneOrMore>
-                    <ref name="reg.feature.usage"/>
+                    <ref name="reg.feature.usage.elem"/>
                 </oneOrMore>
             </define>
             <define name="reg.feature.validity.attlist">
                 <empty/>
             </define>
-            <define name="reg.feature.usage">
+            <define name="reg.feature.usage.elem">
                 <element name="usage">
                     <a:documentation>A single usage validity check.</a:documentation>
                     <ref name="reg.feature.usage.contents"/>
@@ -910,20 +910,21 @@ Represents a specific major/minor version of Vulkan.</a:documentation>
                     <ref name="reg.feature.usage.command.attrib"/>
                 </choice>
             </define>
-            <define name="reg.feature.remove">
+            <define name="reg.feature.remove.elem">
                 <element name="remove">
                     <a:documentation>Definitions which are *not* to be exposed by the specification.</a:documentation>
                     <ref name="reg.feature.remove.contents"/>
                 </element>
             </define>
             <define name="reg.feature.remove.contents">
+                <a:documentation>Uses same content model as `require`.</a:documentation>
                 <ref name="reg.feature.remove.attlist"/>
                 <ref name="reg.feature.require.contents"/>
             </define>
             <define name="reg.feature.remove.attlist">
                 <empty/>
             </define>
-            <define name="reg.extensions">
+            <define name="reg.extensions.elem">
                 <element name="extensions">
                     <ref name="reg.extensions.contents"/>
                 </element>
@@ -931,13 +932,13 @@ Represents a specific major/minor version of Vulkan.</a:documentation>
             <define name="reg.extensions.contents">
                 <ref name="reg.extensions.attlist"/>
                 <oneOrMore>
-                    <ref name="reg.extension"/>
+                    <ref name="reg.extension.elem"/>
                 </oneOrMore>
             </define>
             <define name="reg.extensions.attlist">
                 <empty/>
             </define>
-            <define name="reg.extension">
+            <define name="reg.extension.elem">
                 <element name="extension">
                     <a:documentation>Specifies the types exposed/forbidden by an extension.</a:documentation>
                     <ref name="reg.extension.contents"/>
@@ -965,11 +966,11 @@ Represents a specific major/minor version of Vulkan.</a:documentation>
             </define>
             <define name="reg.extension.specification.model">
                 <choice>
-                    <ref name="reg.extension.require"/>
-                    <ref name="reg.extension.remove"/>
+                    <ref name="reg.extension.require.elem"/>
+                    <ref name="reg.extension.remove.elem"/>
                 </choice>
             </define>
-            <define name="reg.extension.require">
+            <define name="reg.extension.require.elem">
                 <element name="require">
                     <a:documentation>Exactly like the feature version, but with an optional `api` tag.</a:documentation>
                     <ref name="reg.extension.require.contents"/>
@@ -982,19 +983,19 @@ Represents a specific major/minor version of Vulkan.</a:documentation>
                     <ref name="reg.extension.definition.model"/>
                 </oneOrMore>
                 <optional>
-                    <ref name="reg.feature.validity"/>
+                    <ref name="reg.feature.validity.elem"/>
                 </optional>
             </define>
             <define name="reg.extension.definition.model">
                 <choice>
-                    <ref name="reg.feature.defref"/>
-                    <ref name="reg.feature.commandref"/>
-                    <ref name="reg.feature.enumref"/>
-                    <ref name="reg.extension.constant"/>
-                    <ref name="reg.extension.enum"/>
+                    <ref name="reg.feature.defref.elem"/>
+                    <ref name="reg.feature.commandref.elem"/>
+                    <ref name="reg.feature.enumref.elem"/>
+                    <ref name="reg.extension.constant.elem"/>
+                    <ref name="reg.extension.enum.elem"/>
                 </choice>
             </define>
-            <define name="reg.extension.constant">
+            <define name="reg.extension.constant.elem">
                 <element name="constant">
                     <a:documentation>Defines a constant exported by an extension.
 These are not enumerators.</a:documentation>
@@ -1021,7 +1022,7 @@ These are not enumerators.</a:documentation>
                     </ref>
                 </choice>
             </define>
-            <define name="reg.extension.enum">
+            <define name="reg.extension.enum.elem">
                 <element name="enum">
                     <a:documentation>Declares a new enumerator that is added to an existing enumerator.</a:documentation>
                     <ref name="reg.extension.enum.contents"/>
@@ -1052,7 +1053,7 @@ These are not enumerators.</a:documentation>
                     <ref name="reg.extension.api.attrib"/>
                 </optional>
             </define>
-            <define name="reg.extension.remove">
+            <define name="reg.extension.remove.elem">
                 <element name="remove">
                     <a:documentation>Exactly like the feature version, but with an optional `api` tag.</a:documentation>
                     <ref name="reg.extension.remove.contents"/>
@@ -1065,7 +1066,7 @@ These are not enumerators.</a:documentation>
                     <ref name="reg.extension.definition.model"/>
                 </oneOrMore>
                 <optional>
-                    <ref name="reg.feature.validity"/>
+                    <ref name="reg.feature.validity.elem"/>
                 </optional>
             </define>
             <define name="reg.extension.remove.attlist">
@@ -1074,12 +1075,6 @@ These are not enumerators.</a:documentation>
                 </optional>
             </define>
         </div>
-    </div>
-    <div>
-        <a:documentation>Supplementary elements and definitions.</a:documentation>
-        <define name="INCOMPLETE">
-            <empty/>
-        </define>
     </div>
     <div>
         <a:documentation>Attribute definitions</a:documentation>
@@ -1155,7 +1150,8 @@ type `include`.</a:documentation>
         </define>
         <define name="reg.define.disabled.attrib">
             <attribute name="disabled" a:default-value="false">
-                <a:documentation>If "true", then the processor should generate the #define in a comment.
+                <a:documentation>If "true", then the processing system should add comments to each line of the 
+#define.
 That is, the #define exists, but has been commented out for some reason.</a:documentation>
                 <ref name="reg.boolean.data"/>
             </attribute>
@@ -1177,7 +1173,7 @@ A decimal number or string literal, for example.</a:documentation>
         </define>
         <define name="reg.handle.parent.attrib">
             <attribute name="parent">
-                <a:documentation>The name of a handle object that is the parent of this handle.</a:documentation>
+                <a:documentation>The name(s) of a handle object that is the parent of this handle.</a:documentation>
                 <ref name="reg.csident.data"/>
             </attribute>
         </define>
@@ -1546,6 +1542,12 @@ Not prefixed with "0x"</a:documentation>
         </define>
         <define name="reg.boolean.data">
             <data type="boolean"/>
+        </define>
+    </div>
+    <div>
+        <a:documentation>Supplementary elements and definitions.</a:documentation>
+        <define name="INCOMPLETE">
+            <empty/>
         </define>
     </div>
 </grammar>
