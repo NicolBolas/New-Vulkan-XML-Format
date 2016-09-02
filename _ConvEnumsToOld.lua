@@ -1,5 +1,6 @@
 
 local common = require "_ConvCommon"
+local enums = require "_ConvCommonEnums"
 
 
 
@@ -12,7 +13,7 @@ local enumerator =
 		{
 			name = "enum",
 			
-			map_attribs = common.TableAttribToOldEnumModel(),
+			map_attribs = enums.TableAttribToOldEnumModel(),
 		},
 	},
 	

@@ -1,5 +1,7 @@
 
 local common = require "_ConvCommon"
+local types = require "_ConvCommonTypes"
+local convert = require "_ConvCommonConvert"
 
 local cmd_children =
 {
@@ -11,10 +13,10 @@ local cmd_children =
 			name = "param",
 			verbatim = true,
 			
-			proc = common.OldWriteVariable,
+			proc = types.OldWriteVariable,
 		},
 	},
-	common.cmdStructValidityToOld,
+	convert.cmdStructValidityToOld,
 	{
 		test = "external-sync",
 		
@@ -55,7 +57,7 @@ local function WriteCommand(writer, node)
 	
 	writer:PushElement("proto", nil, true)
 
-	common.OldWritePrenameType(writer, ret_type, true)
+	types.OldWritePrenameType(writer, ret_type, true)
 
 	writer:AddText(" ")
 

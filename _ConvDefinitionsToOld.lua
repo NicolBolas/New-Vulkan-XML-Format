@@ -1,6 +1,8 @@
 
 require "_Utils"
 local common = require "_ConvCommon"
+local types = require "_ConvCommonTypes"
+local convert = require "_ConvCommonConvert"
 
 --Splits the string into a sequence of strings, based on an identifier.
 --So we verify that the character just before it is not a valid identifier character
@@ -94,10 +96,10 @@ local struct_children =
 				["type-enums"] = "values",
 			},
 			
-			proc = common.OldWriteVariable,
+			proc = types.OldWriteVariable,
 		},
 	},
-	common.cmdStructValidityToOld,
+	convert.cmdStructValidityToOld,
 }
 
 local children =
@@ -388,7 +390,7 @@ local children =
 				
 				writer:AddText("typedef ")
 				--write return type, no type element.
-				common.OldWritePrenameType(writer,
+				types.OldWritePrenameType(writer,
 					common.FindChildElement(node, "return-type"), false)
 				writer:AddText(" (VKAPI_PTR *")
 				--write name in <name> element.
@@ -400,7 +402,7 @@ local children =
 					if(child.name == "param") then
 						found_param = true
 						writer:AddText("\n\t")
-						common.OldWriteVariable(writer, child, true)
+						types.OldWriteVariable(writer, child, true)
 					end
 				end
 				

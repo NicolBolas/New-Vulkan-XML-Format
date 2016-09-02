@@ -1,5 +1,6 @@
 
 local common = require "_ConvCommon"
+local convert = require "_ConvCommonConvert"
 
 local children =
 {
@@ -18,7 +19,7 @@ local children =
 			},
 		},
 
-		children = common.TableConvToOldReqRem(true),
+		children = convert.TableConvToOldReqRem(true),
 	},
 }
 
