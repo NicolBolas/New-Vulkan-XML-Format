@@ -9,6 +9,81 @@ local common = require "_ConvCommon"
 
 local funcs = {}
 
+
+-------------------------------------------------------
+-- OLD TO NEW
+--Also returns the remainder of the string after the match.
+--Or the entire string if nothing matched.
+local function CheckPtrs(str)
+	local tests =
+	{
+		{
+			ref = "pointer-const-pointer",
+			pttn = "%*%s*const%s*%*",
+		},
+		{
+			ref = "pointer-pointer",
+			pttn = "%*%s*%*",
+		},
+		{
+			ref = "pointer",
+			pttn = "%*",
+		},
+	}
+	
+	for _, test in ipairs(tests) do
+		local match = str:match(test.pttn)
+		if(match) then
+			return test.ref, str:sub(#match)
+		end
+	end
+	
+	return nil, str
+end
+
+--Processes a variable that's written in plain text (no elements).
+--If `type_only` is true, then the string is just the type, with no name or anything else.
+--Returns a table containing:
+--	`const = true`: if it is a const type.
+--	`struct = true`: if the basetype needs the `struct` prefix.
+--	`bastype`: The basic type
+--	`reference`: One of the reference strings, if any.
+--	`name`: The name of the variable, if any.
+--Also returns the unparsed portion 
+function funcs.ParseTextType(str, type_only)
+	local typedef = {}
+
+	local pattern = "%s*([^%s*]+)(.*)";
+	local token, next = str:match(pattern)
+	while(token) do
+		if(token == "const") then
+			typedef.const = "true"
+		elseif(token == "struct") then
+			typedef.struct = "true"
+		else
+			typedef.basetype = token
+			break
+		end
+		token, next = next:match(pattern)
+	end
+	
+	local reference
+	reference, next = CheckPtrs(next)
+	typedef.reference = reference
+	
+	if(not type_only) then
+		token, next = next:match("%s*([%a_][%w_]+)(.*)")
+		typedef.name = token
+		
+		--Parse array sizes?
+	end
+	
+	return typedef, next
+end
+
+
+-------------------------------------------------------
+-- NEW TO OLD
 local old_reference_map =
 {
 	["pointer"] = "*",

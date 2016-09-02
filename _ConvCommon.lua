@@ -58,6 +58,8 @@ local function ExtractText(node, list)
 end
 
 function funcs.ExtractFullText(node)
+	if(not node) then return nil end
+	
 	local list = {}
 	if(node.type == "text") then
 		return node.value
@@ -65,6 +67,10 @@ function funcs.ExtractFullText(node)
 		ExtractText(node, list)
 	end
 	return table.concat(list)
+end
+
+function funcs.ExtractTextFromChild(node, name)
+	return funcs.ExtractFullText(funcs.FindChildElement(node, name))
 end
 
 return funcs

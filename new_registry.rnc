@@ -608,7 +608,7 @@ div
             
         reg.feature.commandref.elem =
             ## Reference to a named `commands` child.
-            element commandref.elem { reg.feature.commandref.contents }
+            element commandref { reg.feature.commandref.contents }
             
         reg.feature.commandref.contents =
             reg.feature.commandref.attlist

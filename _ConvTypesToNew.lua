@@ -81,8 +81,7 @@ local child_define =
 				if(node.attr.name) then
 					return node.attr.name
 				else
-					local name = common.FindChildElement(node, "name")
-					name = common.ExtractFullText(name)
+					local name = common.ExtractTextFromChild(node, "name")
 					assert(#name > 0)
 					return name
 				end
@@ -206,11 +205,141 @@ local child_define =
 	},
 }
 
+
+
+local child_typedef =
+{	test = TestCategory("basetype"),
+	element =
+	{	name = "typedef",
+		
+		attribs =
+		{
+			name = function(node) return common.ExtractTextFromChild(node, "name") end,
+			basetype = function(node) return common.ExtractTextFromChild(node, "type") end,
+		},
+	},
+}
+
+local child_bitmask =
+{	test = TestCategory("bitmask"),
+	element =
+	{	name = "bitmask",
+		
+		map_attribs =
+		{
+			requires = "enumref",
+		},
+		
+		attribs = child_typedef.element.attribs,
+	},
+}
+
+local child_handle =
+{	test = TestCategory("handle"),
+	element =
+	{	name = "handle",
+		map_attribs =
+		{
+			parent = "parent"
+		},
+		
+		attribs =
+		{
+			name = function(node) return common.ExtractTextFromChild(node, "name") end,
+			type = function(node)
+				local handle_type = common.ExtractTextFromChild(node, "type")
+				if(handle_type == "VK_DEFINE_HANDLE") then
+					return "dispatch"
+				elseif(handle_type == "VK_DEFINE_NON_DISPATCHABLE_HANDLE") then
+					return "nodispatch"
+				else
+					assert(false, common.ExtractTextFromChild(node, "name"))
+				end
+			end,
+		},
+	},
+}
+
+local child_enum =
+{	test = TestCategory("enum"),
+	element =
+	{	name = "enumeration",
+		map_attribs = { name = "name" },
+	},
+}
+
+--Writes each of the table fields as attributes.
+local function WriteTblAsAttribs(writer, tbl)
+	for name, value in pairs(tbl) do
+		writer:AddAttribute(name, value)
+	end
+end
+
+local child_funcptr =
+{	test = TestCategory("funcpointer"),
+	element =
+	{	name = "funcptr",
+		attribs =
+		{
+			name = function(node) return common.ExtractTextFromChild(node, "name") end,
+		},
+		
+		proc = function(writer, node)
+			local return_text = common.FindNextText(node).value
+			local return_string = return_text:match("typedef *(.+)%(")
+			
+			local return_type = types.ParseTextType(return_string, true)
+			writer:PushElement("return-type")
+			WriteTblAsAttribs(writer, return_type)
+			writer:PopElement()
+			
+			local full_text = common.ExtractFullText(node)
+			--Get paren-enclosed data.
+			local _, param_seq = full_text:match("(%b())%s*(%b())")
+			--Remove the two parens.
+			param_seq = param_seq:sub(2, #param_seq - 1)
+			
+			--Special-case: if entire parameter list is just "void", then no parameters.
+			if(param_seq ~= "void") then
+				--Process the coma-separated sequence.
+				for param in param_seq:gmatch("%s*([^,]+)") do
+					local parameter = types.ParseTextType(param, false)
+					
+					writer:PushElement("param")
+					WriteTblAsAttribs(writer, parameter)
+					writer:PopElement()
+				end
+			end
+		end
+	},
+}
+
+local child_struct =
+{	test = TestCategory("struct"),
+	element =
+	{	name = "struct",
+	},
+}
+
+local child_union =
+{	test = TestCategory("union"),
+	element =
+	{	name = "union",
+	},
+}
+
 local children =
 {
 	child_include,
 	child_require,
 	child_define,
+	child_typedef,
+	child_bitmask,
+	child_handle,
+	child_enum,
+	child_funcptr,
+	child_struct,
+	child_union,
 }
 
 return {	test = "types",

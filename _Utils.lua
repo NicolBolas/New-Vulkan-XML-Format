@@ -22,6 +22,13 @@ function funcs.iff(test, true_val, false_val)
 	if(test) then return true_val else return false_val end
 end
 
+--Trim whitespace off the right side.
+function funcs.rtrim(s)
+  local n = #s
+  while n > 0 and s:find("^%s", n) do n = n - 1 end
+  return s:sub(1, n)
+end
+
 --Make all of these available in the global namespace.
 for key, func in pairs(funcs) do
 	_G[key] = func
