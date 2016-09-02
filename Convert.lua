@@ -21,7 +21,7 @@ local registry_proc =
 			require "_ConvCommentToNew",
 			require "_ConvVendorIdsToNew",
 			require "_ConvTagsToNew",
-			--require "_ConvTypesToNew",
+			require "_ConvTypesToNew",
 			require "_ConvEnumConstantsToNew",
 			require "_ConvEnumsToNew",
 			--require "_ConvCommandsToNew",
