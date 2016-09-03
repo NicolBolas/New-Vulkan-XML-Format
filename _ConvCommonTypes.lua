@@ -81,6 +81,114 @@ function funcs.ParseTextType(str, type_only)
 	return typedef, next
 end
 
+--Returns a table containing:
+--	
+function funcs.ParseMemberParam(mem_node)
+	local member = {}
+	
+	--Get member flags and fields.
+	if(mem_node.attr.optional == "true") then
+		member.optional = true
+	end
+	if(mem_node.attr.len) then
+		--Length is a comma-separated list.
+		for len_data in mem_node.attr.len:gmatch("[^,]+") do
+			if(len_data == "null-terminated") then
+				assert(member["null-terminate"] == nil)
+				member["null-terminate"] = true
+				member.array = "dynamic"
+			else
+				assert(member.size == nil)
+				member.size = len_data
+				member.array = "dynamic"
+			end
+		end
+	end
+	if(mem_node.attr.externsync) then
+		if(mem_node.attr.externsync == "true") then
+			member.sync = true
+		else
+			member.sync = mem_node.attr.externsync
+		end
+	end
+	if(mem_node.attr.noautovalidity) then
+		--Simple true/false
+		member["auto-validity"] = mem_node.attr.noautovalidity ~= "true"
+	end
+	if(mem_node.attr.validextensionstructs) then
+		member["extension-structs"] = mem_node.attr.validextensionstructs
+	end
+	if(mem_node.attr.values) then
+		member["type-enums"] = mem_node.attr.values
+	end
+
+	local pos = 1
+	local sub_node = mem_node.kids[pos]
+	
+	--Check for const and/or struct.
+	if(sub_node.type == "text") then
+		local test = sub_node.value:match("const")
+		if(test) then
+			member.const = true
+		end
+		test = sub_node.value:match("struct")
+		if(test) then
+			member.struct = true
+		end
+		
+		assert(member.const or member.struct)
+		pos = pos + 1
+	end
+	
+	sub_node = mem_node.kids[pos]
+	
+	--Extract type.
+	assert(sub_node.type == "element" and sub_node.name == "type")
+	member.basetype = common.ExtractFullText(sub_node)
+	
+	pos = pos + 1
+	sub_node = mem_node.kids[pos]
+	
+	--Extract pointer/references.
+	--Sometimes, no text between `type` and `name`.
+	if(sub_node.type == "text") then
+		local reference = CheckPtrs(sub_node.value)
+		if(reference) then
+			member.reference = reference
+		end
+	
+		pos = pos + 1
+		sub_node = mem_node.kids[pos]
+	end
+
+	--Extract the member name.
+	assert(sub_node.type == "element" and sub_node.name == "name")
+	member.name = common.ExtractFullText(sub_node)
+	
+	--Extract static arrays.
+	pos = pos + 1
+	sub_node = mem_node.kids[pos]
+	
+	if(sub_node) then
+		assert(sub_node.type == "text")
+		--Cannot already have an array
+		assert(member.array == nil)
+		member.array = "static"
+		local match = sub_node.value:match("%[(.+)%]")
+		if(match) then
+			member.size = assert(tonumber(match))
+		else
+			pos = pos + 1
+			sub_node = mem_node.kids[pos]
+			assert(sub_node.type == "element")
+			member.size = common.ExtractFullText(sub_node)				
+		end
+	end
+	
+	return member
+end
+
+
 
 -------------------------------------------------------
 -- NEW TO OLD

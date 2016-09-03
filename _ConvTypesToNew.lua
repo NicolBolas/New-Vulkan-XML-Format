@@ -271,7 +271,7 @@ local child_enum =
 --Writes each of the table fields as attributes.
 local function WriteTblAsAttribs(writer, tbl)
 	for name, value in pairs(tbl) do
-		writer:AddAttribute(name, value)
+		writer:AddAttribute(name, tostring(value))
 	end
 end
 
@@ -314,10 +314,64 @@ local child_funcptr =
 	},
 }
 
+local struct_member =
+{	test = "member",
+	element =
+	{	name = "member",
+	
+		proc = function(writer, node)
+			local member = types.ParseMemberParam(node)
+			
+			WriteTblAsAttribs(writer, member)
+		end
+	},
+}
+
+local struct_validity =
+{	test = function(node)
+		if(node.type == "element" and node.name == "validity") then
+			--If no usage, don't write a validity.
+			if(common.FindChildElement(node, "usage")) then
+				return true
+			else
+				return false
+			end
+		end
+	end,
+	element =
+	{	name = "validity",
+	},
+	
+	children =
+	{
+		{	test = "usage",
+			element =
+			{	name = "usage",
+			
+				proc = function(writer, node)
+					writer:AddText(common.ExtractFullText(node))
+				end
+			},
+		},
+	}
+}
+
 local child_struct =
 {	test = TestCategory("struct"),
 	element =
 	{	name = "struct",
+		map_attribs =
+		{
+			name = "name",
+			comment = "notation",
+			returnedonly = "is-return",
+		},
+	},
+	
+	children =
+	{
+		struct_member,
+		struct_validity,
 	},
 }
 
@@ -325,6 +379,17 @@ local child_union =
 {	test = TestCategory("union"),
 	element =
 	{	name = "union",
+		map_attribs =
+		{
+			name = "name",
+			comment = "notation",
+		},
+	},
+	
+	children =
+	{
+		struct_member,
+		struct_validity,
 	},
 }
 
