@@ -1,10 +1,30 @@
 require "_Utils"
 local common = require "_ConvCommon"
+local types = require "_ConvCommonTypes"
+local convert = require "_ConvCommonConvert"
 
-return {	test = "name",
+
+return {	test = "feature",
+	collate =
+	{
+		start = "features",
+	},
+
 	element =
-	{	name = "foo",
+	{	name = "feature",
+		map_attribs =
+		{
+			name = "name",
+			api = "api",
+			comment = "notation",
+			number = "version",
+			protect = "define",
+		},
 	},
 	
-	children = {},
+	children =
+	{
+		convert.ToNewReqRem(false, false),
+		convert.ToNewReqRem(true, false),
+	},
 }

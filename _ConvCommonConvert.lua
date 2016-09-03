@@ -8,6 +8,164 @@ local funcs = {}
 
 -------------------------------------------------------
 -- OLD TO NEW
+local toNewReqRemUsage =
+{	test = "usage",
+	collate =
+	{
+		start = "validity",
+	},
+	
+	element =
+	{	name = "usage",
+		proc = function(writer, node)
+			writer:AddText(common.ExtractFullText(node))
+		end
+	},
+}
+
+local toNewReqRemCommand =
+{	test = "command",
+	element =
+	{	name = "commandref",
+		map_attribs =
+		{
+			name = "name",
+			comment = "notation",
+		},
+	},
+}
+
+local toNewReqRemType =
+{	test = "type",
+	element =
+	{	name = "defref",
+		map_attribs =
+		{
+			name = "name",
+			comment = "notation",
+		},
+	},
+}
+
+local toNewReqRemEnumFeature =
+{	test = "enum",
+	element =
+	{	name = "enumref",
+		map_attribs =
+		{
+			name = "name",
+			comment = "notation",
+		},
+	},
+}
+
+local toNewReqRemEnumExtension =
+{	test = function(node)
+		return node.type == "element" and node.attr.extends
+	end,
+	
+	element =
+	{	name = "enum",
+		map_attribs =
+		{
+			name = true,
+			comment = "notation",
+			extends = true,
+		},
+		
+		proc = function(writer, node)
+			if(node.attr.offset) then
+				writer:AddAttribute("offset", node.attr.offset)
+				if(node.attr.dir == "-") then
+					writer:AddAttribute("negate", "true")
+				end
+			else
+				local name, value = enums.OldEnumNodeToNewAttrib(node)
+				writer:AddAttribute(name, value)
+			end
+		end
+	},
+}
+
+local toNewReqRemConstant =
+{	test = "enum",
+	element = 
+	{	name = "constant",
+	
+		map_attribs =
+		{
+			name = true,
+			comment = "notation",
+		},
+
+		proc = function(writer, node)
+			local name, value
+			local val = node.attr.value
+			if(val) then
+				--First thing is a quote, so quoted string.
+				if(val:match("^\"")) then
+					name, value = "string", val:match([[^"(.+)"$]])
+				--If the whole thing is a valid C++ identifier,
+				--then it's an enum reference.
+				elseif(val:match("^[_%a][_%w]*$")) then
+					name, value = "enumref", val
+				else
+					name, value = enums.OldEnumNodeToNewAttrib(node)
+				end
+			end
+			
+			--Haven't found it yet, so probably a bitpos
+			if(not name) then
+				name, value = enums.OldEnumNodeToNewAttrib(node)
+			end
+			
+			assert(name, node.name)
+			writer:AddAttribute(name, value)
+		end,
+	},
+}
+
+
+local toNewExtensionReqRem =
+{
+	toNewReqRemEnumExtension,
+	toNewReqRemConstant,
+	toNewReqRemType,
+	toNewReqRemCommand,
+	toNewReqRemUsage,
+}
+
+local toNewFeatureReqRem =
+{
+	toNewReqRemEnumFeature,
+	toNewReqRemType,
+	toNewReqRemCommand,
+	toNewReqRemUsage,
+}
+
+function funcs.ToNewReqRem(is_remove, is_extension)
+	local name = iff(is_remove, "remove", "require")
+	local req_rem =
+	{	test = name,
+		element =
+		{	name = name,
+			map_attribs =
+			{
+				profile = "profile",
+				comment = "notation",
+			},
+		},
+		
+		children = iff(is_extension, toNewExtensionReqRem, toNewFeatureReqRem),
+	}
+	
+	if(is_extension) then
+		req_rem.element.map_attribs.api = "api"
+	end
+	
+	return req_rem
+end
+
 
 funcs.toNewValidity =
 {	test = function(node)

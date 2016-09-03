@@ -25,8 +25,8 @@ local registry_proc =
 			require "_ConvEnumConstantsToNew",
 			require "_ConvEnumsToNew",
 			require "_ConvCommandsToNew",
-			--require "_ConvFeatureToNew",
-			--require "_ConvExtensionsToNew",
+			require "_ConvFeatureToNew",
+			require "_ConvExtensionsToNew",
 		},
 	},
 }
