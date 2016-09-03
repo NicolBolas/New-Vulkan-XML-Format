@@ -15,6 +15,15 @@ function funcs.CopyAttribIfPresent(writer, node, inputAttrib, outputAttrib)
 	end
 end
 
+--Writes each of the table fields as attributes.
+function funcs.WriteTblAsAttribs(writer, tbl)
+	for name, value in pairs(tbl) do
+		writer:AddAttribute(name, tostring(value))
+	end
+end
+
+
+
 function funcs.WriteTextElement(writer, elementName, ...)
 	writer:PushElement(elementName)
 	writer:AddText(...)

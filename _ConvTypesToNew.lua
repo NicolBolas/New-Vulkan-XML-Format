@@ -1,6 +1,7 @@
 require "_Utils"
 local common = require "_ConvCommon"
 local types = require "_ConvCommonTypes"
+local convert = require "_ConvCommonConvert"
 
 local function TestCategory(cat)
 	return function(node)
@@ -205,8 +206,6 @@ local child_define =
 	},
 }
 
-
-
 local child_typedef =
 {	test = TestCategory("basetype"),
 	element =
@@ -268,13 +267,6 @@ local child_enum =
 	},
 }
 
---Writes each of the table fields as attributes.
-local function WriteTblAsAttribs(writer, tbl)
-	for name, value in pairs(tbl) do
-		writer:AddAttribute(name, tostring(value))
-	end
-end
-
 local child_funcptr =
 {	test = TestCategory("funcpointer"),
 	element =
@@ -290,7 +282,7 @@ local child_funcptr =
 			
 			local return_type = types.ParseTextType(return_string, true)
 			writer:PushElement("return-type")
-			WriteTblAsAttribs(writer, return_type)
+			common.WriteTblAsAttribs(writer, return_type)
 			writer:PopElement()
 			
 			local full_text = common.ExtractFullText(node)
@@ -306,7 +298,7 @@ local child_funcptr =
 					local parameter = types.ParseTextType(param, false)
 					
 					writer:PushElement("param")
-					WriteTblAsAttribs(writer, parameter)
+					common.WriteTblAsAttribs(writer, parameter)
 					writer:PopElement()
 				end
 			end
@@ -322,38 +314,9 @@ local struct_member =
 		proc = function(writer, node)
 			local member = types.ParseMemberParam(node)
 			
-			WriteTblAsAttribs(writer, member)
+			common.WriteTblAsAttribs(writer, member)
 		end
 	},
-}
-
-local struct_validity =
-{	test = function(node)
-		if(node.type == "element" and node.name == "validity") then
-			--If no usage, don't write a validity.
-			if(common.FindChildElement(node, "usage")) then
-				return true
-			else
-				return false
-			end
-		end
-	end,
-	element =
-	{	name = "validity",
-	},
-	
-	children =
-	{
-		{	test = "usage",
-			element =
-			{	name = "usage",
-			
-				proc = function(writer, node)
-					writer:AddText(common.ExtractFullText(node))
-				end
-			},
-		},
-	}
 }
 
 local child_struct =
@@ -371,7 +334,7 @@ local child_struct =
 	children =
 	{
 		struct_member,
-		struct_validity,
+		convert.toNewValidity,
 	},
 }
 
@@ -389,7 +352,7 @@ local child_union =
 	children =
 	{
 		struct_member,
-		struct_validity,
+		convert.toNewValidity,
 	},
 }
 

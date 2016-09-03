@@ -6,6 +6,44 @@ local enums = require "_ConvCommonEnums"
 
 local funcs = {}
 
+-------------------------------------------------------
+-- OLD TO NEW
+
+funcs.toNewValidity =
+{	test = function(node)
+		if(node.type == "element" and node.name == "validity") then
+			--If no usage, don't write a validity.
+			if(common.FindChildElement(node, "usage")) then
+				return true
+			else
+				return false
+			end
+		end
+	end,
+	element =
+	{	name = "validity",
+	},
+	
+	children =
+	{
+		{	test = "usage",
+			element =
+			{	name = "usage",
+			
+				proc = function(writer, node)
+					writer:AddText(common.ExtractFullText(node))
+				end
+			},
+		},
+	}
+}
+
+
+
+
+-------------------------------------------------------
+-- NEW TO OLD
+
 --Processing just the refs.
 local toOldRefs =
 {
