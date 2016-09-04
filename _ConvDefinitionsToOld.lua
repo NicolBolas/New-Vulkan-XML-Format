@@ -400,6 +400,11 @@ local children =
 				local found_param = false
 				for _, child in ipairs(node.el) do
 					if(child.name == "param") then
+						if(found_param) then
+							--Not the first parameter, so add a comma.
+							writer:AddText(",")
+						end
+						
 						found_param = true
 						writer:AddText("\n\t")
 						types.OldWriteVariable(writer, child, true)
@@ -410,7 +415,7 @@ local children =
 					writer:AddText("void")
 				end
 				
-				writer:AddText(")")
+				writer:AddText(");")
 			end
 		},
 	},

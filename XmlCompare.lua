@@ -1,6 +1,7 @@
 
 require "_Utils"
 local slaxmldom = require_local_path("SLAXML/", "slaxdom")
+local diff = require_local_path("lua-diff/lua/", "diff")
 
 local function LoadXml(filename)
 	local hFile = assert(io.open(filename))
@@ -80,7 +81,14 @@ NodeComps =
 {
 	text = function(lhs_node, rhs_node)
 		if(lhs_node.value ~= rhs_node.value) then
-			--ErrorOut("Text nodes don't match.", lhs_node.value, rhs_node.value)
+			--Perform a stronger diff.
+			local d_val = diff.diff(lhs_node.value, rhs_node.value)
+			for _, test in ipairs(d_val) do
+				if(test[2] ~= "same" and not test[1]:match("^%s+$")) then
+					ErrorOut("Text nodes don't match.", lhs_node.value, rhs_node.value)
+					break
+				end
+			end
 		end
 	end,
 	element = function(lhs_node, rhs_node)
