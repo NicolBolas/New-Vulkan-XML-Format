@@ -1111,19 +1111,23 @@ div
     reg.spec-language.data = text
 
     ## Should be a valid C/C++ identifier.
-    reg.identifier.data = text
+    reg.identifier.data = xsd:string{pattern = "[A-Za-z_][A-Za-z0-9_]*"}
+    
+    ## Comma-separated identifiers values.
+    ## Can be empty.
+    reg.csident.data = xsd:string{pattern =
+        "([A-Za-z_][A-Za-z0-9_]*(,([A-Za-z_][A-Za-z0-9_]*))*)?"}
     
     ## Recognize a hexadecimal number.
     ## Not prefixed with "0x"
-    reg.hexadecimal.data = text
+    reg.hexadecimal.data = xsd:string{pattern = "[A-Fa-f0-9]+"}
+    
+    ## XSD's boolean type includes things other than "true" and "false",
+    ## so we do it manually.
+    reg.boolean.data = "true" | "false"
     
     ## Comma-separated boolean values.
-    reg.csident.data = text
-    
-    reg.boolean.data = xsd:boolean
-    
-    ## Comma-separated boolean values.
-    reg.csboolean.data = text
+    reg.csboolean.data = xsd:string{pattern = "(true|false)(,(true|false))*"}
 }
 
 ## Supplementary elements and definitions.

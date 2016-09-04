@@ -1543,23 +1543,37 @@ format.</a:documentation>
         </define>
         <define name="reg.identifier.data">
             <a:documentation>Should be a valid C/C++ identifier.</a:documentation>
-            <text/>
+            <data type="string">
+                <param name="pattern">[A-Za-z_][A-Za-z0-9_]*</param>
+            </data>
+        </define>
+        <define name="reg.csident.data">
+            <a:documentation>Comma-separated identifiers values.
+Can be empty.</a:documentation>
+            <data type="string">
+                <param name="pattern">([A-Za-z_][A-Za-z0-9_]*(,([A-Za-z_][A-Za-z0-9_]*))*)?</param>
+            </data>
         </define>
         <define name="reg.hexadecimal.data">
             <a:documentation>Recognize a hexadecimal number.
 Not prefixed with "0x"</a:documentation>
-            <text/>
-        </define>
-        <define name="reg.csident.data">
-            <a:documentation>Comma-separated boolean values.</a:documentation>
-            <text/>
+            <data type="string">
+                <param name="pattern">[A-Fa-f0-9]+</param>
+            </data>
         </define>
         <define name="reg.boolean.data">
-            <data type="boolean"/>
+            <a:documentation>XSD's boolean type includes things other than "true" and "false",
+so we do it manually.</a:documentation>
+            <choice>
+                <value>true</value>
+                <value>false</value>
+            </choice>
         </define>
         <define name="reg.csboolean.data">
             <a:documentation>Comma-separated boolean values.</a:documentation>
-            <text/>
+            <data type="string">
+                <param name="pattern">(true|false)(,(true|false))*</param>
+            </data>
         </define>
     </div>
     <div>
