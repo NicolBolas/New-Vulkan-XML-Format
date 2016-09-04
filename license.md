@@ -1,4 +1,8 @@
-The `src` directory files are reproduced under the terms of the license provided in `src/vk.xml`. The `SLAXML` files are reproduced under the terms specified by `SLAXML/LICENSE.txt`.
+The files in the `src` directory are reproduced under the terms of the license provided in `src/vk.xml`.
+
+The files in the `SLAXML` directory are reproduced under the terms specified by `SLAXML/LICENSE.txt`.
+
+The files in the `lua-diff` directory are reproduced under the terms specified by `lua_diff/LICENSE.txt`.
 
 All other files are released under the terms of the MIT License:
 
