@@ -231,7 +231,7 @@ end
 function funcs.OldWriteVariable(writer, node, rawName)
 	--Write the typed.variable.model attributes.
 	common.CopyAttribIfPresent(writer, node, "optional")
-	common.CopyAttribIfPresent(writer, node, "sync", "externalsync")
+	common.CopyAttribIfPresent(writer, node, "sync", "externsync")
 	if(node.attr["auto-validity"] ~= nil) then
 		writer:AddAttribute("noautovalidity", tostring(node.attr["auto-validity"] == "false"))
 	end

@@ -16,7 +16,7 @@ local children =
 				notation = "comment",
 				["match-api"] = "supported",
 				define = "protect",
-				author = "number",
+				author = "author",
 				contact = "contact",
 			},
 		},

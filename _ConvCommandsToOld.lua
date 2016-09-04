@@ -77,6 +77,14 @@ local children =
 		{
 			name = "command",
 			
+			map_attribs =
+			{
+				queues = true,
+				renderpass = true,
+				cmdbufferlevel = true,
+			},
+			
+			
 			proc = WriteCommand,
 		},
 
@@ -87,7 +95,7 @@ local children =
 return {
 	test = "commands",
 	
-	element = { name = "command", },
+	element = { name = "commands", },
 	
 	children = children
 }

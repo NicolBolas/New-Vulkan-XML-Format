@@ -10,8 +10,11 @@ function funcs.TableAttribToOldEnumModel()
 	return
 	{
 		name = "name",
+		notation = "comment",
 		number = "value",
-		hex = "value",
+		hex = function(value, node)
+			return "value", "0x" .. value
+		end,
 		["c-expression"] = "value",
 		bitpos = "bitpos",
 	}

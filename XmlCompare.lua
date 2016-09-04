@@ -40,8 +40,27 @@ end
 
 local elementStack = {}
 
+local function PushStack(node)
+	elementStack[#elementStack + 1] = node
+end
+
 local function BuildPath()
-	return table.concat(elementStack, "/")
+	local data = {""}
+	for n_ix, node in ipairs(elementStack) do
+		local parent = node.parent
+		if(parent.type == "document") then
+			data[n_ix + 1] = string.format("%s[%i]", node.name, 1)
+		else
+			for ix, test in ipairs(parent.el) do
+				if(test == node) then
+					data[n_ix + 1] = string.format("%s[%i]", node.name, ix)
+				end
+			end
+		end
+	end
+
+
+	return table.concat(data, "/")
 end
 
 local errors = {}
@@ -61,7 +80,7 @@ NodeComps =
 {
 	text = function(lhs_node, rhs_node)
 		if(lhs_node.value ~= rhs_node.value) then
-			ErrorOut("Text nodes don't match.", lhs_node.value, rhs_node.value)
+			--ErrorOut("Text nodes don't match.", lhs_node.value, rhs_node.value)
 		end
 	end,
 	element = function(lhs_node, rhs_node)
@@ -70,7 +89,7 @@ NodeComps =
 			return
 		end
 		
-		elementStack[#elementStack + 1] = lhs_node.name
+		PushStack(lhs_node)
 		
 		--Check attributes.
 		do
@@ -80,7 +99,7 @@ NodeComps =
 					ErrorOut("LHS element has an attribute not found in RHS.",
 						attrib.name)
 				elseif(rhs_node.attr[attrib.name] ~= attrib.value) then
-					ErrorOut("The attribute '" .. attrib.name "' has different values.",
+					ErrorOut("The attribute '" .. attrib.name .. "' has different values.",
 						'"' .. attrib.value .. '"', '"' .. rhs_node.attr[attrib.name] .. '"')
 				end
 				

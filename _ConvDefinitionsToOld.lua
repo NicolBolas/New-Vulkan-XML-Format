@@ -172,7 +172,7 @@ local children =
 			{
 				name = "name",
 				notation = "comment",
-				include = "include",
+				include = "requires",
 			},
 		}
 	},
