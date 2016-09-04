@@ -81,15 +81,24 @@ function funcs.ParseTextType(str, type_only)
 	return typedef, next
 end
 
---Returns a table containing:
---	
+--Returns a table containing (in accord with reg.struct.member.attlist:
+--	`const = true`: if it is a const type.
+--	`struct = true`: if the basetype needs the `struct` prefix.
+--	`bastype`: The basic type
+--	`reference`: One of the reference strings, if any.
+--	`name`: The name of the variable, if any.
+--	`array`
+--	`size`
+--	`sync`
+--	`extension-structs`
+--	`auto-validity`
+--	`type-enums`
 function funcs.ParseMemberParam(mem_node)
 	local member = {}
 	
 	--Get member flags and fields.
-	if(mem_node.attr.optional == "true") then
-		member.optional = true
-	end
+	member.optional = mem_node.attr.optional
+
 	if(mem_node.attr.len) then
 		--Length is a comma-separated list.
 		for len_data in mem_node.attr.len:gmatch("[^,]+") do

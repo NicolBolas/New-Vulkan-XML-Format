@@ -917,9 +917,13 @@ div
         attribute null-terminate { reg.boolean.data }
 
     reg.variable.optional.attrib =
-        ## If set to "true", then the variable may be a null-pointer or zero, depending on the type.
+        ## A sequence of comma-separated boolean values.
+        ## Each boolean value represents a particular indirection, starting from the outermost
+        ## pointer. The true/false represents whether that indirection is optional.
+        ## For example, if an integer pointer type has `optional` set to `false,true`,
+        ## this means that the pointer is required, but the integer value may be zero.
         [a:default-value = "false"]
-        attribute optional { reg.boolean.data }
+        attribute optional { reg.csboolean.data }
 
     reg.variable.auto-validity.attrib =
         ## If set to "false", then auto-validation for the variable should not be generated.
@@ -1104,10 +1108,13 @@ div
     ## Not prefixed with "0x"
     reg.hexadecimal.data = text
     
-    ## Comma separated identifiers.
+    ## Comma-separated boolean values.
     reg.csident.data = text
     
     reg.boolean.data = xsd:boolean
+    
+    ## Comma-separated boolean values.
+    reg.csboolean.data = text
 }
 
 ## Supplementary elements and definitions.
