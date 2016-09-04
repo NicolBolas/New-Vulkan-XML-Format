@@ -32,7 +32,11 @@ local registry_proc =
 }
 
 --Actual Conversion.
-local input = parse_dom.DOM()
+local hFile = assert(io.open("src/vk.xml"))
+local str = hFile:read("*a")
+hFile:close()
+
+local input = slaxmldom:dom(str)
 
 local filename = ... or "vk_new2.xml"
 
