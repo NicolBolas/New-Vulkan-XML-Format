@@ -281,15 +281,21 @@ div
             reg.type.static.array.model |
             reg.type.dynamic.array.model
             
-        ## Static arrays have `array` set to "static" and `size` set to a number or
-        ## constant reference.
+        ## Static arrays have `array` set to "static" and the sizing attribute.
         reg.type.static.array.model =
             reg.type.static.array.attrib,
-            reg.type.static.array.size.attrib
+            reg.type.static.array.size.model
+            
+        ## Static sizes can be integer constants or enumerator references.
+        reg.type.static.array.size.model =
+            reg.type.static.array.size.attrib |
+            reg.type.static.array.size-enumref.attrib
 
         ## Dynamic arrays have `array` set to "dynamic", and may have
-        ## either the `null-terminate` attribute or the `size` attribute or both.
+        ## the `null-terminate` attribute, `size` attribute, or both.
         ## If it has neither, then the size is not determinable.
+        ## If it has both, then the `null-terminate` size refers to a `char*` of
+        ## some form, with the `size` referring to the outer array.
         reg.type.dynamic.array.model =
             reg.type.dynamic.array.attrib,
             reg.type.dynamic.array.size.attrib?,
@@ -887,10 +893,13 @@ div
         attribute array { "static" }
 
     reg.type.static.array.size.attrib =
-        ## The length of a static array variable, specified as an integer literal or an
-        ## identifier that references a `constant`.
+        ## The length of a static array variable, specified as an integer literal
         ## Must be present on all static arrays.
-        attribute size { xsd:positiveInteger | reg.identifier.data }
+        attribute size { xsd:positiveInteger }
+        
+    reg.type.static.array.size-enumref.attrib =
+        ## The length of a static array variable, specified as an enumerator reference.
+        attribute size-enumref {reg.identifier.data}
 
     reg.type.dynamic.array.attrib =
         ## The variable is a runtime sized array.

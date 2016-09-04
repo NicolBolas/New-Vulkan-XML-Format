@@ -391,15 +391,23 @@ Static arrays must have a `size`; dynamic do not.</a:documentation>
                 </choice>
             </define>
             <define name="reg.type.static.array.model">
-                <a:documentation>Static arrays have `array` set to "static" and `size` set to a number or
-constant reference.</a:documentation>
+                <a:documentation>Static arrays have `array` set to "static" and the sizing attribute.</a:documentation>
                 <ref name="reg.type.static.array.attrib"/>
-                <ref name="reg.type.static.array.size.attrib"/>
+                <ref name="reg.type.static.array.size.model"/>
+            </define>
+            <define name="reg.type.static.array.size.model">
+                <a:documentation>Static sizes can be integer constants or enumerator references.</a:documentation>
+                <choice>
+                    <ref name="reg.type.static.array.size.attrib"/>
+                    <ref name="reg.type.static.array.size-enumref.attrib"/>
+                </choice>
             </define>
             <define name="reg.type.dynamic.array.model">
                 <a:documentation>Dynamic arrays have `array` set to "dynamic", and may have
-either the `null-terminate` attribute or the `size` attribute or both.
-If it has neither, then the size is not determinable.</a:documentation>
+the `null-terminate` attribute, `size` attribute, or both.
+If it has neither, then the size is not determinable.
+If it has both, then the `null-terminate` size refers to a `char*` of
+some form, with the `size` referring to the outer array.</a:documentation>
                 <ref name="reg.type.dynamic.array.attrib"/>
                 <optional>
                     <ref name="reg.type.dynamic.array.size.attrib"/>
@@ -1237,13 +1245,15 @@ associated `size` attribute</a:documentation>
         </define>
         <define name="reg.type.static.array.size.attrib">
             <attribute name="size">
-                <a:documentation>The length of a static array variable, specified as an integer literal or an
-identifier that references a `constant`.
+                <a:documentation>The length of a static array variable, specified as an integer literal
 Must be present on all static arrays.</a:documentation>
-                <choice>
-                    <data type="positiveInteger"/>
-                    <ref name="reg.identifier.data"/>
-                </choice>
+                <data type="positiveInteger"/>
+            </attribute>
+        </define>
+        <define name="reg.type.static.array.size-enumref.attrib">
+            <attribute name="size-enumref">
+                <a:documentation>The length of a static array variable, specified as an enumerator reference.</a:documentation>
+                <ref name="reg.identifier.data"/>
             </attribute>
         </define>
         <define name="reg.type.dynamic.array.attrib">
@@ -1276,8 +1286,12 @@ then the null-terminator refers only to the innermost string pointers.</a:docume
         </define>
         <define name="reg.variable.optional.attrib">
             <attribute name="optional" a:default-value="false">
-                <a:documentation>If set to "true", then the variable may be a null-pointer or zero, depending on the type.</a:documentation>
-                <ref name="reg.boolean.data"/>
+                <a:documentation>A sequence of comma-separated boolean values.
+Each boolean value represents a particular indirection, starting from the outermost
+pointer. The true/false represents whether that indirection is optional.
+For example, if an integer pointer type has `optional` set to `false,true`,
+this means that the pointer is required, but the integer value may be zero.</a:documentation>
+                <ref name="reg.csboolean.data"/>
             </attribute>
         </define>
         <define name="reg.variable.auto-validity.attrib">
@@ -1537,11 +1551,15 @@ Not prefixed with "0x"</a:documentation>
             <text/>
         </define>
         <define name="reg.csident.data">
-            <a:documentation>Comma separated identifiers.</a:documentation>
+            <a:documentation>Comma-separated boolean values.</a:documentation>
             <text/>
         </define>
         <define name="reg.boolean.data">
             <data type="boolean"/>
+        </define>
+        <define name="reg.csboolean.data">
+            <a:documentation>Comma-separated boolean values.</a:documentation>
+            <text/>
         </define>
     </div>
     <div>

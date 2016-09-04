@@ -89,6 +89,7 @@ end
 --	`name`: The name of the variable, if any.
 --	`array`
 --	`size`
+--	`size-enumref`
 --	`sync`
 --	`extension-structs`
 --	`auto-validity`
@@ -190,7 +191,7 @@ function funcs.ParseMemberParam(mem_node)
 			pos = pos + 1
 			sub_node = mem_node.kids[pos]
 			assert(sub_node.type == "element")
-			member.size = common.ExtractFullText(sub_node)				
+			member["size-enumref"] = common.ExtractFullText(sub_node)				
 		end
 	end
 	
@@ -276,11 +277,11 @@ function funcs.OldWriteVariable(writer, node, rawName)
 		--Static array numeric sizes don't need an element.
 		--Non-numeric sizes do.
 		writer:AddText("[")
-		if(node.attr.size:match("^%d+$")) then
+		if(node.attr.size) then
 			writer:AddText(node.attr.size)
 		else
 			writer:PushElement("enum")
-			writer:AddText(node.attr.size)
+			writer:AddText(node.attr["size-enumref"])
 			writer:PopElement()
 		end
 		writer:AddText("]")
