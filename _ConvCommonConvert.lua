@@ -17,6 +17,13 @@ local toNewReqRemUsage =
 	
 	element =
 	{	name = "usage",
+	
+		map_attribs =
+		{
+			command = true,
+			struct = true,
+		},
+
 		proc = function(writer, node)
 			writer:AddText(common.ExtractFullText(node))
 		end
