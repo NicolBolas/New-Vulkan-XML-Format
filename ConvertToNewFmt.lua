@@ -1,65 +1,43 @@
-
 require "_Utils"
 local XmlWriter = require_local_path("LuaTools/", "XmlWriter")
-local parse_vk = require "_ParseVk"
+local slaxmldom = require_local_path("SLAXML/", "slaxdom")
+local trans = require "_TranslateXML"
 
---Has the writers for the internal data.
-local internal_writers =
+
+local registry_proc =
 {
-	vendorids =		require "_NewVendorIdsWriters",
-	tags =			require "_NewTagsWriters",
-	definitions =	require "_NewTypesWriters",
-	constants =		require "_NewConstantsWriters",
-	enums =			require "_NewEnumsWriters",
-	commands =		require "_NewCommandsWriters",
-	features =		require "_NewFeaturesWriters",
-	extensions =	require "_NewFeaturesWriters", --From same place.
+	{	test = "registry",
+		
+		element =
+		{
+			name = "registry",
+		},
+		
+		children =
+		{
+			require "_ConvCommentToNew",
+			require "_ConvVendorIdsToNew",
+			require "_ConvTagsToNew",
+			require "_ConvTypesToNew",
+			require "_ConvEnumConstantsToNew",
+			require "_ConvEnumsToNew",
+			require "_ConvCommandsToNew",
+			require "_ConvFeatureToNew",
+			require "_ConvExtensionsToNew",
+		},
+	},
 }
 
---Writers for the root elements
-local root_kinds = {}
+--Actual Conversion.
+local hFile = assert(io.open("src/vk.xml"))
+local str = hFile:read("*a")
+hFile:close()
 
-function root_kinds.notation(writer, data)
-	writer:PushElement("notation")
-	writer:AddText(data.text)
-	writer:PopElement()
-end
-
---Generate most of the writers from the `internal_writers` table.
-for name, writers in pairs(internal_writers) do
-	root_kinds[name] = function(writer, data)
-		writer:PushElement(name)
-		
-		for _, child in ipairs(data) do
-			if(child.kind) then
-				assert(writers[child.kind], name .. " " .. child.kind)
-				writers[child.kind](writer, child)
-			else
-				--TODO: Write out verbatim XML data.
-			end
-		end
-		
-		writer:PopElement()
-	end
-end
-
-local input = parse_vk.Parse()
+local input = slaxmldom:dom(str)
 
 local filename = ... or "vk_new.xml"
 
 local writer = XmlWriter.XmlWriter(filename)
-
 writer:AddProcessingInstruction("oxygen", [[RNGSchema="new_registry.rnc" type="compact"]])
-
-writer:PushElement("registry")
-
-for _, data in ipairs(input) do
-	if(data.kind) then
-		assert(root_kinds[data.kind], data.kind)
-		root_kinds[data.kind](writer, data)
-	end
-end
-
-writer:PopElement()
-
+trans.TranslateXML(writer, input.kids, registry_proc)
 writer:Close()

@@ -856,7 +856,7 @@ Represents a specific major/minor version of Vulkan.</a:documentation>
                 <ref name="reg.named.ident.model"/>
             </define>
             <define name="reg.feature.commandref.elem">
-                <element name="commandref.elem">
+                <element name="commandref">
                     <a:documentation>Reference to a named `commands` child.</a:documentation>
                     <ref name="reg.feature.commandref.contents"/>
                 </element>
