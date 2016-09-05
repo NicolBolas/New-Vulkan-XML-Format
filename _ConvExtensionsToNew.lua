@@ -17,13 +17,28 @@ return {	test = "extensions",
 			{	name = "extension",
 				map_attribs =
 				{
-					name = "name",
+					name = true,
 					number = true,
 					author = true,
 					contact = true,
+					requires = true,
+					type = true,
 					protect = "define",
-					supported = "match-api",
 					comment = "notation",
+				},
+				
+				attribs =
+				{
+					["match-api"] = function(node)
+						if(node.attr.supported and node.attr.supported ~= "disabled") then
+							return node.attr.supported
+						end
+					end,
+					disabled = function(node)
+						if(node.attr.supported == "disabled") then
+							return "true"
+						end
+					end,
 				},
 			},
 			

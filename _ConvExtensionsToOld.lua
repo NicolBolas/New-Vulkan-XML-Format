@@ -11,13 +11,24 @@ local children =
 			
 			map_attribs =
 			{
-				name = "name",
-				number = "number",
+				name = true,
+				number = true,
+				author = true,
+				contact = true,
+				requires = true,
+				type = true,
 				notation = "comment",
-				["match-api"] = "supported",
 				define = "protect",
-				author = "author",
-				contact = "contact",
+			},
+			
+			attribs =
+			{
+				supported = function(node)
+					if(node.attr.disabled) then
+						return "disabled"
+					end
+					return node.attr["match-api"]
+				end
 			},
 		},
 

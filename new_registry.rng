@@ -812,7 +812,7 @@ Represents a specific major/minor version of Vulkan.</a:documentation>
                 <ref name="reg.feature.api.attrib"/>
                 <ref name="reg.feature.version.attrib"/>
                 <optional>
-                    <ref name="ref.feature.define.attrib"/>
+                    <ref name="reg.feature.define.attrib"/>
                 </optional>
             </define>
             <define name="reg.feature.specification.model">
@@ -961,16 +961,31 @@ Represents a specific major/minor version of Vulkan.</a:documentation>
             <define name="reg.extension.attlist">
                 <ref name="reg.named.ident.model"/>
                 <ref name="reg.extension.number.attrib"/>
-                <ref name="reg.extension.match-api.attrib"/>
+                <ref name="reg.extension.api.model"/>
                 <optional>
-                    <ref name="ref.feature.define.attrib"/>
+                    <ref name="reg.feature.define.attrib"/>
                 </optional>
                 <optional>
-                    <ref name="ref.extension.author.attrib"/>
+                    <ref name="reg.extension.requires.attrib"/>
                 </optional>
                 <optional>
-                    <ref name="ref.extension.contact.attrib"/>
+                    <ref name="reg.extension.author.attrib"/>
                 </optional>
+                <optional>
+                    <ref name="reg.extension.contact.attrib"/>
+                </optional>
+            </define>
+            <define name="reg.extension.api.model">
+                <a:documentation>`type` should not be optional. Only optional now due to oddities in the API.</a:documentation>
+                <choice>
+                    <ref name="reg.extension.disabled.attrib"/>
+                    <group>
+                        <ref name="reg.extension.match-api.attrib"/>
+                        <optional>
+                            <ref name="reg.extension.type.attrib"/>
+                        </optional>
+                    </group>
+                </choice>
             </define>
             <define name="reg.extension.specification.model">
                 <choice>
@@ -1442,7 +1457,7 @@ so long as the eventual chain of targets leads to an actual command.</a:document
                 <data type="float"/>
             </attribute>
         </define>
-        <define name="ref.feature.define.attrib">
+        <define name="reg.feature.define.attrib">
             <attribute name="define">
                 <a:documentation>When generating C-style information, use this as the #define wrapper
 around this feature.</a:documentation>
@@ -1475,20 +1490,43 @@ Used to compute the offsets for enumerators and the like.</a:documentation>
                 <data type="positiveInteger"/>
             </attribute>
         </define>
+        <define name="reg.extension.disabled.attrib">
+            <attribute name="disabled">
+                <a:documentation>Specifies that the extension is disabled. If it is not present, then the extension is
+enabled.</a:documentation>
+                <value>true</value>
+            </attribute>
+        </define>
         <define name="reg.extension.match-api.attrib">
             <attribute name="match-api">
                 <a:documentation>A regex used to match an `api` tag on a `feature` element.
 If it matches, then the extension can be used with that API.</a:documentation>
             </attribute>
         </define>
-        <define name="ref.extension.author.attrib">
+        <define name="reg.extension.type.attrib">
+            <attribute name="type">
+                <a:documentation>Specifies the kind of extension: instance or device.</a:documentation>
+                <choice>
+                    <value>instance</value>
+                    <value>device</value>
+                </choice>
+            </attribute>
+        </define>
+        <define name="reg.extension.requires.attrib">
+            <attribute name="requires">
+                <a:documentation>A comma-separated list of identifiers, specifying
+extensions this extension requires in order to function.</a:documentation>
+                <ref name="reg.csident.data"/>
+            </attribute>
+        </define>
+        <define name="reg.extension.author.attrib">
             <attribute name="author">
                 <a:documentation>The name of the author of an extension, typically a company.
 When absent, can be gleamed by using the `name` and parsing out the
 author part of the name, then finding the corresponding `tag` element.</a:documentation>
             </attribute>
         </define>
-        <define name="ref.extension.contact.attrib">
+        <define name="reg.extension.contact.attrib">
             <attribute name="contact">
                 <a:documentation>The name and contact info for the person who is responsible for
 the extension. Can be inferred in the same way as `author`.</a:documentation>

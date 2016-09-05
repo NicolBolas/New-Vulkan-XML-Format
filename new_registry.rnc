@@ -578,7 +578,7 @@ div
             reg.notation.attrib?,
             reg.feature.api.attrib,
             reg.feature.version.attrib,
-            ref.feature.define.attrib?
+            reg.feature.define.attrib?
         
         reg.feature.specification.model =
             reg.feature.require.elem |
@@ -685,10 +685,16 @@ div
         reg.extension.attlist =
             reg.named.ident.model,
             reg.extension.number.attrib,
-            reg.extension.match-api.attrib,
-            ref.feature.define.attrib?,
-            ref.extension.author.attrib?,
-            ref.extension.contact.attrib?
+            reg.extension.api.model,
+            reg.feature.define.attrib?,
+            reg.extension.requires.attrib?,
+            reg.extension.author.attrib?,
+            reg.extension.contact.attrib?
+            
+        ## `type` should not be optional. Only optional now due to oddities in the API.
+        reg.extension.api.model =
+            reg.extension.disabled.attrib |
+            (reg.extension.match-api.attrib, reg.extension.type.attrib?)
 
         reg.extension.specification.model =
             reg.extension.require.elem |
@@ -1031,7 +1037,7 @@ div
         ## Version number for the feature.
         attribute version { xsd:float }
 
-    ref.feature.define.attrib =
+    reg.feature.define.attrib =
         ## When generating C-style information, use this as the #define wrapper
         ## around this feature.
         attribute define { reg.identifier.data }
@@ -1055,18 +1061,32 @@ div
         ## Used to compute the offsets for enumerators and the like.
         attribute number { xsd:positiveInteger }
     
+    reg.extension.disabled.attrib =
+        ## Specifies that the extension is disabled. If it is not present, then the extension is
+        ## enabled.
+        attribute disabled { "true" }
+        
     reg.extension.match-api.attrib =
         ## A regex used to match an `api` tag on a `feature` element.
         ## If it matches, then the extension can be used with that API.
         attribute match-api { text }
+        
+    reg.extension.type.attrib =
+        ## Specifies the kind of extension: instance or device.
+        attribute type { "instance" | "device" }
+    
+    reg.extension.requires.attrib =
+        ## A comma-separated list of identifiers, specifying
+        ## extensions this extension requires in order to function.
+        attribute requires { reg.csident.data }
 
-    ref.extension.author.attrib =
+    reg.extension.author.attrib =
         ## The name of the author of an extension, typically a company.
         ## When absent, can be gleamed by using the `name` and parsing out the
         ## author part of the name, then finding the corresponding `tag` element.
         attribute author { text }
 
-    ref.extension.contact.attrib =
+    reg.extension.contact.attrib =
         ## The name and contact info for the person who is responsible for
         ## the extension. Can be inferred in the same way as `author`.
         attribute contact { text }
