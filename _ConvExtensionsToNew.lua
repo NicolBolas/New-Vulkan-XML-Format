@@ -22,7 +22,6 @@ return {	test = "extensions",
 					author = true,
 					contact = true,
 					requires = true,
-					type = true,
 					protect = "define",
 					comment = "notation",
 				},
@@ -37,6 +36,11 @@ return {	test = "extensions",
 					disabled = function(node)
 						if(node.attr.supported == "disabled") then
 							return "true"
+						end
+					end,
+					type = function(node)
+						if(node.attr.supported ~= "disabled" and node.attr.type) then
+							return node.attr.type
 						end
 					end,
 				},
