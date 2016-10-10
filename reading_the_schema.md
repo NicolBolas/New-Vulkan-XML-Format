@@ -6,7 +6,7 @@ RelaxNG has a [comprehensive way of externally referencing a schema](http://book
 
 ## Pattern naming
 
-The naming convention for patterns used in the schema exists to make it easy to find a particular element or attribute.
+The naming convention for patterns used in the schema exists to make it easy to find a particular element or attribute. It also makes it easy to automatically generate documentation for the format.
 
 All pattern names are of the form `X.Y.Z`, with as many period-delimited divisions as needed. The meaning of each division is as follows.
 

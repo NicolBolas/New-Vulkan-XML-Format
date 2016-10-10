@@ -976,7 +976,7 @@ Represents a specific major/minor version of Vulkan.</a:documentation>
                 </optional>
             </define>
             <define name="reg.extension.api.model">
-                <a:documentation>`type` should not be optional. Only optional now due to oddities in the API.</a:documentation>
+                <a:documentation>`type` should not be optional. Only optional now due to oddities in the vk.xml spec.</a:documentation>
                 <choice>
                     <ref name="reg.extension.disabled.attrib"/>
                     <group>
@@ -1608,7 +1608,8 @@ so we do it manually.</a:documentation>
             </choice>
         </define>
         <define name="reg.csboolean.data">
-            <a:documentation>Comma-separated boolean values.</a:documentation>
+            <a:documentation>Comma-separated boolean values.
+Cannot be empty.</a:documentation>
             <data type="string">
                 <param name="pattern">(true|false)(,(true|false))*</param>
             </data>

@@ -691,7 +691,7 @@ div
             reg.extension.author.attrib?,
             reg.extension.contact.attrib?
             
-        ## `type` should not be optional. Only optional now due to oddities in the API.
+        ## `type` should not be optional. Only optional now due to oddities in the vk.xml spec.
         reg.extension.api.model =
             reg.extension.disabled.attrib |
             (reg.extension.match-api.attrib, reg.extension.type.attrib?)
@@ -1147,6 +1147,7 @@ div
     reg.boolean.data = "true" | "false"
     
     ## Comma-separated boolean values.
+    ## Cannot be empty.
     reg.csboolean.data = xsd:string{pattern = "(true|false)(,(true|false))*"}
 }
 
