@@ -505,6 +505,7 @@ div
             reg.named.ident.model,
             reg.command.renderpass.attrib?,
             reg.command.cmdbufferlevel.attrib?,
+            reg.command.pipeline.attrib?,
             reg.command.queues.attrib?
             
         reg.command.description.elem =
@@ -1018,6 +1019,10 @@ div
         ## Specifies the level of command buffer that the command can be used with.
         ## When not specified, the command does not go into a command buffer.
         attribute cmdbufferlevel { "primary" | "secondary" | "primary,secondary" }
+        
+    reg.command.pipeline.attrib =
+        ## Specifies the kind of pipeline that a command can be used with.
+        attribute pipeline { "graphics" | "compute" | "transfer" }
 
     reg.command.queues.attrib =
         ## Comma-separated list of queues that support this operation.

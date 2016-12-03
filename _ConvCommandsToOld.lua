@@ -82,6 +82,7 @@ local children =
 				queues = true,
 				renderpass = true,
 				cmdbufferlevel = true,
+				pipeline = true,
 			},
 			
 			

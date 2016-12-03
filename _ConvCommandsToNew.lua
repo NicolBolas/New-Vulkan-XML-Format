@@ -45,6 +45,7 @@ local command =
 			comment = "notation",
 			renderpass = true,
 			cmdbufferlevel = true,
+			pipeline = true,
 			queues = true
 		},
 		
