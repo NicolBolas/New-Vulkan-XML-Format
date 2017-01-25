@@ -2,3 +2,4 @@ syntax: glob
 vkreg.xpr
 *.html
 ./*.xml
+diffs/*

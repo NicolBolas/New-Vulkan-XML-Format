@@ -48,10 +48,10 @@ local function WriteCommand(writer, node)
 	--Get error codes.
 	local ret_type = common.FindChildElement(node, "return-type")
 	
-	if(ret_type.attr.successcodes) then
+	if(ret_type.attr.successcodes and #ret_type.attr.successcodes > 0) then
 		writer:AddAttribute("successcodes", ret_type.attr.successcodes)
 	end
-	if(ret_type.attr.errorcodes) then
+	if(ret_type.attr.errorcodes and #ret_type.attr.errorcodes > 0) then
 		writer:AddAttribute("errorcodes", ret_type.attr.errorcodes)
 	end
 	
@@ -83,6 +83,7 @@ local children =
 				renderpass = true,
 				cmdbufferlevel = true,
 				pipeline = true,
+				notation = "comment",
 			},
 			
 			
