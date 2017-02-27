@@ -54,6 +54,7 @@ local toNewReqRemType =
 	},
 }
 
+--All `enum`s in features are `enumref`s
 local toNewReqRemEnumFeature =
 {	test = "enum",
 	element =
@@ -94,6 +95,32 @@ local toNewReqRemEnumExtension =
 	},
 }
 
+--In extensions, `enum`s which have no data are `enumref`s.
+local toNewReqRemEnumrefFromEnum =
+{
+	test = function(node)
+		if(node.type ~= "element") then return false end
+		if(node.name ~= "enum") then return false end
+		
+		--Reference elements only have `name` and optionally `comment` attributes.
+		for attrib, _ in pairs(node.attr) do
+			if(not (type(attrib) == "number" and attrib <= #node.attr)) then
+				if(attrib ~= "name" and attrib ~= "comment") then return false end
+			end
+		end
+		
+		return true
+	end,
+	element =
+	{	name = "enumref",
+		map_attribs =
+		{
+			name = "name",
+			comment = "notation",
+		},
+	},
+}
+
 local toNewReqRemConstant =
 {	test = "enum",
 	element = 
@@ -116,8 +143,8 @@ local toNewReqRemConstant =
 				--then it's an enum reference.
 				elseif(val:match("^[_%a][_%w]*$")) then
 					name, value = "enumref", val
-				else
-					name, value = enums.OldEnumNodeToNewAttrib(node)
+--				else
+--					name, value = enums.OldEnumNodeToNewAttrib(node)
 				end
 			end
 			
@@ -135,6 +162,7 @@ local toNewReqRemConstant =
 
 local toNewExtensionReqRem =
 {
+	toNewReqRemEnumrefFromEnum,
 	toNewReqRemEnumExtension,
 	toNewReqRemConstant,
 	toNewReqRemType,

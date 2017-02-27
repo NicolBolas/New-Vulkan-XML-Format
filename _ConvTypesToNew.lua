@@ -57,10 +57,9 @@ local child_include =
 }
 
 
+--The `requires` node is not required.
 local child_require =
-{	test = function(node)
-		return node.name == "type" and node.attr.category == nil and node.attr.requires
-	end,
+{	test = TestCategory(nil),
 	
 	element =
 	{	name = "reference",

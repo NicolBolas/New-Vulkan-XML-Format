@@ -143,15 +143,16 @@ div
             reg.typedef.basetype.attrib
             
         reg.reference.elem =
-            ## Definition that references a type that comes from an include file.
+            ## Definition that references a type that potentially comes from an include file.
             element reference { reg.reference.contents }
         
         reg.reference.contents =
             reg.reference.attlist
             
         reg.reference.attlist =
+            ##Standard types like `int` do not need the `include` file.
             reg.named.ident.model,
-            reg.reference.include.attrib
+            reg.reference.include.attrib?
             
         reg.def.bitmask.elem =
             ## Definition that specifies a bitmask, using a particular existing type.
@@ -695,7 +696,7 @@ div
         ## `type` should not be optional. Only optional now due to oddities in the API.
         reg.extension.api.model =
             reg.extension.disabled.attrib |
-            (reg.extension.match-api.attrib, reg.extension.type.attrib?)
+            (reg.extension.match-api.attrib, reg.extension.type.attrib)
 
         reg.extension.specification.model =
             reg.extension.require.elem |
