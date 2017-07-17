@@ -23,8 +23,10 @@ return {
 	test = "vendorids",
 	
 	element =
-	{
-		name = "vendorids",
+	{	name = "vendorids",
+		map_attribs =
+		{	notation = "comment",
+		},
 	},
 	
 	children = children

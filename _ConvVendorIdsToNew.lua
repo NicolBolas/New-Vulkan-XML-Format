@@ -4,6 +4,9 @@ local common = require "_ConvCommon"
 return {	test = "vendorids",
 	element =
 	{	name = "vendorids",
+		map_attribs =
+		{	comment = "notation",
+		},
 	},
 	
 	children =

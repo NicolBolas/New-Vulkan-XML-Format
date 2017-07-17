@@ -316,6 +316,20 @@ local struct_member =
 			common.WriteTblAsAttribs(writer, member)
 		end
 	},
+	
+	children =
+	{
+		{	test = "comment",
+			element =
+			{	name = "notation",
+			
+				proc = function(writer, node)
+					print(common.ExtractFullText(node))
+					writer:AddText(common.ExtractFullText(node))
+				end,
+			},
+		},
+	},
 }
 
 local child_struct =
@@ -372,6 +386,10 @@ local children =
 return {	test = "types",
 	element =
 	{	name = "definitions",
+		map_attribs =
+		{	comment = "notation",
+		},
+
 	},
 	
 	children = children,

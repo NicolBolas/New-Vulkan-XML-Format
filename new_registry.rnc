@@ -17,22 +17,31 @@ div
        
     reg.registry.contents =
         reg.registry.attlist,
-        reg.notation.elem?,
+        reg.notation.elem*,
         reg.vendorids.elem?,
+        reg.notation.elem*,
         reg.tags.elem?,
+        reg.notation.elem*,
         reg.definitions.elem,
+        reg.notation.elem*,
         reg.constants.elem?,
+        reg.notation.elem*,
         reg.enums.elem?,
+        reg.notation.elem*,
         reg.commands.elem,
+        reg.notation.elem*,
         reg.features.elem,
-        reg.extensions.elem?
+        reg.notation.elem*,
+        reg.extensions.elem?,
+        reg.notation.elem*
     
     reg.registry.attlist = empty
 
     reg.notation.elem =
-        ##A textual annotation regarding a particular element.
+        ## A textual annotation. These are usually intended to be reproduced verbatim
+        ## in some way in any generated files.
         element notation { text }
-
+        
     ## Attributes for (almost) any element that represents an identifier in Vulkan.
     ## All such identifiers can have a notation.
     reg.named.ident.model =
@@ -49,8 +58,9 @@ div
         reg.vendorids.contents =
             reg.vendorids.attlist,
             reg.vendorid.elem+
-            
-        reg.vendorids.attlist = empty
+        
+        reg.vendorids.attlist =
+            reg.notation.attrib?
         
         reg.vendorid.elem =
             ## List of identifiers for vendors.
@@ -72,7 +82,8 @@ div
             reg.tags.attlist,
             reg.tag.elem+
             
-        reg.tags.attlist = empty
+        reg.tags.attlist =
+            reg.notation.attrib?
         
         reg.tag.elem =
             ## A single author for Vulkan
@@ -99,9 +110,11 @@ div
             reg.definitions.attlist,
             reg.definitions.model+
 
-        reg.definitions.attlist = empty
+        reg.definitions.attlist =
+            reg.notation.attrib?
         
         reg.definitions.model =
+            reg.notation.elem |
             reg.include.elem | 
             ## Formerly `basetype`
             reg.typedef.elem | 
@@ -181,14 +194,14 @@ div
         ## Defines can also reference other definitions.    
         reg.define.contents =
             reg.define.attlist,
-            reg.comment.elem?,
+            reg.define.comment.elem?,
             reg.define.model
             
         reg.define.attlist =
             reg.named.ident.model,
             reg.define.disabled.attrib?
             
-        reg.comment.elem =
+        reg.define.comment.elem =
             ## Specifies a possibly multi-line in-language comment which is expected to be
             ## placed near the element in which `comment` appears.
             element comment {text}
@@ -258,7 +271,11 @@ div
             element member { reg.struct.member.contents }
         
         reg.struct.member.contents =
-            reg.struct.member.attlist
+            reg.struct.member.attlist,
+            reg.struct.member.model
+            
+        reg.struct.member.model =
+            reg.notation.elem*
     
         reg.struct.member.attlist =
             reg.named.ident.model,
@@ -403,6 +420,10 @@ div
             
         reg.constants.contents =
             reg.constants.attlist,
+            reg.constants.model
+            
+        reg.constants.model =
+            reg.notation.elem* &
             reg.constant.elem+
             
         reg.constants.attlist = empty
@@ -435,6 +456,10 @@ div
             
         reg.enums.contents =
             reg.enums.attlist,
+            reg.enums.model
+            
+        reg.enums.model =
+            reg.notation.elem* &
             reg.enumeration.elem+
     
         reg.enums.attlist =
@@ -490,7 +515,8 @@ div
             reg.commands.attlist,
             (reg.command.elem | reg.command-alias.elem)+
 
-        reg.commands.attlist = empty
+        reg.commands.attlist =
+            reg.notation.attrib?
         
         reg.command.elem =
             ## Defines a single Vulkan entrypoint.
@@ -573,7 +599,7 @@ div
         
         reg.feature.contents =
             reg.feature.attlist,
-            reg.feature.specification.model+
+            reg.feature.model
             
         reg.feature.attlist =
             reg.api.name.attrib,
@@ -581,6 +607,10 @@ div
             reg.feature.api.attrib,
             reg.feature.version.attrib,
             reg.feature.define.attrib?
+        
+        reg.feature.model =
+            reg.notation.elem* &
+            reg.feature.specification.model+
         
         reg.feature.specification.model =
             reg.feature.require.elem |
@@ -682,7 +712,7 @@ div
         
         reg.extension.contents =
             reg.extension.attlist,
-            reg.extension.specification.model+
+            reg.extension.model
 
         reg.extension.attlist =
             reg.named.ident.model,
@@ -697,6 +727,10 @@ div
         reg.extension.api.model =
             reg.extension.disabled.attrib |
             (reg.extension.match-api.attrib, reg.extension.type.attrib)
+
+        reg.extension.model =
+            reg.notation.elem* &
+            reg.extension.specification.model+
 
         reg.extension.specification.model =
             reg.extension.require.elem |

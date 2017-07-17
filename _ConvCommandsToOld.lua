@@ -97,7 +97,13 @@ local children =
 return {
 	test = "commands",
 	
-	element = { name = "commands", },
+	element =
+	{	name = "commands",
+		map_attribs =
+		{	notation = "comment",
+		},
+
+	},
 	
 	children = children
 }

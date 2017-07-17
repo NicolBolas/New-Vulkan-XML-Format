@@ -86,8 +86,7 @@ local struct_children =
 		test = "member",
 		
 		element =
-		{
-			name = "member",
+		{	name = "member",
 			verbatim = true,
 			
 			map_attribs =
@@ -97,6 +96,18 @@ local struct_children =
 			},
 			
 			proc = types.OldWriteVariable,
+			
+			children = {
+				{	test = "notation",
+					element =
+					{	name = "comment",
+					
+						proc = function(writer, node)
+							writer:AddText(common.ExtractFullText(node))
+						end
+					},
+				},
+			},
 		},
 	},
 	convert.cmdStructValidityToOld,
@@ -425,7 +436,12 @@ local children =
 return {
 	test = "definitions",
 	
-	element = { name = "types", },
+	element =
+	{	name = "types",
+		map_attribs =
+		{	notation = "comment",
+		},
+	},
 	
 	children = children
 }

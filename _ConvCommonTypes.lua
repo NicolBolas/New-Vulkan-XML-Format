@@ -81,6 +81,18 @@ function funcs.ParseTextType(str, type_only)
 	return typedef, next
 end
 
+--Advances pos to the next child of `mem_node` (pos may be zero)
+--Skips any node that is a `comment` element.
+local function AdvanceAndSkipComments(mem_node, pos)
+
+	repeat
+		pos = pos + 1
+		local sub_node = mem_node.kids[pos]
+	until((not sub_node) or sub_node.type ~= "element" or sub_node.name ~= "comment")
+
+	return mem_node.kids[pos], pos
+end
+
 --Returns a table containing (in accord with reg.struct.member.attlist:
 --	`const = true`: if it is a const type.
 --	`struct = true`: if the basetype needs the `struct` prefix.
@@ -94,6 +106,7 @@ end
 --	`extension-structs`
 --	`auto-validity`
 --	`type-enums`
+--A second return value is a table of `comment` strings, or nil if there are no comments.
 function funcs.ParseMemberParam(mem_node)
 	local member = {}
 	
@@ -132,8 +145,7 @@ function funcs.ParseMemberParam(mem_node)
 		member["type-enums"] = mem_node.attr.values
 	end
 
-	local pos = 1
-	local sub_node = mem_node.kids[pos]
+	local sub_node, pos = AdvanceAndSkipComments(mem_node, 0)
 	
 	--Check for const and/or struct.
 	if(sub_node.type == "text") then
@@ -147,17 +159,14 @@ function funcs.ParseMemberParam(mem_node)
 		end
 		
 		assert(member.const or member.struct)
-		pos = pos + 1
+		sub_node, pos = AdvanceAndSkipComments(mem_node, pos)
 	end
-	
-	sub_node = mem_node.kids[pos]
 	
 	--Extract type.
 	assert(sub_node.type == "element" and sub_node.name == "type")
 	member.basetype = common.ExtractFullText(sub_node)
 	
-	pos = pos + 1
-	sub_node = mem_node.kids[pos]
+	sub_node, pos = AdvanceAndSkipComments(mem_node, pos)
 	
 	--Extract pointer/references.
 	--Sometimes, no text between `type` and `name`.
@@ -167,8 +176,7 @@ function funcs.ParseMemberParam(mem_node)
 			member.reference = reference
 		end
 	
-		pos = pos + 1
-		sub_node = mem_node.kids[pos]
+		sub_node, pos = AdvanceAndSkipComments(mem_node, pos)
 	end
 
 	--Extract the member name.
@@ -176,8 +184,7 @@ function funcs.ParseMemberParam(mem_node)
 	member.name = common.ExtractFullText(sub_node)
 	
 	--Extract static arrays.
-	pos = pos + 1
-	sub_node = mem_node.kids[pos]
+	sub_node, pos = AdvanceAndSkipComments(mem_node, pos, member.name)
 	
 	if(sub_node) then
 		assert(sub_node.type == "text")
@@ -194,6 +201,21 @@ function funcs.ParseMemberParam(mem_node)
 			member["size-enumref"] = common.ExtractFullText(sub_node)				
 		end
 	end
+	
+	--[[
+	--Find all comment children.
+	local comments = {}
+	
+	for _, elem in ipairs(node.el) do
+		if(elem.name == "comment") then
+			comments[#comments + 1] = common.ExtractFullText(elem))
+		end
+	end
+	
+	if(#comments == 0) then
+		comments = nil
+	end
+	]]
 	
 	return member
 end

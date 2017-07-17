@@ -3,9 +3,17 @@
 local funcs = {}
 
 --Packs the variadic parameters into a table, with `n` being the count of parameters.
+--For Lua 5.1
 function funcs.pack_params(...)
 	return {n = select("#", ...), ...}
 end
+
+if(not unpack) then
+	--Lua 5.2+
+	unpack = table.unpack
+	funcs.pack_params = table.pack
+end
+
 
 --Performs `require`, using a given local path. Restores the path afterwards.
 --Path should be the local directory name, ending in a `/`

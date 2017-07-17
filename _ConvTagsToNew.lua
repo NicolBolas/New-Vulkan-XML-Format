@@ -4,6 +4,9 @@ local common = require "_ConvCommon"
 return {	test = "tags",
 	element =
 	{	name = "tags",
+		map_attribs =
+		{	comment = "notation",
+		},
 	},
 	
 	children =

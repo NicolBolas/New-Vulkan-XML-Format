@@ -23,8 +23,10 @@ return {
 	test = "tags",
 	
 	element =
-	{
-		name = "tags",
+	{	name = "tags",
+		map_attribs =
+		{	notation = "comment",
+		},
 	},
 	
 	children = children
