@@ -384,6 +384,7 @@ local children =
 				name = "name",
 				notation = "comment",
 				["is-return"] = "returnedonly",
+				extends = "structextends",
 			},
 			
 			proc = function(writer, node)

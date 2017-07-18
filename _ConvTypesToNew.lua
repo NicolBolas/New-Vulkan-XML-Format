@@ -357,6 +357,7 @@ local child_struct =
 			name = "name",
 			comment = "notation",
 			returnedonly = "is-return",
+			structextends = "extends",
 		},
 	},
 	

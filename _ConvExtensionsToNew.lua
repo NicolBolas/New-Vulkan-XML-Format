@@ -8,6 +8,10 @@ return {	test = "extensions",
 
 	element =
 	{	name = "extensions",
+		map_attribs =
+		{
+			comment = "notation",
+		},
 	},
 	
 	children =

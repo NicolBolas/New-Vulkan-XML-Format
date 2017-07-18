@@ -41,6 +41,10 @@ return {
 	
 	element =
 	{	name = "extensions",
+		map_attribs =
+		{
+			notation = "comment",
+		},
 	},
 	
 	children = children
