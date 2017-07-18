@@ -96,21 +96,15 @@ local struct_children =
 			},
 			
 			proc = types.OldWriteVariable,
-			
-			children = {
-				{	test = "notation",
-					element =
-					{	name = "comment",
-					
-						proc = function(writer, node)
-							writer:AddText(common.ExtractFullText(node))
-						end
-					},
-				},
-			},
+		},
+
+		children =
+		{
+			convert.toOldComment,
 		},
 	},
 	convert.cmdStructValidityToOld,
+	convert.toOldComment,
 }
 
 local children =
@@ -171,7 +165,12 @@ local children =
 				common.WriteTextElement(writer, "name", node.attr.name)
 				writer:AddText(";")
 			end
-		}
+		},
+		
+		children =
+		{
+			convert.toOldComment,
+		},
 	},
 	{	test = "reference",
 			
@@ -185,7 +184,12 @@ local children =
 				notation = "comment",
 				include = "requires",
 			},
-		}
+		},
+		
+		children =
+		{
+			convert.toOldComment,
+		},
 	},
 	{	test = "bitmask",
 		
@@ -208,7 +212,12 @@ local children =
 				common.WriteTextElement(writer, "name", node.attr.name)
 				writer:AddText(";")
 			end
-		}
+		},
+		
+		children =
+		{
+			convert.toOldComment,
+		},
 	},
 	{	test = "define",
 			
@@ -339,7 +348,12 @@ local children =
 				common.WriteTextElement(writer, "name", node.attr.name)
 				writer:AddText(")")
 			end
-		}
+		},
+		
+		children =
+		{
+			convert.toOldComment,
+		},
 	},
 	{	test = "enumeration",
 		element =
@@ -354,7 +368,12 @@ local children =
 			proc = function(writer, node)
 				writer:AddAttribute("category", "enum")
 			end
-		}
+		},
+		
+		children =
+		{
+			convert.toOldComment,
+		},
 	},
 	{	test = "struct",
 		element =
@@ -430,6 +449,7 @@ local children =
 			end
 		},
 	},
+	convert.toOldComment,
 }
 
 

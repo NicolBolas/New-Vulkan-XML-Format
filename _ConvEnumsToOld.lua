@@ -1,8 +1,7 @@
 
 local common = require "_ConvCommon"
 local enums = require "_ConvCommonEnums"
-
-
+local convert = require "_ConvCommonConvert"
 
 local enumerator =
 {
@@ -31,6 +30,7 @@ local enumerator =
 			},
 		},
 	},
+	convert.toOldComment,
 }
 
 local children =
@@ -60,6 +60,7 @@ local children =
 
 		children = enumerator,
 	},
+	convert.toOldComment,
 }
 
 return {

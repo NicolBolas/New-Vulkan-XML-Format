@@ -26,6 +26,10 @@ return {	test = function(node)
 			end,
 	element =
 	{	name = "constants",
+		map_attribs =
+		{
+			comment = "notation",
+		},
 	},
 	
 	children = {enumerator},

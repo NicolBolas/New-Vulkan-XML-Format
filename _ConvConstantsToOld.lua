@@ -13,6 +13,7 @@ local children =
 			map_attribs =
 			{
 				name = "name",
+				notation = "comment",
 				number = "value",
 				hex = "value",
 				["c-expression"] = "value",

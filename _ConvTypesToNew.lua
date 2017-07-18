@@ -69,6 +69,11 @@ local child_require =
 			requires = "include",
 		},
 	},
+	
+	children =
+	{
+		convert.toNotation,
+	},
 }
 
 local child_define =
@@ -216,6 +221,11 @@ local child_typedef =
 			basetype = function(node) return common.ExtractTextFromChild(node, "type") end,
 		},
 	},
+	
+	children =
+	{
+		convert.toNotation,
+	},
 }
 
 local child_bitmask =
@@ -229,6 +239,11 @@ local child_bitmask =
 		},
 		
 		attribs = child_typedef.element.attribs,
+	},
+	
+	children =
+	{
+		convert.toNotation,
 	},
 }
 
@@ -256,6 +271,11 @@ local child_handle =
 			end,
 		},
 	},
+	
+	children =
+	{
+		convert.toNotation,
+	},
 }
 
 local child_enum =
@@ -263,6 +283,11 @@ local child_enum =
 	element =
 	{	name = "enumeration",
 		map_attribs = { name = "name" },
+	},
+	
+	children =
+	{
+		convert.toNotation,
 	},
 }
 
@@ -319,16 +344,7 @@ local struct_member =
 	
 	children =
 	{
-		{	test = "comment",
-			element =
-			{	name = "notation",
-			
-				proc = function(writer, node)
-					print(common.ExtractFullText(node))
-					writer:AddText(common.ExtractFullText(node))
-				end,
-			},
-		},
+		convert.toNotation,
 	},
 }
 
@@ -348,6 +364,7 @@ local child_struct =
 	{
 		struct_member,
 		convert.toNewValidity,
+		convert.toNotation,
 	},
 }
 
@@ -366,6 +383,7 @@ local child_union =
 	{
 		struct_member,
 		convert.toNewValidity,
+		convert.toNotation,
 	},
 }
 
@@ -381,6 +399,7 @@ local children =
 	child_funcptr,
 	child_struct,
 	child_union,
+	convert.toNotation,
 }
 
 return {	test = "types",

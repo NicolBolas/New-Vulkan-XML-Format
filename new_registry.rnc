@@ -149,7 +149,8 @@ div
             element typedef { reg.typedef.contents }
             
         reg.typedef.contents =
-            reg.typedef.attlist
+            reg.typedef.attlist,
+            reg.notation.elem*
             
         reg.typedef.attlist =
             reg.named.ident.model,
@@ -160,7 +161,8 @@ div
             element reference { reg.reference.contents }
         
         reg.reference.contents =
-            reg.reference.attlist
+            reg.reference.attlist,
+            reg.notation.elem*
             
         reg.reference.attlist =
             ##Standard types like `int` do not need the `include` file.
@@ -174,7 +176,8 @@ div
             element bitmask { reg.def.bitmask.contents }
             
         reg.def.bitmask.contents =
-                reg.def.bitmask.attlist
+            reg.def.bitmask.attlist,
+            reg.notation.elem*
                 
         reg.def.bitmask.attlist =
             reg.typedef.attlist,
@@ -234,7 +237,8 @@ div
             element handle { reg.handle.contents }
             
         reg.handle.contents =
-            reg.handle.attlist
+            reg.handle.attlist,
+            reg.notation.elem*
     
         reg.handle.attlist =
             reg.named.ident.model,
@@ -247,7 +251,8 @@ div
             element enumeration { reg.def.enumeration.contents }
             
         reg.def.enumeration.contents =
-            reg.def.enumeration.attlist
+            reg.def.enumeration.attlist,
+            reg.notation.elem*
             
         reg.def.enumeration.attlist =
             reg.named.ident.model
@@ -259,8 +264,12 @@ div
         
         reg.struct.contents =
             reg.struct.attlist,
-            reg.struct.member.elem+,
-            reg.validity.elem?
+            reg.struct.model
+            
+        reg.struct.model =
+            (reg.notation.elem* & reg.struct.member.elem+),
+            reg.validity.elem?,
+            reg.notation.elem*
             
         reg.struct.attlist =
             reg.named.ident.model,
@@ -355,8 +364,12 @@ div
             
         reg.union.contents =
             reg.union.attlist,
-            reg.union.member.elem+
+            reg.union.model
     
+        reg.union.model =
+            reg.notation.elem* &
+            reg.union.member.elem+
+
         reg.union.attlist =
             reg.named.ident.model
         
@@ -426,7 +439,8 @@ div
             reg.notation.elem* &
             reg.constant.elem+
             
-        reg.constants.attlist = empty
+        reg.constants.attlist =
+            reg.notation.attrib?
             
         reg.constant.elem =
             ##Contains a named constant value that is not typed to an enumeration.
@@ -463,7 +477,7 @@ div
             reg.enumeration.elem+
     
         reg.enums.attlist =
-            empty
+            reg.notation.attrib?
             
         reg.enumeration.elem =
             element enumeration { reg.enumeration.contents }
@@ -471,8 +485,9 @@ div
         reg.enumeration.contents =
             reg.enumeration.attlist,
             ## Empty enumerations are OK; extensions could fill them.
-            reg.enumeration.enum.elem*,
-            reg.enumeration.unused-range.elem*
+            (reg.notation.elem* &
+            reg.enumeration.enum.elem* &
+            reg.enumeration.unused-range.elem*)
             
         reg.enumeration.attlist =
             reg.named.ident.model,

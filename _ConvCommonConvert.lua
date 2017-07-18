@@ -8,6 +8,17 @@ local funcs = {}
 
 -------------------------------------------------------
 -- OLD TO NEW
+funcs.toNotation =
+{	test = "comment",
+	element =
+	{	name = "notation",
+
+		proc = function(writer, node)
+			writer:AddText(common.ExtractFullText(node))
+		end,
+	},
+}
+
 local toNewReqRemUsage =
 {	test = "usage",
 	collate =
@@ -168,6 +179,7 @@ local toNewExtensionReqRem =
 	toNewReqRemType,
 	toNewReqRemCommand,
 	toNewReqRemUsage,
+	funcs.toNotation,
 }
 
 local toNewFeatureReqRem =
@@ -176,6 +188,7 @@ local toNewFeatureReqRem =
 	toNewReqRemType,
 	toNewReqRemCommand,
 	toNewReqRemUsage,
+	funcs.toNotation,
 }
 
 function funcs.ToNewReqRem(is_remove, is_extension)
@@ -236,6 +249,16 @@ funcs.toNewValidity =
 
 -------------------------------------------------------
 -- NEW TO OLD
+funcs.toOldComment =
+{	test = "notation",
+	element =
+	{	name = "comment",
+	
+		proc = function(writer, node)
+			writer:AddText(common.ExtractFullText(node))
+		end
+	},
+}
 
 --Processing just the refs.
 local toOldRefs =
@@ -346,6 +369,7 @@ function funcs.TableConvToOldReqRem(isFeature)
 	end
 	
 	children[#children + 1] = toOldValidity
+	children[#children + 1] = funcs.toOldComment
 	
 	return
 	{

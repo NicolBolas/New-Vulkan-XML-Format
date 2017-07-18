@@ -1,6 +1,7 @@
 require "_Utils"
 local common = require "_ConvCommon"
 local enums = require "_ConvCommonEnums"
+local convert = require "_ConvCommonConvert"
 
 local enumerator =
 {	test = "enum",
@@ -31,12 +32,8 @@ local unused =
 	},
 }
 
-return {	test = "enums",
-
-	collate =
-	{
-		start = "enums",
-	},
+local enumeration =
+{	test = "enums",
 
 	element =
 	{	name = "enumeration",
@@ -63,6 +60,35 @@ return {	test = "enums",
 	children =
 	{
 		enumerator,
+		convert.toNotation,
 		unused,
+	},
+}
+
+return
+{	test =  "enums",
+
+	collate =
+	{
+		consecutive = true,
+		group = true,
+		start = "enums",
+
+		--Process both "enums" and "comment" nodes.
+		consume = function(node)
+			if(node.type == "element") then
+				if(node.name == "comment" or node.name == "enums") then
+					return true
+				end
+			end
+			
+			return false
+			end,
+	},
+
+	children =
+	{
+		enumeration,
+		convert.toNotation,
 	},
 }

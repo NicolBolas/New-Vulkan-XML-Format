@@ -17,7 +17,7 @@ is a table that is defined as follows:
 	--`true` or `false`, depending on whether it matches.
 	--Test matching is always in the order specified in the outer array; the first
 	--matching test wins the right to process the element.
-	test = "Input Element Name",
+	test = "Input_Element_Name",
 	
 	--When present, says that all elements that match this `test`
 	--will be processed together, with a single begin/end.
@@ -32,8 +32,22 @@ is a table that is defined as follows:
 		--followed by 2 <name>s, if the <name> parser uses `consecutive`,
 		--then it will invoke the processor for the 3 consecutive <name>s, then
 		--process the <type>, then process the 2 consecutive <name>s.
-		--So if you use `start` and `stop` elements, 
+		--So if you use `start` and `stop` elements, you can wrap runs of
+		--such elements.
 		consecutive = true,
+		
+		--Normally, when building a collation, all other processors at this level
+		--are checked against each node. This means that if earlier tests
+		--match nodes in `test`, then they will be processed by those
+		--processors instead of the collation.
+		--By setting `consume`, once we find a node that matches
+		--`test`, then the only thing that determines whether subsequent
+		--nodes go into the collation is whether they match the `consume`
+		--critera.
+		--The `consume` value may be an element name string or
+		--a general function(node) that returns `true` or `false`,
+		--depending on whether it matches.
+		consume = "Consume_Element_Name",
 	
 		--If present, then processing elements that match this test will take place
 		--after processing all non-deferred elements. The number provided by this
@@ -50,6 +64,18 @@ is a table that is defined as follows:
 		
 		--If `start` was a function, then `stop` will be called after all processing.
 		stop = function(writer) end,
+		
+		--Normally, when doing collation, each individual element in the 
+		--collation is processed by the `element` and `children` part of
+		--the rule.
+		--However, if this is set to `true`, then `element` processing is skipped.
+		--Instead, it will match the collated nodes against the `children`
+		--rules as though the collated nodes were all the child nodes of
+		--a single parent.
+		--This makes it possible to do collation on a group of multiple
+		--kinds of elements, which generate multiple kinds of elements.
+		--It will still do `start`/`stop` elements.
+		group = true,
 	}
 	
 	--Provokes the creation of an element.
@@ -186,15 +212,17 @@ local function Process(writer, node, proc)
 end
 
 
-local function ShouldProcess(node, proc)
+local function ShouldProcess(node, proc, test)
+	test = test or proc.test
+
 	--Process by match with node name.
-	if(type(proc.test) == "string") then
-		if(node.type == "element" and node.name == proc.test) then
+	if(type(test) == "string") then
+		if(node.type == "element" and node.name == test) then
 			return true
 		end
 	else
 		--Function call to test.
-		if(proc.test(node)) then
+		if(test(node)) then
 			return true
 		end
 	end
@@ -212,8 +240,13 @@ local function ProcessCollation(writer, proc, node_arr)
 		proc.collate.start(writer)
 	end
 	
-	for _, node in ipairs(node_arr) do
-		Process(writer, node, proc)
+	if(proc.collate.group == true) then
+		print(#node_arr)
+		TranslateXML(writer, node_arr, proc.children)
+	else
+		for _, node in ipairs(node_arr) do
+			Process(writer, node, proc)
+		end
 	end
 	
 	if(start_type == "string") then
@@ -233,23 +266,33 @@ end
 --Otherwise, returns all such elements.
 --Returns an array and the number of elements to skip.
 local function AccumulateCollation(start_node_ix, node_arr, test_ix, procs, consecutive)
+
+	local collate_proc = procs[test_ix]
+
 	--`start_node_ix` is assumed to point to the first matching node. So keep it.
 	local arr = { node_arr[start_node_ix] }
 	local num_elements = 1
 	for node_ix = start_node_ix + 1, #node_arr do
 		local node = node_arr[node_ix]
 		local found = false
-		for proc_ix = 1, #procs do
-			local proc = procs[proc_ix]
-			if(ShouldProcess(node, proc)) then
-				found = proc_ix
-				break
+		
+		if(collate_proc.collate.consume) then
+			if(ShouldProcess(node, collate_proc, collate_proc.collate.consume)) then
+				found = collate_proc
+			end
+		else
+			for proc_ix = 1, #procs do
+				local proc = procs[proc_ix]
+				if(ShouldProcess(node, proc)) then
+					found = collate_proc
+					break
+				end
 			end
 		end
 		
 		--Ignore unprocessed nodes.
 		if(found) then
-			if(found == test_ix) then
+			if(found == collate_proc) then
 				--Valid match, add to list
 				arr[#arr + 1] = node
 			elseif(consecutive) then
