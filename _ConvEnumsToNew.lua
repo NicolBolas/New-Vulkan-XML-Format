@@ -76,14 +76,14 @@ return
 
 		--Process both "enums" and "comment" nodes.
 		consume = function(node)
-			if(node.type == "element") then
-				if(node.name == "comment" or node.name == "enums") then
-					return true
-				end
+			if(node.type ~= "element") then
+				return true
 			end
-			
+			if(node.name == "comment" or node.name == "enums") then
+				return true
+			end
 			return false
-			end,
+		end,
 	},
 
 	children =

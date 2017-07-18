@@ -241,7 +241,6 @@ local function ProcessCollation(writer, proc, node_arr)
 	end
 	
 	if(proc.collate.group == true) then
-		print(#node_arr)
 		TranslateXML(writer, node_arr, proc.children)
 	else
 		for _, node in ipairs(node_arr) do
@@ -268,6 +267,7 @@ end
 local function AccumulateCollation(start_node_ix, node_arr, test_ix, procs, consecutive)
 
 	local collate_proc = procs[test_ix]
+	local consume = collate_proc.collate.consume
 
 	--`start_node_ix` is assumed to point to the first matching node. So keep it.
 	local arr = { node_arr[start_node_ix] }
@@ -276,30 +276,37 @@ local function AccumulateCollation(start_node_ix, node_arr, test_ix, procs, cons
 		local node = node_arr[node_ix]
 		local found = false
 		
-		if(collate_proc.collate.consume) then
-			if(ShouldProcess(node, collate_proc, collate_proc.collate.consume)) then
-				found = collate_proc
+		if(consume) then
+			--In consume mode, the consumer determines all nodes to process.
+			if(ShouldProcess(node, collate_proc, consume)) then
+				arr[#arr + 1] = node
+			else
+				if(consecutive) then
+					break
+				end
 			end
 		else
 			for proc_ix = 1, #procs do
 				local proc = procs[proc_ix]
 				if(ShouldProcess(node, proc)) then
-					found = collate_proc
+					found = proc
+					break
+				end
+			end
+			
+			--Ignore unprocessed nodes.
+			if(found) then
+				if(found == collate_proc) then
+					--Valid match, add to list
+					arr[#arr + 1] = node
+				elseif(consecutive) then
+					--We don't break if none matched, since
+					--unprocessed nodes don't count.
 					break
 				end
 			end
 		end
 		
-		--Ignore unprocessed nodes.
-		if(found) then
-			if(found == collate_proc) then
-				--Valid match, add to list
-				arr[#arr + 1] = node
-			elseif(consecutive) then
-				--early exit.
-				break
-			end
-		end
 		
 		num_elements = num_elements + 1
 	end

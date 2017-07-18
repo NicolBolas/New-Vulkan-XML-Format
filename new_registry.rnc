@@ -266,15 +266,16 @@ div
             reg.struct.attlist,
             reg.struct.model
             
+        reg.struct.attlist =
+            reg.named.ident.model,
+            reg.struct.is-return.attrib?,
+            reg.struct.extends.attrib?
+
         reg.struct.model =
             (reg.notation.elem* & reg.struct.member.elem+),
             reg.validity.elem?,
             reg.notation.elem*
             
-        reg.struct.attlist =
-            reg.named.ident.model,
-            reg.struct.is-return.attrib?
-
         reg.struct.member.elem =
             ## Specifies a named member of a data structure.
             element member { reg.struct.member.contents }
@@ -913,6 +914,11 @@ div
         ## When set to `true`, the struct is used only as a return value by the Vulkan API.
         [a:default-value = "false"]
         attribute is-return { reg.boolean.data }
+    
+    reg.struct.extends.attrib =
+        ## A comma-separated list of identifiers that represent the top-level structure
+        ## that this object can be within the `pNext` of.
+        attribute extends { reg.csident.data } 
         
     reg.type.basetype.attrib =
         ## The fundamental typename of the variable. This names a definition.
