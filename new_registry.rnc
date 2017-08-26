@@ -40,7 +40,13 @@ div
     reg.notation.elem =
         ## A textual annotation. These are usually intended to be reproduced verbatim
         ## in some way in any generated files.
-        element notation { text }
+        element notation { reg.notation.contents }
+    
+    reg.notation.contents =
+        reg.notation.attlist,
+        text
+    
+    reg.notation.attlist = empty
         
     ## Attributes for (almost) any element that represents an identifier in Vulkan.
     ## All such identifiers can have a notation.
