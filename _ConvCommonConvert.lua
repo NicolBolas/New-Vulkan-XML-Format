@@ -201,6 +201,7 @@ function funcs.ToNewReqRem(is_remove, is_extension)
 			{
 				profile = "profile",
 				comment = "notation",
+				extension = iff(is_remove, nil, true),
 			},
 		},
 		
@@ -381,6 +382,7 @@ function funcs.TableConvToOldReqRem(isFeature)
 				{
 					profile = "profile",
 					notation = "comment",
+					extension = true,
 					api = iff(isFeature == false, "api", nil),
 				},
 			},

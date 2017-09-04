@@ -648,6 +648,10 @@ div
             reg.feature.validity.elem?
             
         reg.feature.require.attlist =
+            reg.common.require.model,
+            reg.require.extension.attrib?
+            
+        reg.common.require.model =
             reg.feature.profile.attrib?,
             reg.notation.attrib?
         
@@ -764,10 +768,13 @@ div
             
         reg.extension.require.contents =
             reg.extension.require.attlist,
-            reg.feature.require.attlist,
+            reg.common.require.model,
             reg.extension.definition.model+,
             reg.feature.validity.elem?
             
+        reg.extension.require.attlist =
+            reg.extension.api.attrib?
+
         reg.extension.definition.model =
             reg.feature.defref.elem |
             reg.feature.commandref.elem |
@@ -815,16 +822,13 @@ div
             reg.extension.enum.offset.attrib,
             reg.extension.enum.negate.attrib?
             
-        reg.extension.require.attlist =
-            reg.extension.api.attrib?
-
         reg.extension.remove.elem =
             ## Exactly like the feature version, but with an optional `api` tag.
             element remove { reg.extension.remove.contents }
             
         reg.extension.remove.contents =
             reg.extension.remove.attlist,
-            reg.feature.require.attlist,
+            reg.common.require.model,
             reg.extension.definition.model+,
             reg.feature.validity.elem?
         
@@ -1118,6 +1122,11 @@ div
     reg.feature.usage.struct.attrib =
         ## Specifies the name of a <struct> which this `usage` statement extends.
         attribute struct { reg.identifier.data }
+        
+    reg.require.extension.attrib =
+        ## Specifies the name of an extension which this `require` statement needs
+        ## for its inclusions to be imported.
+        attribute extension { reg.identifier.data }
 
     reg.feature.usage.command.attrib =
         ## Specifies the name of a <command> which this `usage` statement extends.
