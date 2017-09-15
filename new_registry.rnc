@@ -312,8 +312,9 @@ div
         ## Which one is used changes the meaning of the `size` attribute.
         ## Static arrays must have a `size`; dynamic do not.
         reg.type.array.model =
-            reg.type.static.array.model |
-            reg.type.dynamic.array.model
+            (reg.type.static.array.model |
+            reg.type.dynamic.array.model),
+            reg.type.array.c-size.attrib?
             
         ## Static arrays have `array` set to "static" and the sizing attribute.
         reg.type.static.array.model =
@@ -658,7 +659,8 @@ div
         reg.feature.reference.model =
             reg.feature.defref.elem |
             reg.feature.commandref.elem |
-            reg.feature.enumref.elem
+            reg.feature.enumref.elem |
+            reg.notation.elem
             
         reg.feature.defref.elem =
             ## Reference to a named `definitions` child.
@@ -730,7 +732,8 @@ div
             reg.extensions.attlist,
             reg.extension.elem+
             
-        reg.extensions.attlist = empty
+        reg.extensions.attlist = 
+            reg.notation.attrib?
             
         reg.extension.elem =
             ## Specifies the types exposed/forbidden by an extension.
@@ -769,18 +772,23 @@ div
         reg.extension.require.contents =
             reg.extension.require.attlist,
             reg.common.require.model,
+            reg.extension.require.common.model,
             reg.extension.definition.model+,
             reg.feature.validity.elem?
             
-        reg.extension.require.attlist =
-            reg.extension.api.attrib?
+        reg.extension.require.attlist = empty
+            
+        reg.extension.require.common.model =
+            reg.extension.api.attrib?,
+            reg.require.extension.attrib?
 
         reg.extension.definition.model =
             reg.feature.defref.elem |
             reg.feature.commandref.elem |
             reg.feature.enumref.elem |
             reg.extension.constant.elem |
-            reg.extension.enum.elem
+            reg.extension.enum.elem |
+            reg.notation.elem
 
         reg.extension.constant.elem =
             ## Defines a constant exported by an extension.
@@ -829,11 +837,12 @@ div
         reg.extension.remove.contents =
             reg.extension.remove.attlist,
             reg.common.require.model,
+            reg.extension.require.common.model,
             reg.extension.definition.model+,
             reg.feature.validity.elem?
         
-        reg.extension.remove.attlist =
-            reg.extension.api.attrib?
+        reg.extension.remove.attlist = empty
+            
     }
 }
 
@@ -997,6 +1006,10 @@ div
         ## then the null-terminator refers only to the innermost string pointers.
         [a:default-value = "false"]
         attribute null-terminate { reg.boolean.data }
+        
+    reg.type.array.c-size.attrib =
+        ## A C-expression that specifies the number of elements in a static or dynamic array.
+        attribute c-size { reg.c-expression.data }
 
     reg.variable.optional.attrib =
         ## A sequence of comma-separated boolean values.
@@ -1224,6 +1237,9 @@ div
     
     ## Comma-separated boolean values.
     reg.csboolean.data = xsd:string{pattern = "(true|false)(,(true|false))*"}
+    
+    ## Text that is an expression in C.
+    reg.c-expression.data = text
 }
 
 ## Supplementary elements and definitions.

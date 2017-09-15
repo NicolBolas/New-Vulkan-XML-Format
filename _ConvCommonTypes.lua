@@ -102,6 +102,7 @@ end
 --	`array`
 --	`size`
 --	`size-enumref`
+--	`c-size`
 --	`sync`
 --	`extension-structs`
 --	`auto-validity`
@@ -112,6 +113,7 @@ function funcs.ParseMemberParam(mem_node)
 	
 	--Get member flags and fields.
 	member.optional = mem_node.attr.optional
+	member["c-size"] = mem_node.attr.altlen
 
 	if(mem_node.attr.len) then
 		--Length is a comma-separated list.
@@ -280,6 +282,10 @@ function funcs.OldWriteVariable(writer, node, rawName)
 		end
 		
 		writer:AddAttribute("len", table.concat(length, ","))
+	end
+
+	if(node.attr["c-size"]) then
+		writer:AddAttribute("altlen", node.attr["c-size"])
 	end
 	
 	--Now, write the typing information.
