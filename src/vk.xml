@@ -977,7 +977,7 @@ private version is maintained in the 1.0 branch of the member gitlab server.
             <member><type>VkSampleCountFlagBits</type>  <name>rasterizationSamples</name><comment>Number of samples used for rasterization</comment></member>
             <member><type>VkBool32</type>               <name>sampleShadingEnable</name><comment>optional (GL45)</comment></member>
             <member><type>float</type>                  <name>minSampleShading</name><comment>optional (GL45)</comment></member>
-            <member optional="true" len="latexmath:[\lceil{\mathit{rasterizationSamples} \over 32}\rceil]" altlen="ceil(rasterizationSamples / 32)">const <type>VkSampleMask</type>*    <name>pSampleMask</name><comment>Array of sampleMask words</comment></member>
+            <member optional="true" len="latexmath:[\lceil{\mathit{rasterizationSamples} \over 32}\rceil]" altlen="(rasterizationSamples + 31) / 32">const <type>VkSampleMask</type>*    <name>pSampleMask</name><comment>Array of sampleMask words</comment></member>
             <member><type>VkBool32</type>               <name>alphaToCoverageEnable</name></member>
             <member><type>VkBool32</type>               <name>alphaToOneEnable</name></member>
         </type>
@@ -1527,7 +1527,7 @@ private version is maintained in the 1.0 branch of the member gitlab server.
             <member values="VK_STRUCTURE_TYPE_VI_SURFACE_CREATE_INFO_NN"><type>VkStructureType</type> <name>sType</name></member>
             <member>const <type>void</type>*                      <name>pNext</name></member>
             <member optional="true"><type>VkViSurfaceCreateFlagsNN</type>   <name>flags</name></member>
-            <member><type>void</type>*                            <name>window</name></member>
+            <member noautovalidity="true"><type>void</type>*                            <name>window</name></member>
         </type>
         <type category="struct" name="VkWaylandSurfaceCreateInfoKHR">
             <member values="VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR"><type>VkStructureType</type> <name>sType</name></member>
@@ -2317,13 +2317,13 @@ private version is maintained in the 1.0 branch of the member gitlab server.
             <member values="VK_STRUCTURE_TYPE_IOS_SURFACE_CREATE_INFO_MVK"><type>VkStructureType</type> <name>sType</name></member>
             <member>const <type>void</type>*                                    <name>pNext</name></member>
             <member optional="true"><type>VkIOSSurfaceCreateFlagsMVK</type>     <name>flags</name></member>
-            <member>const <type>void</type>*                                    <name>pView</name></member>
+            <member noautovalidity="true">const <type>void</type>*                                    <name>pView</name></member>
         </type>
         <type category="struct" name="VkMacOSSurfaceCreateInfoMVK">
             <member values="VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK"><type>VkStructureType</type> <name>sType</name></member>
             <member>const <type>void</type>*                                    <name>pNext</name></member>
             <member optional="true"><type>VkMacOSSurfaceCreateFlagsMVK</type>   <name>flags</name></member>
-            <member>const <type>void</type>*                                    <name>pView</name></member>
+            <member noautovalidity="true">const <type>void</type>*                                    <name>pView</name></member>
         </type>
         <type category="struct" name="VkViewportWScalingNV">
             <member><type>float</type>          <name>xcoeff</name></member>
@@ -3796,7 +3796,7 @@ private version is maintained in the 1.0 branch of the member gitlab server.
             <param><type>VkDeviceSize</type> <name>offset</name></param>
             <param><type>VkDeviceSize</type> <name>size</name></param>
             <param optional="true"><type>VkMemoryMapFlags</type> <name>flags</name></param>
-            <param><type>void</type>** <name>ppData</name></param>
+            <param optional="false,true"><type>void</type>** <name>ppData</name></param>
         </command>
         <command>
             <proto><type>void</type> <name>vkUnmapMemory</name></proto>
@@ -5151,7 +5151,7 @@ private version is maintained in the 1.0 branch of the member gitlab server.
             <param><type>uint32_t</type> <name>heapIndex</name></param>
             <param><type>uint32_t</type> <name>localDeviceIndex</name></param>
             <param><type>uint32_t</type> <name>remoteDeviceIndex</name></param>
-            <param><type>VkPeerMemoryFeatureFlagsKHX</type>* <name>pPeerMemoryFeatures</name></param>
+            <param optional="false,true"><type>VkPeerMemoryFeatureFlagsKHX</type>* <name>pPeerMemoryFeatures</name></param>
         </command>
         <command successcodes="VK_SUCCESS" errorcodes="VK_ERROR_OUT_OF_HOST_MEMORY,VK_ERROR_OUT_OF_DEVICE_MEMORY">
             <proto><type>VkResult</type> <name>vkBindBufferMemory2KHR</name></proto>
@@ -5179,7 +5179,7 @@ private version is maintained in the 1.0 branch of the member gitlab server.
             <proto><type>VkResult</type> <name>vkGetDeviceGroupSurfacePresentModesKHX</name></proto>
             <param><type>VkDevice</type> <name>device</name></param>
             <param externsync="true"><type>VkSurfaceKHR</type> <name>surface</name></param>
-            <param><type>VkDeviceGroupPresentModeFlagsKHX</type>* <name>pModes</name></param>
+            <param optional="false,true"><type>VkDeviceGroupPresentModeFlagsKHX</type>* <name>pModes</name></param>
         </command>
         <command successcodes="VK_SUCCESS,VK_TIMEOUT,VK_NOT_READY,VK_SUBOPTIMAL_KHR" errorcodes="VK_ERROR_OUT_OF_HOST_MEMORY,VK_ERROR_OUT_OF_DEVICE_MEMORY,VK_ERROR_DEVICE_LOST,VK_ERROR_OUT_OF_DATE_KHR,VK_ERROR_SURFACE_LOST_KHR">
             <proto><type>VkResult</type> <name>vkAcquireNextImage2KHX</name></proto>
@@ -5222,7 +5222,7 @@ private version is maintained in the 1.0 branch of the member gitlab server.
             <param><type>VkDevice</type> <name>device</name></param>
             <param externsync="true"><type>VkDescriptorSet</type> <name>descriptorSet</name></param>
             <param><type>VkDescriptorUpdateTemplateKHR</type> <name>descriptorUpdateTemplate</name></param>
-            <param>const <type>void</type>* <name>pData</name></param>
+            <param noautovalidity="true">const <type>void</type>* <name>pData</name></param>
         </command>
         <command queues="graphics,compute" renderpass="both" cmdbufferlevel="primary,secondary">
             <proto><type>void</type> <name>vkCmdPushDescriptorSetWithTemplateKHR</name></proto>
@@ -5230,7 +5230,7 @@ private version is maintained in the 1.0 branch of the member gitlab server.
             <param><type>VkDescriptorUpdateTemplateKHR</type> <name>descriptorUpdateTemplate</name></param>
             <param><type>VkPipelineLayout</type> <name>layout</name></param>
             <param><type>uint32_t</type> <name>set</name></param>
-            <param>const <type>void</type>* <name>pData</name></param>
+            <param noautovalidity="true">const <type>void</type>* <name>pData</name></param>
         </command>
         <command>
             <proto><type>void</type> <name>vkSetHdrMetadataEXT</name></proto>
